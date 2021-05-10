@@ -11,7 +11,8 @@ class AddSurvay extends Component {
       question: '',
       answer: '',
       dropdown: ' اختار النوع',
-      answerStyle: '',
+      answerStyle: 'hidden',
+      disabled: true,
     }
   }
  
@@ -49,7 +50,7 @@ class AddSurvay extends Component {
                         <Dropdown.Item
                           eventKey="textarea"
                           onSelect={(e) => {
-                            this.setState({ dropdown: 'Textarea' ,answerStyle: 'text'})
+                            this.setState({ dropdown: 'Textarea' ,answerStyle: 'hidden',disabled:true,answer:""})
                           }}
                         >
                           textarea
@@ -57,7 +58,7 @@ class AddSurvay extends Component {
                         <Dropdown.Item
                           eventKey="Redio"
                           onSelect={(e) => {
-                            this.setState({ dropdown: 'Redio Button' ,answerStyle: 'radio' })
+                            this.setState({ dropdown: 'Redio Button' ,answerStyle: 'radio' ,disabled:false })
                           }}
                         >
                           Redio Button
@@ -65,7 +66,7 @@ class AddSurvay extends Component {
                         <Dropdown.Item
                           eventKey="cheek"
                           onSelect={(e) => {
-                            this.setState({ dropdown: 'checkbox',answerStyle: 'checkbox' })
+                            this.setState({ dropdown: 'checkbox',answerStyle: 'checkbox',disabled:false })
                           }}
                         >
                           cheekBox
@@ -97,6 +98,7 @@ class AddSurvay extends Component {
                       className="w-75"
                       maxLength="50"
                       value={this.state.answer}
+                      disabled={this.state.disabled}
                       onChange={(e) => {
                         this.setState({ answer: e.target.value })
                       }}
@@ -108,9 +110,11 @@ class AddSurvay extends Component {
                 </div>
                 <div className=" col-md-6 col-sm-12">
                   <div className="survey-card p-3">
-                    {' '}
-                    <p>{this.state.name}</p>
-                    <input type={this.state.answerStyle} />
+                  
+                    <h2>{this.state.name}</h2>
+                    <h4>{this.state. question}</h4>
+                    <input type={this.state.answerStyle}  />
+                    <label for="fname" >{this.state.answer}</label>
                    
                   </div>
                 </div>
