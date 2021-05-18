@@ -6,9 +6,12 @@ import Main from './main'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import Dropdown from 'react-bootstrap/Dropdown'
 import { Link } from 'react-router-dom'
-import AddVideo from './addVideo'
+
 import AddSurvay from './addSurvay'
-import AddApp from './addApp'
+import AddVideo from './addVedio';
+import AddApp from './addApp';
+
+
 
 class AddADS extends Component {
   state = {}
@@ -64,7 +67,7 @@ class AddADS extends Component {
         <div className="mx-3">
           <Route path="/admin/AddADS/addVedio" component={AddVideo} />
           <Route path="/admin/AddADS/AddSurvay" component={AddSurvay} />
-          <Route path="/admin/AddADS/AddApp" component={AddApp} />
+          <Route path="/admin/AddADS/AddApp"component={AddApp} />
         
         </div>
       </div>

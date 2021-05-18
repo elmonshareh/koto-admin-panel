@@ -18,7 +18,8 @@ class AddSurvay extends Component {
       answers: [],
       inputs: [],
       arrayADD: [],
-      date: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      number:0,
     }
   }
   addNewItem = () => {
@@ -38,7 +39,7 @@ class AddSurvay extends Component {
     arrayADD = [name, items, Expidate]
 
     items.push({ questions: question, answers: answers, type: answerStyle })
-
+    this.timestanp()
     this.setState({
       arrayADD,
       inputs: [],
@@ -47,6 +48,7 @@ class AddSurvay extends Component {
       answers: [],
       dropdown: 'اختار النوع',
       answerStyle: 'hidden',
+      date: new Date().toISOString().split('T')[0],
     })
 
     console.log(answers)
@@ -85,6 +87,20 @@ class AddSurvay extends Component {
 
     console.log(inputbox)
   }
+  timestanp = () => {
+    var date = this.state.date
+
+    var mint = new Date().getMinutes()
+    var hours = new Date().getHours()
+
+    var output =
+      date + ':' + ('0' + hours).slice(-2) + ':' + ('0' + mint).slice(-2)
+    var datastanp = new Date(output).getTime()
+    this.setState({ datastanp: datastanp })
+
+    console.log(datastanp)
+    console.log(output)
+  }
 
   render() {
     const {
@@ -96,6 +112,8 @@ class AddSurvay extends Component {
       answerStyle,
       items,
       arrayADD,
+      disabled,
+      number,date
     } = this.state
     console.log(arrayADD[1])
     return (
@@ -110,8 +128,8 @@ class AddSurvay extends Component {
                     <input
                       type="text"
                       name="name"
-                      className="imputservary mr-5 p-1"
-                      maxLength="50"
+                      className="imputservary px-2 mr-5 p-1"
+                      maxLength="100"
                       value={name}
                       onChange={(e) => {
                         this.setState({ name: e.target.value })
@@ -135,7 +153,7 @@ class AddSurvay extends Component {
                             onSelect={(e) => {
                               this.setState({
                                 dropdown: 'Textarea',
-                                answerStyle: 'hidden',
+                                answerStyle: 'textarea',
                                 disabled: true,
                                 answer: '',
                               })
@@ -176,16 +194,13 @@ class AddSurvay extends Component {
                     <input
                       type="text"
                       name=" question"
-                      className="imputservary p-1"
+                      className="imputservary px-2 p-1"
                       maxLength="100"
                       value={question}
                       onChange={(e) => {
                         this.setState({ question: e.target.value })
                       }}
                     />
-                    {/* <button className=" addBtn"  onClick={this.addQuestion}>
-                      <i className="fas fa-plus-circle danger"></i>
-                    </button> */}
                   </div>
                   <div>
                     <div className="d-flex my-3">
@@ -193,8 +208,7 @@ class AddSurvay extends Component {
                       <input
                         type="text"
                         name="answer"
-                        className=" imputservary 
-                      p-1 "
+                        className=" imputservary px-2 p-1 "
                         maxLength="50"
                         value={answer}
                         disabled={this.state.disabled}
@@ -212,35 +226,57 @@ class AddSurvay extends Component {
                   </div>
                   <div className="d-flex my-3">
                     <span className="addAds ml-2">تاريخ الانتهاء :</span>
+
                     <input
                       type="date"
+                      id="start"
                       name="date"
-                      className="imputservary p-1"
+                      className="imputservary px-2 p-1"
+                      value={date}
+                      min={new Date().toISOString().split('T')[0]}
+                      max="2022-12-31"
+                      onChange={(event) =>
+                        this.setState({ date: event.target.value })
+                      }
                     />
-                    {/* <button className=" addBtn"  onClick={this.addQuestion}>
-                      <i className="fas fa-plus-circle danger"></i>
-                    </button> */}
                   </div>
-                  <div className="d-flex justify-content-center p-3">
+                  <div className="d-flex my-3">
+                    <span className="addAds ml-1"> عدد النقاط  :</span>
+                    <input
+                      type="number"
+                      name="number"
+                      className=" addPoint px-2 mr-2 p-1"
+                      value={number}
+                      onChange={(event) =>
+                        this.setState({ number: event.target.value })
+                      }
+                    ></input>
+                  </div>
+                  <div className="d-flex justify-content-between p-3">
                     <button onClick={this.addNewItem} className="addQuestion">
-                      اضافه سؤال
+                      اضافه سؤال اخر
                     </button>
+                    <button className="addQuestion">اضافه الاستبيان</button>
                   </div>
                 </div>
                 <div className=" col-md-6 col-sm-12">
                   <div className="survey-card p-3">
-                    <h1>{arrayADD[0]}</h1>
+                    <h3 className="text-center">{arrayADD[0]}</h3>
+
                     {items.map((item) => {
                       return (
                         <div>
-                          <h4>{item.questions}</h4>
+                          <h5>{item.questions}</h5>
                           <div>
-                            {item.answers.map((object) => (
-                              <div className="my-3">
-                                <input type={item.type} />
-                                {object}
-                              </div>
-                            ))}
+                            {item.answers.map((object) => {
+                              console.log(object)
+                              return (
+                                <div className="my-3">
+                                  <input type={item.type} readOnly />
+                                  {object}
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
                       )
