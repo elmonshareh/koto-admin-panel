@@ -24,14 +24,16 @@ class AddADS extends Component {
                 content={
                
                   <div  className="container">
-                  <div className="p-3 d-md-flex d-sm-block addtype row">
-                    <div className="d-felx addAds text-right col-md-6 col-sm-12 ">
-                     <span className="pt-5">اضافه الاعلان : </span>
-                      <input type="text" className=" addAdsText w-50" />
+                  <div className="py-3 d-md-flex d-sm-block addtype row">
+                    <div className=" col-md-6 col-sm-12 mb-2">
+                    <div className="d-flex  text-right addAds"> <span className="pl-1 mt-1">اضافه الاعلان: </span>
+                      <input type="text" className=" w-75 p-1" /></div>
+                     
                     </div>
-                    <div className="d-flex  text-right addAds col-md-6 col-sm-12 ">
-                      <span className="mt-2"> نوع الاعلان :</span>
-                      <DropdownButton className="py-1"
+                    <div className=" col-md-6 col-sm-12 ">
+                    <div className="d-flex text-right addAds">
+                      <span className="mt-1 pl-1"> نوع الاعلان :</span>
+                      <DropdownButton className=""
                         id="dropdown-item-button"
                         title="نوع الاعلان"
                       >
@@ -48,6 +50,7 @@ class AddADS extends Component {
                           اضافه  اخري  
                         </Dropdown.Item>
                       </DropdownButton>
+                      </div>
                     </div>
                   </div>
                   </div>
