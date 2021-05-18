@@ -6,10 +6,10 @@ class AddApp extends Component {
     items: [],
     IOS: '',
     Android: '',
-    number:0,
+    number: 0,
     date: new Date().toISOString().split('T')[0],
-    name:"",
-    errors: {}
+    name: '',
+    errors: {},
   }
   timestanp = () => {
     var date = this.state.date
@@ -25,38 +25,43 @@ class AddApp extends Component {
     console.log(datastanp)
     console.log(output)
   }
-  handleValidation= () => {
-    const{IOS,Android,name,date}=this.state
-    let errors = {};
-    let formIsValid = true;
+  handleValidation = () => {
+    console.log(',,,')
+    const { IOS, Android, name, date ,number} = this.state
+    let errors = {}
+    let formIsValid = true
     if (!name) {
-        formIsValid = false;
-        errors["name"] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+      formIsValid = false
+      errors['name'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
-   
 
-   
     if (date === new Date().toISOString().split('T')[0]) {
-
-        errors["date"] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+      errors['date'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    if (!number) {
+      formIsValid = false
+      errors['number'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
 
-    this.setState({ errors: errors });
-    return formIsValid;
-}
+    
+    this.setState({ errors: errors })
+    return formIsValid
+  }
+  addApp = () => {
+    this.handleValidation()
+  }
 
   render() {
-    const { IOS, Android ,number,name ,errors} = this.state
+    const { IOS, Android, number, name, errors } = this.state
     return (
       <div>
         <Card
           content={
             <div className="container text-right">
               <div className="row mt-3">
-              
                 <div className="col-sm-12 col-md-8">
-                <div className="d-flex my-3">
-                    <span className="addAds ml-5">  اسم التطبيق  :</span>
+                  <div className="d-flex my-3">
+                    <span className="addAds ml-5"> اسم التطبيق :</span>
                     <input
                       type="text"
                       name="name"
@@ -67,7 +72,7 @@ class AddApp extends Component {
                         this.setState({ name: e.target.value })
                       }}
                     />
-                       <span className="mt-2 error">{errors["name"]}</span>
+                    <span className="mt-2 error">{errors['name']}</span>
                   </div>
                   <div className="d-flex my-3">
                     <span className="addAds ml-0"> اضافه الرابط Android :</span>
@@ -96,7 +101,7 @@ class AddApp extends Component {
                     />
                   </div>
                   <div className="d-flex my-3">
-                    <span className="addAds   pl-2 ml-5">تاريخ الانتهاء  :</span>
+                    <span className="addAds   pl-2 ml-5">تاريخ الانتهاء :</span>
                     <input
                       type="date"
                       id="start"
@@ -109,26 +114,27 @@ class AddApp extends Component {
                         this.setState({ date: event.target.value })
                       }
                     ></input>
-                     
+                     <span className="mt-2 error">{errors['date']}</span>
                   </div>
                   <div className="d-flex my-3">
-                    <span className="addAds  ml-1"> عدد النقاط المكتسبة   :</span>
+                    <span className="addAds  ml-1"> عدد النقاط المكتسبة :</span>
                     <input
                       type="number"
                       name="number"
                       className=" addPoint px-2 mr-2 p-1"
                       value={number}
-                      
                       onChange={(event) =>
                         this.setState({ number: event.target.value })
                       }
                     ></input>
-                     
+                     <span className="mt-2 error">{errors['number']}</span>
+                    
                   </div>
-                  <div className="d-flex justify-content-center p-3"><button  className="addQuestion">
-                      اضافه التطبيق 
-                    </button></div>
-                  
+                  <div className="d-flex justify-content-center p-3">
+                    <button className="addQuestion" onClick={this.addApp}>
+                      اضافه التطبيق
+                    </button>
+                  </div>
                 </div>
               </div>
 

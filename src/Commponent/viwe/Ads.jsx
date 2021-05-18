@@ -8,8 +8,9 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import { Link } from 'react-router-dom'
 
 import AddSurvay from './addSurvay'
-import AddVideo from './addVedio';
+
 import AddApp from './addApp';
+import AddVedio from './addVedio';
 
 
 
@@ -40,7 +41,7 @@ class AddADS extends Component {
                         id="dropdown-item-button"
                         title="نوع الاعلان"
                       >
-                        <Dropdown.Item as={Link} to="/admin/AddADS/addVedio">
+                        <Dropdown.Item as={Link} to="/admin/AddADS/AddVedio">
                          اضافه فيديوهات 
                         </Dropdown.Item>
                         <Dropdown.Item as={Link} to="/admin/AddADS/AddSurvay" >
@@ -65,7 +66,7 @@ class AddADS extends Component {
         </div>
 
         <div className="mx-3">
-          <Route path="/admin/AddADS/addVedio" component={AddVideo} />
+          <Route path="/admin/AddADS/AddVedio" component={AddVedio} />
           <Route path="/admin/AddADS/AddSurvay" component={AddSurvay} />
           <Route path="/admin/AddADS/AddApp"component={AddApp} />
         

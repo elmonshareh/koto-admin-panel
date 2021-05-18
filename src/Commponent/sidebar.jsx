@@ -4,7 +4,7 @@ import { Route } from 'react-router'
 import { Link, NavLink } from 'react-router-dom'
 import logoImg from '../Img/logo.png'
 import Main from './viwe/main'
-import AddVideo from './viwe/addVideo'
+import AddVideo from './viwe/addVedio'
 import AddSurvay from './viwe/addSurvay'
 import AddApp from './viwe/addApp'
 import AddADS from './viwe/Ads';

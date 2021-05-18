@@ -12,14 +12,14 @@ class AddSurvay extends Component {
       question: '',
       answer: '',
       dropdown: 'اختار النوع',
-      answerStyle: 'hidden',
+      answerStyle: '',
       disabled: true,
-      // inputValues: {},
       answers: [],
       inputs: [],
       arrayADD: [],
       date: new Date().toISOString().split('T')[0],
-      number:0,
+      number:"",
+      errors:{}
     }
   }
   addNewItem = () => {
@@ -31,27 +31,33 @@ class AddSurvay extends Component {
       answerStyle,
       date,
       arrayADD,
+      number
     } = this.state
 
     var Expidate = new Object()
     Expidate.Expidate = date
-
-    arrayADD = [name, items, Expidate]
-
-    items.push({ questions: question, answers: answers, type: answerStyle })
+    var Points = new Object()
+    Points.Points = number
+    
+    arrayADD = [name, items, Expidate, Points]
+if(this.handleValidation ())
+{  items.push({ questions: question, answers: answers, type: answerStyle})
+this.setState({
+  arrayADD,
+  inputs: [],
+  question: '',
+  answer: '',
+  answers: [],
+  dropdown: 'اختار النوع',
+  answerStyle: 'hidden',
+  date: new Date().toISOString().split('T')[0],
+})
+}
+   
     this.timestanp()
-    this.setState({
-      arrayADD,
-      inputs: [],
-      question: '',
-      answer: '',
-      answers: [],
-      dropdown: 'اختار النوع',
-      answerStyle: 'hidden',
-      date: new Date().toISOString().split('T')[0],
-    })
-
-    console.log(answers)
+    
+   
+    console.log(arrayADD)
   }
 
   removeInputField = (key) => {
@@ -62,6 +68,7 @@ class AddSurvay extends Component {
   }
 
   onHandleSubmit = () => {
+ 
     const { inputs, answers, answer, arrayADD } = this.state
     const name = `incrediant+${inputs.length}`
     let inputbox = (
@@ -101,6 +108,41 @@ class AddSurvay extends Component {
     console.log(datastanp)
     console.log(output)
   }
+  handleValidation = () => {
+    console.log(',,,')
+    const { answers, answerStyle, name,question,date ,number} = this.state
+    let errors = {}
+    let formIsValid = true
+    console.log(answers.length)
+    if (answers.length===0) {
+      formIsValid = false
+      errors['answer'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    if (!question) {
+      formIsValid = false
+      errors['question'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    if (!answerStyle) {
+      formIsValid = false
+      errors['dropType'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    if (!name) {
+      formIsValid = false
+      errors['name'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+
+    if (date === new Date().toISOString().split('T')[0]) {
+      errors['date'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    if (!number) {
+      formIsValid = false
+      errors['number'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+
+    
+    this.setState({ errors: errors })
+    return formIsValid
+  }
 
   render() {
     const {
@@ -113,7 +155,7 @@ class AddSurvay extends Component {
       items,
       arrayADD,
       disabled,
-      number,date
+      number,date,errors
     } = this.state
     console.log(arrayADD[1])
     return (
@@ -135,6 +177,7 @@ class AddSurvay extends Component {
                         this.setState({ name: e.target.value })
                       }}
                     />
+                      <span className="mt-2 error">{errors['name']}</span>
                   </div>
                   <div className="d-flex my-3">
                     <div className="d-flex ">
@@ -143,6 +186,7 @@ class AddSurvay extends Component {
                         <Dropdown.Toggle
                           id="dropdown-basic"
                           className="dropType"
+                          name="dropType"
                         >
                           {dropdown}
                         </Dropdown.Toggle>
@@ -187,6 +231,7 @@ class AddSurvay extends Component {
                           </Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
+                      <span className="mt-2 error">{errors['dropType']}</span>
                     </div>
                   </div>
                   <div className="d-flex my-3">
@@ -201,6 +246,7 @@ class AddSurvay extends Component {
                         this.setState({ question: e.target.value })
                       }}
                     />
+                     <span className="mt-2 error">{errors['question']}</span>
                   </div>
                   <div>
                     <div className="d-flex my-3">
@@ -216,9 +262,11 @@ class AddSurvay extends Component {
                           this.setState({ answer: e.target.value })
                         }}
                       />
+                       
                       <button className="addBtn" onClick={this.onHandleSubmit}>
                         <i className="fas fa-plus-circle danger"></i>
                       </button>
+                      <span className="mt-2 error">{errors['answer']}</span>
                     </div>
 
                     <div> {inputs.map((i) => i)}</div>
@@ -239,6 +287,7 @@ class AddSurvay extends Component {
                         this.setState({ date: event.target.value })
                       }
                     />
+                     <span className="mt-2 error">{errors['date']}</span>
                   </div>
                   <div className="d-flex my-3">
                     <span className="addAds ml-1"> عدد النقاط  :</span>
@@ -250,7 +299,8 @@ class AddSurvay extends Component {
                       onChange={(event) =>
                         this.setState({ number: event.target.value })
                       }
-                    ></input>
+                   /> 
+                    <span className="mt-2 error">{errors['number']}</span>
                   </div>
                   <div className="d-flex justify-content-between p-3">
                     <button onClick={this.addNewItem} className="addQuestion">
