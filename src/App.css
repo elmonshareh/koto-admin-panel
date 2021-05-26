@@ -18,7 +18,14 @@ button:focus,
 input:focus {
   outline: none;
 }
-.error{color: red;}
+.error {
+  color: red;
+}
+/* Login  */
+.inputform {
+  width: 313px !important;
+  border-radius: 25px !important;
+}
 .card {
   border-radius: 4px;
   box-shadow: 0 1px 2px rgb(0 0 0 / 5%), 0 0 0 1px rgb(63 63 68 / 10%);
@@ -230,7 +237,8 @@ input:focus {
 input:hover + label,
 input:focus + label,
 .submitadd:hover,
-.submitadd:focus,.addQuestion:hover {
+.submitadd:focus,
+.addQuestion:hover {
   transform: scale(1.02);
   outline: none;
 }
@@ -300,48 +308,49 @@ input:focus + label {
   color: white;
   height: 366px;
   overflow-y: auto;
-  
 }
- .survey-card::-webkit-scrollbar {
-  width: 10px; 
+.survey-card::-webkit-scrollbar {
+  width: 10px;
 }
 
 /* Track */
 .survey-card::-webkit-scrollbar-track {
   background-color: #d49dfc;
-   border-radius: 50px;
+  border-radius: 50px;
   margin: 14px;
-
-   
 }
- 
+
 /* Handle */
 .survey-card::-webkit-scrollbar-thumb {
   background: linear-gradient(40deg, #d49dfc, #7873f5);
- 
+
   border-radius: 8px;
 }
 
 /* Handle on hover */
 .survey-card::-webkit-scrollbar-thumb:hover {
-  background: #7873f5; 
+  background: #7873f5;
 }
 .imputservary {
   width: 72%;
-} .addPoint{width: 12%;}
+}
+.addPoint {
+  width: 12%;
+}
 .dropType {
   width: 335px;
-  border-radius:10px !important;
+  border-radius: 10px !important;
   background-color: #6b18ff !important;
 }
-.dropType:focus{border:none !important;}
-.addQuestion{width: 200px;
-  height: 50px; 
+.dropType:focus {
+  border: none !important;
+}
+.addQuestion {
+  width: 200px;
+  height: 50px;
   border: none;
   border-radius: 25px;
-  background: linear-gradient(
-40deg
-, #d49dfc, #7873f5);
+  background: linear-gradient(40deg, #d49dfc, #7873f5);
   box-shadow: 0 4px 7px rgb(0 0 0 / 40%);
   display: flex;
   align-items: center;
@@ -351,8 +360,103 @@ input:focus + label {
   cursor: pointer;
   transition: transform 0.2s ease-out;
 }
-.addAnwens{width: 72%; margin-right: 92px;}
-input[type=textarea]{height: 50px; width: 200px;}
+.addAnwens {
+  width: 72%;
+  margin-right: 92px;
+}
+input[type='textarea'] {
+  height: 50px;
+  width: 200px;
+}
+
+/* gift */
+.chargingcart {
+  background-color: #effbff;
+  border-radius: 15px;
+}
+.bill {
+  background-color: #e2fff3;
+  border-radius: 15px;
+}
+.cobone {
+  background-color: #fff0f9;
+  border-radius: 15px;
+}
+.coboneImg {
+  background-color: white;
+  border-radius: 15px;
+}
+.pointPostionCart {
+  position: absolute;
+  bottom: 0;
+  left: 11px;
+}
+.btnColor {
+  width: 67%;
+  background-color: #6b18ff;
+  color: white;
+}
+.inputCrat {
+  width: 67%;
+}
+.dropCart {
+  border-radius: 10px !important;
+  background-color: #6b18ff !important;
+  width: 339px;
+}
+.dropdownCart {
+  width: 80%;
+}
+.addcatrbtn {
+  width: 45%;
+  background: linear-gradient(40deg, #d49dfc, #7873f5);
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.4);
+  border: none;
+  height: 50px;
+  color: #d6d6d6;
+  cursor: pointer;
+  transition: transform 0.2s ease-out;
+}
+.network {width:339px;  border-radius: 10px !important;
+  background-color: #6b18ff !important;}
+.inputModalNet{width: 85%;}
+.inputModalKey{width: 80%;}
+#circle {
+  float: left;
+  width: 150px;
+  height: 150px;
+  margin: 20px;
+  
+  clip-path: circle(50% at 0%);
+  background: red;
+}
+.shape {  
+ 
+  background-color: #ff004e;
+  
+  width: 200px;
+  height: 200px;
+  position: relative;
+
+  
+}
+.shape::before {
+  content: '';
+    width: 37px;
+    border-top-left-radius: 100px;
+    border-top-right-radius: 100px;
+    height: 39px;
+   
+    background-color: white;
+    border: solid white;
+    border-right: 0;
+    border-bottom: 0;
+    box-sizing: border-box;
+    position: absolute;
+    right: 0;
+    bottom: 0px;
+ 
+}
 @media only screen and (max-width: 768px) {
   .sidebar {
     min-height: 0 !important;
@@ -380,4 +484,8 @@ input[type=textarea]{height: 50px; width: 200px;}
   .dropType {
     width: 169px;
   }
+  .dropCart {
+    width: 202px !important;
+  }
+  .network{width: 202px}
 }

@@ -9,6 +9,8 @@ import AddSurvay from './viwe/addSurvay'
 import AddApp from './viwe/addApp'
 import AddADS from './viwe/Ads';
 import { Card } from './login/Card';
+import AddGift from './viwe/addGift';
+
 class Sidebar extends Component {
   state = {}
 
@@ -25,7 +27,7 @@ class Sidebar extends Component {
               href="#home"
               className=" d-sm-bolck-inline d-md-block text-center pt-3"
             >
-              <img src={logoImg} class="logo" alt="" />
+              <img src={logoImg} className="logo" alt="" />
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <hr />
@@ -51,7 +53,15 @@ class Sidebar extends Component {
                   className=" navbar-nav py-3"
                   to="/admin/Category"
                 >
-                  <i class="fab fa-adn px-2"></i> تصنيف الاعلانات 
+                  <i className="fab fa-adn px-2"></i> تصنيف الاعلانات 
+                </Nav.Link>
+                <Nav.Link
+                  eventKey="2"
+                  as={Link}
+                  className="navbar-nav py-3"
+                  to="/admin/gift"
+                >
+                  <i className="fas fa-gifts px-2"></i>  اضافه هدايا  
                 </Nav.Link>
 
               </Nav>
@@ -62,6 +72,7 @@ class Sidebar extends Component {
         <div className=" main float-sm-none float-md-left ">
           <Route path="/admin/Dashboard" component={Main} />
           <Route path="/admin/Category" component={AddADS} />
+          <Route path="/admin/gift" component={AddGift} />
            <Route path="/admin/AddSurvay" component={AddSurvay} />
           <Route path="/admin/AddApp" component={AddApp} />
           <Route path="/admin/AddADS" component={ AddADS} /> 

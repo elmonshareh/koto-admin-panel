@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Table } from 'react-bootstrap'
 import { Card } from '../login/Card'
+import axios from 'axios'
 class AddApp extends Component {
   state = {
     items: [],
@@ -10,6 +11,7 @@ class AddApp extends Component {
     date: new Date().toISOString().split('T')[0],
     name: '',
     errors: {},
+    massagerror:""
   }
   timestanp = () => {
     var date = this.state.date
@@ -50,6 +52,38 @@ class AddApp extends Component {
   addApp = () => {
     this.handleValidation()
   }
+//   addAppAPI = async () => {
+
+//     // let fields = this.state.fields;
+//     let errorAPI = ''
+//     try {
+//         const resp = await axios({
+//             method: 'post',
+//             url: 'https://koto2020.herokuapp.com/api/addApp',
+//             data: {
+//               Name:"",
+//                 IOS: "mm",
+//                Android: "kkkk",
+//                 ExpireDate: "1624094280000",
+//                 Points:""
+//             }
+//         })
+//         console.log(resp);
+     
+      
+//     } catch (err) {
+//         // Handle Error 
+//         console.log(err);
+//         if (err.response) {
+//             console.log(err);
+//             errorAPI = err.response.data;
+//         }
+
+//     }
+
+//     this.setState({ massagerror: errorAPI})
+//     console.log(this.state.massagerror)
+// };
 
   render() {
     const { IOS, Android, number, name, errors } = this.state

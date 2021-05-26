@@ -17,7 +17,7 @@ class Main extends Component {
         <div className="row pr-5">
           <div className="col-sm-12  col-md-6 col-lg-3">
             <Cart
-              cartIcon={<i class="far fa-copy"></i>}
+              cartIcon={<i className="far fa-copy"></i>}
               cartState="kkkkkk"
               title="hghvfhp"
               SubTitle="njj"
@@ -25,7 +25,7 @@ class Main extends Component {
           </div>
           <div className="col-sm-12 col-md-6 col-lg-3">
             <Cart
-              cartIcon={<i class="far fa-copy"></i>}
+              cartIcon={<i className="far fa-copy"></i>}
               cartState="kkkkkk"
               title="manar"
               SubTitle="njj"
@@ -33,7 +33,7 @@ class Main extends Component {
           </div>
           <div className="col-sm-12 col-md-6 col-lg-3">
             <Cart
-              cartIcon={<i class="far fa-copy"></i>}
+              cartIcon={<i className="far fa-copy"></i>}
               cartState="kkkkkk"
               title="manar"
               SubTitle="njj"
@@ -41,7 +41,7 @@ class Main extends Component {
           </div>
           <div className="col-sm-12 col-md-6 col-lg-3">
             <Cart
-              cartIcon={<i class="far fa-copy"></i>}
+              cartIcon={<i className="far fa-copy"></i>}
               cartState="kkkkkk"
               title="manar"
               SubTitle="njj"

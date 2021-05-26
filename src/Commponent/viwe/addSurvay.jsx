@@ -2,24 +2,28 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import React, { Component } from 'react'
 import { Table } from 'react-bootstrap'
 import { Card } from './../login/Card'
-import { useLayoutEffect } from 'react'
+import axios from 'axios'
+
 class AddSurvay extends Component {
   constructor(props) {
     super(props)
     this.state = {
       items: [],
-      name: '',
-      question: '',
+      name:[],
+      question:'',
       answer: '',
       dropdown: 'اختار النوع',
-      answerStyle: '',
+      questionType: '',
       disabled: true,
       answers: [],
       inputs: [],
       arrayADD: [],
+      allSurveys:[],
       date: new Date().toISOString().split('T')[0],
-      number:"",
-      errors:{}
+      number: '',
+      errors: {},
+      token:localStorage.getItem('token'),
+     
     }
   }
   addNewItem = () => {
@@ -28,10 +32,10 @@ class AddSurvay extends Component {
       question,
       items,
       name,
-      answerStyle,
+      questionType,
       date,
       arrayADD,
-      number
+      number,
     } = this.state
 
     var Expidate = new Object()
@@ -40,24 +44,24 @@ class AddSurvay extends Component {
     Points.Points = number
     
     arrayADD = [name, items, Expidate, Points]
-if(this.handleValidation ())
-{  items.push({ questions: question, answers: answers, type: answerStyle})
-this.setState({
-  arrayADD,
-  inputs: [],
-  question: '',
-  answer: '',
-  answers: [],
-  dropdown: 'اختار النوع',
-  answerStyle: 'hidden',
-  date: new Date().toISOString().split('T')[0],
-})
-}
-   
+    if (this.handleValidation()) {
+      items.push({ name:name, answers: answers, questionType: questionType })
+      this.setState({
+        arrayADD,
+        inputs: [],
+        question: '',
+        answer: '',
+        answers: [],
+        dropdown: 'اختار النوع',
+        questionType: 'hidden',
+       
+      })
+    }
+
     this.timestanp()
+
+    console.log(items)
     
-   
-    console.log(arrayADD)
   }
 
   removeInputField = (key) => {
@@ -68,21 +72,20 @@ this.setState({
   }
 
   onHandleSubmit = () => {
- 
     const { inputs, answers, answer, arrayADD } = this.state
     const name = `incrediant+${inputs.length}`
     let inputbox = (
-      <div className="d-flex">
+      <div className="d-flex" key={name}>
         <input
           name={name}
           value={answer}
-          key={inputs.length}
+          key={name}
           type="text"
           className="addAnwens p-1 mt-1"
           readOnly
         />
         <button onClick={this.removeInputField} className="addBtn">
-          <i class="fas fa-minus-circle"></i>
+          <i className="fas fa-minus-circle"></i>
         </button>
       </div>
     )
@@ -110,11 +113,11 @@ this.setState({
   }
   handleValidation = () => {
     console.log(',,,')
-    const { answers, answerStyle, name,question,date ,number} = this.state
+    const { answers, questionType, name, question, date, number } = this.state
     let errors = {}
     let formIsValid = true
     console.log(answers.length)
-    if (answers.length===0) {
+    if (answers.length === 0) {
       formIsValid = false
       errors['answer'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
@@ -122,7 +125,7 @@ this.setState({
       formIsValid = false
       errors['question'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
-    if (!answerStyle) {
+    if (!questionType) {
       formIsValid = false
       errors['dropType'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
@@ -139,10 +142,69 @@ this.setState({
       errors['number'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
 
-    
     this.setState({ errors: errors })
     return formIsValid
   }
+
+  addSurvayAPI = async () => {
+    // let fields = this.state.fields;
+    const{token , inputs,items,date,arrayADD}=this.state
+    console.log(arrayADD)
+    let errorAPI = ''
+    let json=JSON.stringify(arrayADD[1]);
+       
+   try {
+       const resp = await axios({
+        method: 'post',
+        url: 'https://koto2020.herokuapp.com/api/addSurvey',
+        headers: {
+          "Authorization":`Bearer ${token}` ,
+          
+      },
+        data: {
+          name: arrayADD[0],
+           questions:arrayADD[1]
+         ,
+          expireDate:date
+        },
+      })
+      console.log(resp)
+     
+    } catch (err) {
+      // Handle Error
+      console.log(err)
+      if (err.response) {
+        console.log(err)
+        errorAPI = err.response.data
+      }
+    }
+
+    this.setState({ massagerror: errorAPI })
+    console.log(this.state.massagerror)
+  }
+  addSurvay=()=>{
+   this.addSurvayAPI()
+  }
+  getSurvay=async()=>{ try {
+    const{token }=this.state
+    const resp = await axios({
+        method: 'get',
+        url: 'https://koto2020.herokuapp.com/api/Survey',
+        headers: {
+            
+          "Authorization":`Bearer ${token}`
+        
+        },
+    })
+    console.log(resp);
+    await this.setState({ allSurveys: resp.data })
+
+} catch (err) {
+    console.log(err);
+}
+
+  }
+  componentDidMount=()=>{ this.getSurvay() }
 
   render() {
     const {
@@ -151,13 +213,13 @@ this.setState({
       question,
       dropdown,
       inputs,
-      answerStyle,
       items,
       arrayADD,
-      disabled,
-      number,date,errors
+      number,
+      date,
+      errors,
     } = this.state
-    console.log(arrayADD[1])
+   
     return (
       <div>
         <Card
@@ -177,7 +239,7 @@ this.setState({
                         this.setState({ name: e.target.value })
                       }}
                     />
-                      <span className="mt-2 error">{errors['name']}</span>
+                    <span className="mt-2 error">{errors['name']}</span>
                   </div>
                   <div className="d-flex my-3">
                     <div className="d-flex ">
@@ -197,7 +259,7 @@ this.setState({
                             onSelect={(e) => {
                               this.setState({
                                 dropdown: 'Textarea',
-                                answerStyle: 'textarea',
+                                questionType:'TEXTAREA',
                                 disabled: true,
                                 answer: '',
                               })
@@ -209,8 +271,8 @@ this.setState({
                             eventKey="Redio"
                             onSelect={(e) => {
                               this.setState({
-                                dropdown: 'Redio Button',
-                                answerStyle: 'radio',
+                                dropdown: 'RADIO_BUTTON',
+                                questionType: 'RADIO_BUTTON',
                                 disabled: false,
                               })
                             }}
@@ -222,7 +284,7 @@ this.setState({
                             onSelect={(e) => {
                               this.setState({
                                 dropdown: 'checkbox',
-                                answerStyle: 'checkbox',
+                                questionType: 'CHECKBOX',
                                 disabled: false,
                               })
                             }}
@@ -246,7 +308,7 @@ this.setState({
                         this.setState({ question: e.target.value })
                       }}
                     />
-                     <span className="mt-2 error">{errors['question']}</span>
+                    <span className="mt-2 error">{errors['question']}</span>
                   </div>
                   <div>
                     <div className="d-flex my-3">
@@ -262,7 +324,7 @@ this.setState({
                           this.setState({ answer: e.target.value })
                         }}
                       />
-                       
+
                       <button className="addBtn" onClick={this.onHandleSubmit}>
                         <i className="fas fa-plus-circle danger"></i>
                       </button>
@@ -287,10 +349,10 @@ this.setState({
                         this.setState({ date: event.target.value })
                       }
                     />
-                     <span className="mt-2 error">{errors['date']}</span>
+                    <span className="mt-2 error">{errors['date']}</span>
                   </div>
                   <div className="d-flex my-3">
-                    <span className="addAds ml-1"> عدد النقاط  :</span>
+                    <span className="addAds ml-1"> عدد النقاط :</span>
                     <input
                       type="number"
                       name="number"
@@ -299,14 +361,14 @@ this.setState({
                       onChange={(event) =>
                         this.setState({ number: event.target.value })
                       }
-                   /> 
+                    />
                     <span className="mt-2 error">{errors['number']}</span>
                   </div>
                   <div className="d-flex justify-content-between p-3">
                     <button onClick={this.addNewItem} className="addQuestion">
                       اضافه سؤال اخر
                     </button>
-                    <button className="addQuestion">اضافه الاستبيان</button>
+                    <button className="addQuestion" onClick={this.addSurvay}>اضافه الاستبيان</button>
                   </div>
                 </div>
                 <div className=" col-md-6 col-sm-12">
@@ -314,15 +376,16 @@ this.setState({
                     <h3 className="text-center">{arrayADD[0]}</h3>
 
                     {items.map((item) => {
+                      console.log(item)
                       return (
                         <div>
-                          <h5>{item.questions}</h5>
-                          <div>
+                          <h5 key={item.length}>{item.question}</h5>
+                          <div >
                             {item.answers.map((object) => {
                               console.log(object)
                               return (
-                                <div className="my-3">
-                                  <input type={item.type} readOnly />
+                                <div  key={ object+item.answers.length} className="my-3" >
+                                  <input type={item.questionType} readOnly />
                                   {object}
                                 </div>
                               )
