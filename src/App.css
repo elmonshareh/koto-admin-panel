@@ -421,20 +421,12 @@ input[type='textarea'] {
   background-color: #6b18ff !important;}
 .inputModalNet{width: 85%;}
 .inputModalKey{width: 80%;}
-#circle {
-  float: left;
-  width: 150px;
-  height: 150px;
-  margin: 20px;
-  
-  clip-path: circle(50% at 0%);
-  background: red;
-}
+/* biil */
 .shape {  
  
-  background-color: #ff004e;
-  
-  width: 200px;
+  background: 
+  linear-gradient(40deg, #a459da, #86e2de);
+ 
   height: 200px;
   position: relative;
 
@@ -443,20 +435,38 @@ input[type='textarea'] {
 .shape::before {
   content: '';
     width: 37px;
-    border-top-left-radius: 100px;
-    border-top-right-radius: 100px;
+ 
     height: 39px;
-   
+    clip-path:  ellipse(66% 47% at 89% 49%);
     background-color: white;
     border: solid white;
-    border-right: 0;
-    border-bottom: 0;
     box-sizing: border-box;
     position: absolute;
     right: 0;
-    bottom: 0px;
+    bottom: 50px;
  
 }
+.shape::after {
+  content: '';
+    width: 37px;
+    height: 39px;
+    clip-path: ellipse(56% 43% at 11% 51%);;
+    background-color: white;
+    border: solid white;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    bottom: 50px;
+ 
+}
+hr.new2 {
+  border-top: 2px dashed white;
+  position: absolute;
+  bottom: 50px;
+  width: 95%;
+}
+
+
 @media only screen and (max-width: 768px) {
   .sidebar {
     min-height: 0 !important;

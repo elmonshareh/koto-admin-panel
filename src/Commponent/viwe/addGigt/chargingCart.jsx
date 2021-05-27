@@ -134,23 +134,7 @@ class ChargingCart extends Component {
                         </Dropdown.Item>
                         <Dropdown.Item
                           eventKey=" Orange"
-                          onSelect={(e) => {
-                            this.setState({
-                              name: (
-                                <span>
-                                  {' '}
-                                  Orange <img src={orange} width="20px" />
-                                </span>
-                              ),
-                              key: (
-                                <h5 className="text-center">
-                                  {' '}
-                                  #كود الشحن *102#{' '}
-                                </h5>
-                              ),
-                              icon: <img src={orange} width="80px" />,
-                            })
-                          }}
+                          
                         >
                           Orange <img src={orange} alt="" width="20" />
                         </Dropdown.Item>
