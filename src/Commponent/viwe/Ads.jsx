@@ -1,75 +1,45 @@
 import React, { Component } from 'react'
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap'
 import { Route } from 'react-router'
-import { Card } from './../login/Card'
-import Main from './main'
-import DropdownButton from 'react-bootstrap/DropdownButton'
-import Dropdown from 'react-bootstrap/Dropdown'
-import { Link } from 'react-router-dom'
-
 import AddSurvay from './addSurvay'
-
-import AddApp from './addApp';
-import AddVedio from './addVedio';
-
-
-
+import AddApp from './addApp'
+import AddVedio from './addVedio'
+import VideoDetailes from './details/videoDetails'
+import SurvayDetailes from './details/survayDetails'
+import AppDeatiles from './details/appDetails'
+import VedioTable from './showTables/vedioTables';
+import AppTable from './showTables/appTable';
+import SurveyTable from './showTables/surveyTable';
+import ChargingTable from './showTables/chargingTable';
+import NotificationTables from './details/notificationTables';
 class AddADS extends Component {
   state = {}
   handleSelect = (eventKey) => alert(`selected ${eventKey}`)
-
   render() {
     return (
-      <div className="container">
-        <div className="row m-3">
-          <div className="p-0 mt-3">
-            <div className="pt-3 ">
-              <Card
-                content={
-               
-                  <div  className="container">
-                  <div className="py-3 d-md-flex d-sm-block addtype row">
-                    <div className=" col-md-6 col-sm-12 mb-2">
-                    <div className="d-flex  text-right addAds"> <span className="pl-1 mt-1">اضافه الاعلان: </span>
-                      <input type="text" className=" w-75 p-1" /></div>
-                     
-                    </div>
-                    <div className=" col-md-6 col-sm-12 ">
-                    <div className="d-flex text-right addAds">
-                      <span className="mt-1 pl-1"> نوع الاعلان :</span>
-                      <DropdownButton className=""
-                        id="dropdown-item-button"
-                        title="نوع الاعلان"
-                      >
-                        <Dropdown.Item as={Link} to="/admin/AddADS/AddVedio">
-                         اضافه فيديوهات 
-                        </Dropdown.Item>
-                        <Dropdown.Item as={Link} to="/admin/AddADS/AddSurvay" >
-                        اضافه استبيان 
-                        </Dropdown.Item>
-                        <Dropdown.Item as={Link} to="/admin/AddADS/AddApp" >
-                          اضافه  تطبيقات  
-                        </Dropdown.Item>
-                        <Dropdown.Item as={Link} to="/admin/AddADS/AddApp" >
-                          اضافه  اخري  
-                        </Dropdown.Item>
-                      </DropdownButton>
-                      </div>
-                    </div>
-                  </div>
-                  </div>
-                }
-              />
-            </div>
-          </div>
-          
-        </div>
-
+      <div className="container pt-5">
         <div className="mx-3">
           <Route path="/admin/AddADS/AddVedio" component={AddVedio} />
           <Route path="/admin/AddADS/AddSurvay" component={AddSurvay} />
-          <Route path="/admin/AddADS/AddApp"component={AddApp} />
-        
+          <Route path="/admin/AddADS/AddApp" component={AddApp} />
+
+          <Route
+            path="/admin/AddADS/AddVedio:id"
+            render={(props) => <VideoDetailes {...props} />}
+          />
+          <Route
+            path="/admin/AddADS/survay:id"
+            render={(props) => <SurvayDetailes {...props} />}
+          />
+          <Route
+            path="/admin/AddADS/App:id"
+            render={(props) => <AppDeatiles {...props} />}
+          /> 
+          <Route path="/admin/AddADS/VedioTable" component={VedioTable} />
+          <Route path="/admin/AddADS/ApTable" component={AppTable} />
+          <Route path="/admin/AddADS/SurveyTable" component={SurveyTable} />
+          <Route path="/admin/AddADS/ChargingTable" component={ChargingTable} />
+       
+
         </div>
       </div>
     )

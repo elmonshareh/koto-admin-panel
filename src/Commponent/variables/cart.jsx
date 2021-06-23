@@ -1,23 +1,20 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 class Cart extends Component {
-
-    state = {  }
-    render() { 
-        return ( <div className={"cart"}  >
-            <div className="cart-hader d-flex">
-            <div className="text-start"> 
-             <h3 > { this.props.title}</h3>
-             <p> { this.props.SubTitle}</p></div>
-             <div className="cartIcon " >{this.props.cartIcon}</div>
-             
-             
-            
-            </div>
-            <div className="cart-footer">
-                <div className="cart-state"> {this.props.cartState}</div>
-            </div>
-        </div> );
-    }
+  state = {}
+  render() {
+    return (
+      <div className={this.props.cart} >
+        <div className="cart-hader ">
+          <div className="">
+            <h4 className="text-center text-nowrap my-3"> {this.props.title}</h4>
+            <h5 className="text-center my-3"> {this.props.SubTitle} {this.props.cartIcon}</h5>
+          </div>
+          
+        </div>
+       
+      </div>
+    )
+  }
 }
- 
-export default Cart;
+
+export default Cart

@@ -9,63 +9,62 @@ class Login extends Component {
     this.state = {
       fields: {},
       errors: {},
+      email: '',
+      password: '',
       massagerror: '',
-     
+      isLoading: false,
     }
   }
 
   Login = (e) => {
     e.preventDefault()
+    this.setState({ isLoading: true })
     if (this.handleValidation()) {
-      this.sendGetRequest()
+      this.sendPostRequest()
     }
+   
   }
-  sendGetRequest = async () => {
-
-      let fields = this.state.fields;
-      let erroors = {}
-      try {
-          const resp = await axios({
-              method: 'post',
-              url: 'https://koto2020.herokuapp.com/api/login',
-              data: {
-              "email":"abdelrahman.omar.hanafy@gmail.com",
-             "password":'12345678',
-             "language":"AR"
-              }
-          })
-          console.log(resp.data.token);
-          localStorage.setItem('token', resp.data.token);
-          this.props.history.replace('/admin/Dashboard');
-      } catch (err) {
-          // Handle Error
-          console.log(err);
-          if (err.response) {
-              console.log(err);
-              erroors = err.response.data;
-          }
-
+  sendPostRequest = async () => {
+    const { email, password, massagerror } = this.state
+    let erroors = ''
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: 'https://koto2020.herokuapp.com/api/login',
+        data: {
+          email: email,
+          password: password,
+          language: 'AR',
+        },
+      })
+      console.log(resp.data.data.token)
+      localStorage.setItem('token', resp.data.data.token)
+      this.props.history.replace('/admin/Dashboard')
+      this.setState({ isLoading: false })
+    } catch (err) {
+      // Handle Error
+      console.log(err.response)
+      this.setState({ isLoading: false })
+      if (err.response) {
+        console.log(err.response)
+        erroors = err.response.data.message
       }
+    }
 
-    //   this.setState({ massagerror: erroors })
-    //   console.log(this.state.massagerror)
-  };
+    this.setState({ massagerror: erroors })
+    console.log(massagerror)
+  }
 
   handleValidation() {
-    let fields = this.state.fields
     let errors = {}
     let formIsValid = true
-    if (!fields['number']) {
+    const { email, password } = this.state
+    if (!email) {
       formIsValid = false
-      errors['number'] = 'لايمكن ان يكون فارغا'
+      errors['email'] = 'لايمكن ان يكون فارغا'
     }
-    if (typeof fields['number'] !== 'undefined') {
-      if (!fields['number'].match(/^(01)[0-9]{9}$/)) {
-        formIsValid = false
-        errors['number'] = 'الرقم مثل :01011185477'
-      }
-    }
-    if (!fields['password']) {
+
+    if (!password) {
       formIsValid = false
       errors['password'] = 'لايمكن ان يكون فارغا'
     }
@@ -79,6 +78,8 @@ class Login extends Component {
     this.setState({ fields })
   }
   render() {
+    const { errors, email, password, massagerror, isLoading } = this.state
+
     return (
       <div className="container">
         <div className="row d-flex justify-content-center">
@@ -92,28 +93,30 @@ class Login extends Component {
                       <h3 className="py-4">مرحبا بك في كوتو</h3>
                     </div>
                     <div>
-                      <Form className="form-example ">
+                      <Form
+                        className="form-example  mb-5"
+                        onSubmit={this.Login}
+                      >
                         <div>
-                          
                           <input
-                            type="number"
-                            name="number"
-                            id="number"
-                            placeholder="ادخل رقم الهاتف"
+                            type="email"
+                            name="email"
+                            id="email"
+                            placeholder="ادخل رقم البريد الاكتروني"
                             required
                             className=" inputform  mb-1 mt-3 py-2 px-3"
-                            onChange={this.handleChange.bind(this, 'number')}
-                            value={this.state.fields['number']}
-                            onInput={(e) =>
-                              (e.target.value = e.target.value.slice(0, 11))
+                            onChange={(e) =>
+                              this.setState({ email: e.target.value })
                             }
+                            value={email}
+                            maxLength="50"
                           />
-                        <div> <span className="error">
-                            {this.state.errors['number']}
-                          </span></div>  
+                          <div>
+                            {' '}
+                            <span className="error">{errors['email']}</span>
+                          </div>
                         </div>
                         <div>
-                       
                           <input
                             type="password"
                             name="password"
@@ -121,27 +124,34 @@ class Login extends Component {
                             placeholder="ادخل الرقم السري "
                             required
                             className="inputform  mb-1 mt-3 py-2 px-3"
-                            onChange={this.handleChange.bind(this, 'password')}
-                            value={this.state.fields['password']}
+                            onChange={(e) =>
+                              this.setState({ password: e.target.value })
+                            }
+                            value={password}
                           />
-                        <div>  
-                             <span className="error">
-                            {this.state.errors['password']}
-                          </span>
-                           </div>
+                          <div>
+                            <span className="error">{errors['password']}</span>
+                          </div>
                         </div>
-
-                        <div className="pb-5" >
-                          {' '}
-                          <input
-                            type="submit"
-                            value="تسجيل الدخول"
-                            className="addQuestion w-100  my-3 py-2 px-3"
-                            onClick={this.Login}
-                            style={{ color: 'white' }}
-                          />
-                        </div>
-                        <span className="error">{this.state.massagerror}</span>
+                       
+                       
+                          <div className="pb-2">
+                            <button
+                              type="submit"
+                              className="addQuestion w-100  my-3 py-2 px-3"
+                              style={{ color: 'white' }}
+                            > {!isLoading ? ( "تسجيل الدخول" ) : (
+                              <div class="lds-ellipsis">
+                              <div></div>
+                              <div></div>
+                              <div></div>
+                              <div></div>
+                            </div>
+    
+                            )} </button>
+                          </div>
+                        
+                        <span className="error">{massagerror}</span>
                       </Form>
                     </div>
                   </div>

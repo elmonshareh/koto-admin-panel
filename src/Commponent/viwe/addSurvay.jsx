@@ -1,16 +1,17 @@
 import Dropdown from 'react-bootstrap/Dropdown'
 import React, { Component } from 'react'
-import { Table } from 'react-bootstrap'
+
 import { Card } from './../login/Card'
 import axios from 'axios'
-
+import Carousel from 'react-bootstrap/Carousel'
+import Toast from 'react-bootstrap/Toast'
 class AddSurvay extends Component {
   constructor(props) {
     super(props)
     this.state = {
       items: [],
-      name:[],
-      question:'',
+      name: '',
+      question: '',
       answer: '',
       dropdown: 'اختار النوع',
       questionType: '',
@@ -18,12 +19,20 @@ class AddSurvay extends Component {
       answers: [],
       inputs: [],
       arrayADD: [],
-      allSurveys:[],
+      allSurveys: [],
       date: new Date().toISOString().split('T')[0],
       number: '',
       errors: {},
-      token:localStorage.getItem('token'),
-     
+      token: localStorage.getItem('token'),
+      filter: '',
+      filterData: [],
+      key: 0,
+      keypagnation: 0,
+      disablepre: true,
+      isLoading: false,
+      apiMsg: '',
+      showToast: false,
+      toastColor:""
     }
   }
   addNewItem = () => {
@@ -42,10 +51,13 @@ class AddSurvay extends Component {
     Expidate.Expidate = date
     var Points = new Object()
     Points.Points = number
-    
     arrayADD = [name, items, Expidate, Points]
     if (this.handleValidation()) {
-      items.push({ name:name, answers: answers, questionType: questionType })
+      items.push({
+        name: question,
+        answers: answers,
+        questionType: questionType,
+      })
       this.setState({
         arrayADD,
         inputs: [],
@@ -53,15 +65,13 @@ class AddSurvay extends Component {
         answer: '',
         answers: [],
         dropdown: 'اختار النوع',
-        questionType: 'hidden',
-       
+        questionType: '',
       })
     }
 
     this.timestanp()
 
-    console.log(items)
-    
+    console.log(arrayADD.items)
   }
 
   removeInputField = (key) => {
@@ -72,8 +82,8 @@ class AddSurvay extends Component {
   }
 
   onHandleSubmit = () => {
-    const { inputs, answers, answer, arrayADD } = this.state
-    const name = `incrediant+${inputs.length}`
+    const { inputs, answers, answer } = this.state
+    const name = inputs.length
     let inputbox = (
       <div className="d-flex" key={name}>
         <input
@@ -94,8 +104,6 @@ class AddSurvay extends Component {
     inputs.push(inputbox)
 
     this.setState({ inputs, answer: '' })
-
-    console.log(inputbox)
   }
   timestanp = () => {
     var date = this.state.date
@@ -107,20 +115,35 @@ class AddSurvay extends Component {
       date + ':' + ('0' + hours).slice(-2) + ':' + ('0' + mint).slice(-2)
     var datastanp = new Date(output).getTime()
     this.setState({ datastanp: datastanp })
-
-    console.log(datastanp)
-    console.log(output)
   }
   handleValidation = () => {
     console.log(',,,')
-    const { answers, questionType, name, question, date, number } = this.state
+    const {
+      answers,
+      questionType,
+      name,
+      question,
+      date,
+      number,
+      dropdown,
+    } = this.state
     let errors = {}
     let formIsValid = true
-    console.log(answers.length)
-    if (answers.length === 0) {
+    if (!name) {
       formIsValid = false
-      errors['answer'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+      errors['name'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
+    if (
+      dropdown === 'اختار النوع' ||
+      dropdown === 'radio' ||
+      dropdown === 'checkbox'
+    ) {
+      if (answers.length === 0) {
+        formIsValid = false
+        errors['answer'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+      }
+    }
+
     if (!question) {
       formIsValid = false
       errors['question'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
@@ -148,69 +171,67 @@ class AddSurvay extends Component {
 
   addSurvayAPI = async () => {
     // let fields = this.state.fields;
-    const{token , inputs,items,date,arrayADD}=this.state
-    console.log(arrayADD)
+    const { token, date, datastanp, arrayADD } = this.state
     let errorAPI = ''
-    let json=JSON.stringify(arrayADD[1]);
-       
-   try {
-       const resp = await axios({
+    this.setState({ isLoading: true })
+   
+    try {
+      const resp = await axios({
         method: 'post',
-        url: 'https://koto2020.herokuapp.com/api/addSurvey',
+        url: 'https://koto2020.herokuapp.com/api/Survey/add',
         headers: {
-          "Authorization":`Bearer ${token}` ,
-          
-      },
+          Authorization: `Bearer ${token}`,
+        },
         data: {
           name: arrayADD[0],
-           questions:arrayADD[1]
-         ,
-          expireDate:date
+          questions: arrayADD[1],
+          expireDate: datastanp,
+          points: '5',
         },
       })
-      console.log(resp)
      
+      console.log(resp.data.message)
+      this.setState({
+        name: '',
+        answers: [],
+        data: new Date().toISOString().split('T')[0],
+        dropdown: 'اختار النوع',
+        arrayADD: [],
+        items: [],
+        isLoading: false,
+        showToast: true,
+        apiMsg:resp.data.message,
+        toastColor:'success'
+      })
     } catch (err) {
       // Handle Error
       console.log(err)
       if (err.response) {
         console.log(err)
         errorAPI = err.response.data
+        this.setState({
+          showToast: true,
+          apiMsg: err.response.data.error[0].msg,
+          isLoading: false,
+          toastColor:"error"
+        })
       }
     }
 
     this.setState({ massagerror: errorAPI })
     console.log(this.state.massagerror)
   }
-  addSurvay=()=>{
-   this.addSurvayAPI()
+  addSurvay = () => {
+    this.addSurvayAPI()
   }
-  getSurvay=async()=>{ try {
-    const{token }=this.state
-    const resp = await axios({
-        method: 'get',
-        url: 'https://koto2020.herokuapp.com/api/Survey',
-        headers: {
-            
-          "Authorization":`Bearer ${token}`
-        
-        },
-    })
-    console.log(resp);
-    await this.setState({ allSurveys: resp.data })
-
-} catch (err) {
-    console.log(err);
-}
-
-  }
-  componentDidMount=()=>{ this.getSurvay() }
+ 
 
   render() {
     const {
       name,
       answer,
       question,
+      disabled,
       dropdown,
       inputs,
       items,
@@ -218,21 +239,33 @@ class AddSurvay extends Component {
       number,
       date,
       errors,
+      apiMsg,
+      isLoading,showToast,toastColor
     } = this.state
-   
     return (
-      <div>
+      <div className="pb-3">
+        <Toast
+          onClose={() => {
+            this.setState({ showToast: false })
+          }}
+          show={showToast}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body className={toastColor}>{apiMsg}</Toast.Body>
+        </Toast>
         <Card
+          title="اضافه استيان"
           content={
-            <div className="container text-right">
-              <div className="row mt-3">
+            <div className="container text-right mb-3">
+              <div className="row mt-3 ">
                 <div className="col-md-6 col-sm-12">
-                  <div className="d-flex my-3">
-                    <span className="addAds ml-2">الاسم :</span>
+                  <div className="d-md-flex my-3 d-block">
+                    <span className="addAds text-nowrap">الاسم:</span>
                     <input
                       type="text"
                       name="name"
-                      className="imputservary px-2 mr-5 p-1"
+                      className="imputservary px-2 p-1"
                       maxLength="100"
                       value={name}
                       onChange={(e) => {
@@ -241,63 +274,64 @@ class AddSurvay extends Component {
                     />
                     <span className="mt-2 error">{errors['name']}</span>
                   </div>
-                  <div className="d-flex my-3">
-                    <div className="d-flex ">
-                      <span className="addAds ml-3">نوع السوال :</span>
-                      <Dropdown>
-                        <Dropdown.Toggle
-                          id="dropdown-basic"
-                          className="dropType"
-                          name="dropType"
-                        >
-                          {dropdown}
-                        </Dropdown.Toggle>
 
-                        <Dropdown.Menu>
-                          <Dropdown.Item
-                            eventKey="textarea"
-                            onSelect={(e) => {
-                              this.setState({
-                                dropdown: 'Textarea',
-                                questionType:'TEXTAREA',
-                                disabled: true,
-                                answer: '',
-                              })
-                            }}
-                          >
-                            textarea
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            eventKey="Redio"
-                            onSelect={(e) => {
-                              this.setState({
-                                dropdown: 'RADIO_BUTTON',
-                                questionType: 'RADIO_BUTTON',
-                                disabled: false,
-                              })
-                            }}
-                          >
-                            Redio Button
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            eventKey="cheek"
-                            onSelect={(e) => {
-                              this.setState({
-                                dropdown: 'checkbox',
-                                questionType: 'CHECKBOX',
-                                disabled: false,
-                              })
-                            }}
-                          >
-                            cheekBox
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                      <span className="mt-2 error">{errors['dropType']}</span>
-                    </div>
+                  <div className="d-md-flex d-block my-3 ">
+                    
+                    <span className="  ml-3 text-nowrap">نوع السوال :</span>
+                    <Dropdown>
+                      <Dropdown.Toggle
+                        id="dropdown-basic"
+                        className="dropType"
+                        name="dropType"
+                      >
+                        {dropdown}
+                      </Dropdown.Toggle>
+
+                      <Dropdown.Menu>
+                        <Dropdown.Item
+                          eventKey="textarea"
+                          onSelect={(e) => {
+                            this.setState({
+                              dropdown: 'textarea',
+                              questionType: 'textarea',
+                              disabled: true,
+                              answers: [],
+                            })
+                          }}
+                        >
+                          textarea
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          eventKey="Redio"
+                          onSelect={(e) => {
+                            this.setState({
+                              dropdown: 'radio',
+                              questionType: 'radio',
+                              disabled: false,
+                            })
+                          }}
+                        >
+                          Redio Button
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          eventKey="cheek"
+                          onSelect={(e) => {
+                            this.setState({
+                              dropdown: 'checkbox',
+                              questionType: 'checkbox',
+                              disabled: false,
+                            })
+                          }}
+                        >
+                          cheekBox
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                    <span className="mt-2 error">{errors['dropType']}</span>
                   </div>
-                  <div className="d-flex my-3">
-                    <span className="addAds ml-2">اضافه سؤال :</span>
+
+                  <div className="d-md-flex d-block my-3">
+                    <span className="addAds text-nowrap ">اضافه سؤال :</span>
                     <input
                       type="text"
                       name=" question"
@@ -311,8 +345,10 @@ class AddSurvay extends Component {
                     <span className="mt-2 error">{errors['question']}</span>
                   </div>
                   <div>
-                    <div className="d-flex my-3">
-                      <span className="addAds ml-2">اضافه إجابة &nbsp;:</span>
+                    <div className="d-md-flex  d-dlock  my-3">
+                      <span className="addAds text-nowrap">
+                        اضافه إجابة &nbsp;:
+                      </span>
                       <input
                         type="text"
                         name="answer"
@@ -325,7 +361,11 @@ class AddSurvay extends Component {
                         }}
                       />
 
-                      <button className="addBtn" onClick={this.onHandleSubmit}>
+                      <button
+                        className="addBtn"
+                        disabled={disabled}
+                        onClick={this.onHandleSubmit}
+                      >
                         <i className="fas fa-plus-circle danger"></i>
                       </button>
                       <span className="mt-2 error">{errors['answer']}</span>
@@ -334,8 +374,8 @@ class AddSurvay extends Component {
                     <div> {inputs.map((i) => i)}</div>
                     <div></div>
                   </div>
-                  <div className="d-flex my-3">
-                    <span className="addAds ml-2">تاريخ الانتهاء :</span>
+                  <div className="d-md-flex  d-block my-3">
+                    <span className="addAds text-nowrap">تاريخ الانتهاء :</span>
 
                     <input
                       type="date"
@@ -352,11 +392,11 @@ class AddSurvay extends Component {
                     <span className="mt-2 error">{errors['date']}</span>
                   </div>
                   <div className="d-flex my-3">
-                    <span className="addAds ml-1"> عدد النقاط :</span>
+                    <span className="addAds text-nowrap "> عدد النقاط :</span>
                     <input
                       type="number"
                       name="number"
-                      className=" addPoint px-2 mr-2 p-1"
+                      className="addPoint px-2 p-1"
                       value={number}
                       onChange={(event) =>
                         this.setState({ number: event.target.value })
@@ -364,59 +404,65 @@ class AddSurvay extends Component {
                     />
                     <span className="mt-2 error">{errors['number']}</span>
                   </div>
-                  <div className="d-flex justify-content-between p-3">
-                    <button onClick={this.addNewItem} className="addQuestion">
-                      اضافه سؤال اخر
-                    </button>
-                    <button className="addQuestion" onClick={this.addSurvay}>اضافه الاستبيان</button>
+                  <div className="d-md-flex justify-content-between d-sm-block p-3">
+                    <div className="d-flex justify-content-center d-md-block">
+                      <button
+                        onClick={this.addNewItem}
+                        className="addQuestion mb-2 "
+                      >
+                        اضافه سؤال اخر
+                      </button>
+                      <span className="d-flex justify-content-center error mt-3">
+                        {errors['add']}
+                      </span>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                      <button className="addQuestion" onClick={this.addSurvay}>
+                      {!isLoading ? ( "اضافه الاستبيان" ) : (
+                              <div class="lds-ellipsis">
+                              <div></div>
+                              <div></div>
+                              <div></div>
+                              <div></div>
+                            </div>
+    
+                            )}      
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className=" col-md-6 col-sm-12">
-                  <div className="survey-card p-3">
-                    <h3 className="text-center">{arrayADD[0]}</h3>
-
-                    {items.map((item) => {
-                      console.log(item)
-                      return (
-                        <div>
-                          <h5 key={item.length}>{item.question}</h5>
-                          <div >
-                            {item.answers.map((object) => {
-                              console.log(object)
+                  <div className="survey-card p-3 d-flex  ">
+                    <Carousel className="col-12">
+                      {items.map((x, index) => {
+                        console.log(x)
+                        return (
+                          <Carousel.Item key={index}>
+                            <h2 className="text-center">{arrayADD[0]}</h2>
+                            <h4 className="text-right mx-3 mt-3 mb-3">
+                              {x.name}
+                            </h4>
+                            {x.answers.length === 0 && (
+                              <textarea className="mt-2 mr-3 surTextarea" />
+                            )}
+                            {x.answers.map((y, index) => {
+                              console.log(y, x.questionType)
                               return (
-                                <div  key={ object+item.answers.length} className="my-3" >
-                                  <input type={item.questionType} readOnly />
-                                  {object}
+                                <div className="mx-3 mt-4" key={index}>
+                                  <input type={x.questionType} className="ml-2" />
+                                  {y}
                                 </div>
                               )
                             })}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-                <div className="col-12">
-                  <Table striped hover className="table">
-                    <thead className="tdCatergory">
-                      <tr>
-                        <th> عنوان الرساله</th>
-                        <th> نص الرساله</th>
-                      </tr>
-                    </thead>
-                    <tbody className="trCatergory">
-                      {this.state.items.map((item) => {
-                        return (
-                          <tr key={item.id}>
-                            <td>jjjj</td>
-                            <td>lll</td>
-                          </tr>
+                          </Carousel.Item>
                         )
                       })}
-                    </tbody>
-                  </Table>
+                    </Carousel>
+                  </div>
                 </div>
+                
               </div>
+            
             </div>
           }
         />

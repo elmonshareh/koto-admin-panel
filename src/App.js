@@ -1,6 +1,5 @@
 /** @format */
 import './App.css';
-import Dashboard from './Commponent/Dashboard';
 import Login from './Commponent/login/login';
 import { Redirect, Route } from 'react-router';
 

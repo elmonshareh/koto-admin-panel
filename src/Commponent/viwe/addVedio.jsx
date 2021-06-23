@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { Table } from 'react-bootstrap'
-
+import axios from 'axios'
 import { Card } from '../login/Card'
-
+import Toast from 'react-bootstrap/Toast'
 class AddVedio extends Component {
   constructor(props) {
     super(props)
@@ -10,26 +10,29 @@ class AddVedio extends Component {
       items: [],
       number: 0,
       video: '',
-      title:"",
+      title: '',
       selectedFile: null,
       date: new Date().toISOString().split('T')[0],
-      errors:{},
-      subTitle:""
+      errors: {},
+      subTitle: '',
+      token: localStorage.getItem('token'),
+      showToast: false,
+      apiMsg: '',
+      isLoading: false,
+      toastColor:""
     }
   }
   uploadVedio = async (e) => {
+    const { selectedFile } = this.state
     await this.setState({
       selectedFile: e.target.files[0],
-      loaded: 0,
     })
-
-    let src = URL.createObjectURL(this.state.selectedFile)
-    console.log(this.state.selectedFile)
-    console.log(src)
-    this.setState({ video: src })
+    console.log(selectedFile)
+    this.state.selectedFile &&
+      this.setState({ video: URL.createObjectURL(this.state.selectedFile) })
   }
   timestanp = () => {
-    var date = this.state.date
+    var { date } = this.state
 
     var mint = new Date().getMinutes()
     var hours = new Date().getHours()
@@ -44,11 +47,14 @@ class AddVedio extends Component {
   }
   addVedio = () => {
     this.timestanp()
-    this.handleValidation()
+
+    if (this.handleValidation()) {
+      this.addVideoAPI()
+    }
   }
   handleValidation = () => {
     console.log(',,,')
-    const {title, video, date, number } = this.state
+    const { title, video, date, number } = this.state
     let errors = {}
     let formIsValid = true
     if (!title) {
@@ -71,49 +77,136 @@ class AddVedio extends Component {
     this.setState({ errors: errors })
     return formIsValid
   }
+  addVideoAPI = async () => {
+    // let fields = this.state.fields;
+    const {
+      token,
+      title,
+      date,
+      number,
+      subTitle,
+      video,
+      selectedFile,
+      key,
+      toastColor
+    } = this.state
+    let errorAPI = ''
+    var bodyFormData = new FormData()
+    bodyFormData.append('title', title)
+    bodyFormData.append('description', subTitle)
+    bodyFormData.append('expireDate', date)
+    bodyFormData.append('points', number)
+    bodyFormData.append('video', selectedFile)
+    this.setState({isLoading:true})
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: `https://koto2020.herokuapp.com/api/Video/add?page=${key}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        data: bodyFormData,
+      })
+      if(resp.data.message){console.log("manar")}
+      console.log(resp.data.message)
+      this.setState({
+        title: '',
+        number: '',
+        video: '',
+        selectedFile: null,
+        date: new Date().toISOString().split('T')[0],
+        subTitle: '',
+        showToast: true,
+        isLoading:false,
+        apiMsg: resp.data.message
+        ,toastColor:"success"
+      })
+    } catch (err) {
+      console.log(err)
+
+      if (err.response) {
+        console.log(err.response.data.error[0].msg)
+        errorAPI = err.response.data.error
+        this.setState({
+          showToast: true,
+          apiMsg: err.response.data.error[0].msg,
+          isLoading:false,toastColor:"error"
+        })
+      }
+    }
+    this.setState({ massagerror: errorAPI })
+    console.log(this.state.massagerror)
+  }
+
+
   render() {
-    const { vedio, date, number,errors ,title,subTitle} = this.state
-    console.log(this.state.video)
+    const {
+      vedio,
+      date,
+      number,
+      errors,
+      allVedio,
+      title,
+      subTitle,
+      showToast,
+      apiMsg,
+      isLoading,toastColor
+    } = this.state
+    console.log(allVedio)
     return (
-      <div>
+      <div >
+        <Toast
+          
+          show={showToast}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body className={toastColor}>{apiMsg}</Toast.Body>
+        </Toast>
+
         <Card
+          title="اضافه فيديوهات"
           content={
-            <div className="container  text-right">
+            <div className="container text-right ">
               <div className=" row mt-3 ">
                 <div className="col-md-6 col-sm-12">
-                  <div className="d-flex my-3">
-                    <span className="addAds  pl-2">عنوان الاعلان:</span>
+                
+                  <div className="d-md-flex my-3 d-block">
+                    <span className="addAds  ">عنوان الاعلان :</span>
                     <input
                       type="text"
                       name="title"
-                      className="imputservary  px-2 p-1"
+                      className="imputservary  px-2 p-1 "
                       maxLength="100"
                       value={title}
                       onChange={(event) =>
                         this.setState({ title: event.target.value })
                       }
                     />
-                      <span className="mt-2 error">{errors['title']}</span>
+                    <span className="mt-2 error">{errors['title']}</span>
                   </div>
-                  <div className="d-flex">
-                    <span className="addAds   ml-1 pl-2">نص الاعلان :</span>
+                  <div className="d-md-flex d-block">
+                    <span className="addAds  text-nowrap ">نص الاعلان :</span>
                     <textarea
                       type="textarea"
                       className="imputservary px-2 p-1"
-                      maxLength="100"
+                      maxLength="500"
                       value={subTitle}
                       onChange={(event) =>
                         this.setState({ subTitle: event.target.value })
                       }
                     />
                   </div>
-                  <div className="d-flex mt-3">
-                    <span className="addAds ml-1">تاريخ الانتهاء:</span>
+                  <div className="d-md-flex d-block mt-3">
+                    <span className="addAds  text-nowrap ">
+                      تاريخ الانتهاء :
+                    </span>
                     <input
                       type="date"
                       id="start"
                       name="date"
-                      className="imputservary mr-2 px-2 p-1"
+                      className="imputservary  px-2 p-1"
                       value={date}
                       min={new Date().toISOString().split('T')[0]}
                       max="2022-12-31"
@@ -121,47 +214,52 @@ class AddVedio extends Component {
                         this.setState({ date: event.target.value })
                       }
                     ></input>
-                      <span className="mt-2 error">{errors['date']}</span>
+                    <span className="mt-2 error">{errors['date']}</span>
                   </div>
-                  <div className="d-flex my-3">
-                    <span className="addAds ml-1"> عدد النقاط :</span>
+                  <div className="d-md-flex my-3  d-block">
+                    <span className="addAds  text-nowrap "> عدد النقاط :</span>
                     <input
                       type="number"
                       name="number"
-                      className=" addPoint px-2 mr-2 p-1"
+                      className=" addPoint px-2  p-1"
                       value={number}
                       onChange={(event) =>
                         this.setState({ number: event.target.value })
                       }
                     ></input>
-                      <span className="mt-2 error">{errors['number']}</span>
+                    <span className="mt-2 error">{errors['number']}</span>
                   </div>
-                  <div className="file-input d-flex justify-content-around m-3 ">
+
+                  <div className="file-input d-md-flex justify-content-around d-sm-block m-3 ">
                     <input
                       type="file"
                       id="file"
-                      
                       className="file"
                       accept="video/*"
                       value={vedio}
                       onChange={this.uploadVedio}
                       name="vedio"
                     />
-                   
-                    
+
                     <label htmlFor="file">
                       تحميل الفيديو
                       <p className="file-name"></p>
-                     
                     </label>
 
-                    <input
+                    <button
                       type="submit"
-                      className="addQuestion"
+                      className="addQuestion mr-2"
                       onClick={this.addVedio}
-                      value="اضافه الاعلان"
-                    />
-                    
+                     
+                    > {!isLoading ? ( "اضافه الاعلان " ) : (
+                      <div class="lds-ellipsis">
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                    </div>
+
+                    )}</button>
                   </div>
                 </div>
 
@@ -171,44 +269,14 @@ class AddVedio extends Component {
                     autoPlay={true}
                     controls="controls"
                     width="90%"
-                   
                   />
-                    <span className="d-flex align-items-center error">{errors['vedio']}</span>
-                    
+                  <span className="d-flex align-items-center error">
+                    {errors['vedio']}
+                  </span>
                 </div>
               </div>
-              <div className="">
-                <Table
-                  striped
-                  hover
-                  className=" border table-success table-striped"
-                >
-                  <thead className="tdCatergory">
-                    <tr>
-                      <th> عنوان الرساله</th>
-                      <th> نص الرساله</th>
-                    </tr>
-                  </thead>
-                  <tbody className="trCatergory">
-                    <tr>
-                      <td>mm</td>
-                      <td>mmm</td>
-                    </tr>
-                    <tr>
-                      <td>mm</td>
-                      <td>mmm</td>
-                    </tr>
-                    {this.state.items.map((item) => {
-                      return (
-                        <tr key={item.id}>
-                          <td>mm</td>
-                          <td>mmm</td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </Table>
-              </div>
+              
+              
             </div>
           }
         />

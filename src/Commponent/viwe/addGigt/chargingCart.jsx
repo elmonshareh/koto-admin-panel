@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import { Card } from './../../login/Card'
 import Dropdown from 'react-bootstrap/Dropdown'
 import { SketchPicker } from 'react-color'
-import vodfone from '../../../Img/Icon/vodafone-icon.svg'
-import etislate from '../../../Img/Icon/etisalat-1.svg'
-import orange from '../../../Img/Icon/orange-3.svg'
-import we from '../../../Img/Icon/we.png'
-import AddNetwork from './modaleNetWork'
+import axios from 'axios'
+import  Toast  from 'react-bootstrap/Toast'
+
 class ChargingCart extends Component {
   state = {
     background: '#6b18ff',
@@ -15,72 +13,176 @@ class ChargingCart extends Component {
     showHideBtn: true,
     name: 'اختار الشركه',
     icon: '',
-    key: '',
+    keys: '',
     point: '',
     valueCart: '',
-    modelname: '',
-    modelkeys: '',
-    modleIcon: '',
-    date: new Date().toISOString().split('T')[0],
-    showModle:false,
+    token: localStorage.getItem('token'),
+    massagerror: {},
+    showModle: false,
+    allNetwork: [],
+    id: '',
+    code: 'كود الشحن',
+    errors: {},
+    startcode: '',
+    endcode: '',
+    showToast: false,
+    apiMsg: '',
+    toastColor:"",
+    descraption:""
   }
   handleChangeComplete = (color, event) => {
-    this.setState({ background: color.rgb, backgroundHex: color.hex })
-    console.log(this.state.background, this.state.backgroundHex)
-  }
-  hideComponent = () => {
     this.setState({
-      showHide: !this.state.showHideDemo1,
+      background: color.rgb,
+      backgroundHex: color.hex,
+      showHide: !this.state.showHide,
       showHideBtn: !this.state.showHideBtn,
     })
   }
-  handleModal=(event)=>{this.setState({ name: (
-    <span>
-      {this.state.modelname}
-      <img src={this.state.modleIcon} width="20px" />
-    </span>
-  ), 
-  icon: (
-    <img
-      src={this.state.modleIcon}
-      width="50px"
-    />
-  )  ,key: <h5 className="text-center">{this.state.modelkeys}</h5> } ,this.showModleChange())}
-  showModleChange=()=>{this.setState({showModle:!this.state.showModle})}
+  hideComponent = () => {
+    this.setState({
+      showHide: !this.state.showHide,
+      showHideBtn: !this.state.showHideBtn,
+    })
+  }
+
+  getAllNetwork = async () => {
+    try {
+      const { token, allNetwork } = this.state
+      const resp = await axios({
+        method: 'get',
+        url: 'https://koto2020.herokuapp.com/api/Network?page=2',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(resp.data.networks)
+      await this.setState({ allNetwork: resp.data.networks })
+      console.log(allNetwork)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  handleValidation = () => {
   
+    const { valueCart, code, id, point } = this.state
+    let errors = {}
+    let formIsValid = true
+    if (!id) {
+      formIsValid = false
+      errors['dropCart'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    if (!valueCart) {
+      formIsValid = false
+      errors['valueCart'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    if (!point) {
+      formIsValid = false
+      errors['point'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    if (!code) {
+      formIsValid = false
+      errors['code'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+
+    this.setState({ errors: errors })
+    return formIsValid
+  }
+  addCard = async () => {
+    if (this.handleValidation()) {
+      const { valueCart, point, code, id, token, backgroundHex,descraption } = this.state
+      let errorAPI = ''
+      try {
+        const resp = await axios({
+          method: 'post',
+          url: 'https://koto2020.herokuapp.com/api/Card/add',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            network: id,
+            chargeCode: code,
+            points: point,
+            description: descraption,
+            value: valueCart,
+            color: backgroundHex,
+          },
+        })
+        this.setState({  name: 'اختار الشركه', code:" ", point:'',valueCart:'' ,backgroundHex:"#6b18ff", showToast: true, id:'',
+        apiMsg: resp.data.message
+        ,toastColor:"success"})
+
+        console.log(resp)
+      } catch (err) {
+        // Handle Error
+        console.log(err)
+        if (err.response) {
+          console.log(err.response.data.error[0].msg)
+          errorAPI = err.response.data.error
+          this.setState({
+            showToast: true,
+            apiMsg: err.response.data.error[0].msg,
+          toastColor:"error"
+          })
+        }
+      }
+
+      this.setState({ massagerror: errorAPI })
+      console.log(this.state.massagerror)
+    }
+  }
+  componentDidMount() {
+    this.getAllNetwork()
+  }
   render() {
     const {
       showHide,
       showHideBtn,
       backgroundHex,
       name,
-      key,
       icon,
       point,
       valueCart,
-      modelname,
-      modelkeys,  
-      date
+      allNetwork,
+      code,
+      errors,
+      endcode,
+      startcode,
+      descraption,
+      showToast,
+      apiMsg,toastColor
     } = this.state
+
     const mystyle = {
       color: 'white',
       backgroundColor: backgroundHex,
       padding: '10px',
       height: '230px',
-      'border-radius': '17px',
+      borderRadius: '17px',
       position: 'relative',
     }
+    console.log(startcode)
 
     return (
       <div>
+        <Toast
+          onClose={() => {
+            this.setState({ showToast: false })
+          }}
+          show={showToast}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body className={toastColor}>{apiMsg}</Toast.Body>
+        </Toast>
         <Card
+          title="اضافه كرت شحن"
           content={
-            <div className="container ">
+            <div className="container  text-right">
               <div className="row  mt-3">
                 <div className="col-md-6 col-sm-12">
-                  <div className="d-flex my-3">
+                  <div className="d-md-flex my-3 d-block text-nowrap">
+                    <div className="addAds"> اسم الشبكه:</div>
                     <Dropdown>
-                      <label className="ml-2"> اسم الشبكه:</label>
                       <Dropdown.Toggle
                         id="dropdown-basic"
                         className="dropCart"
@@ -89,112 +191,41 @@ class ChargingCart extends Component {
                         {name}
                       </Dropdown.Toggle>
                       <Dropdown.Menu className="dropdownCart">
-                        <Dropdown.Item
-                          eventKey="Vodafone"
-                          onSelect={(e) => {
-                            this.setState({
-                              name: (
-                                <span>
-                                  Vodfone <img src={vodfone} width="20px" />
-                                </span>
-                              ),
-                              key: (
-                                <h5 className="text-center">
-                                  {' '}
-                                  "#كود الشحن #858*"
-                                </h5>
-                              ),
-                              icon: <img src={vodfone} width="50px" />,
-                            })
-                          }}
-                        >
-                          Vodafone <img src={vodfone} alt="" width="20" />
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          eventKey="Etislate"
-                          onSelect={(e) => {
-                            this.setState({
-                              name: (
-                                <span>
-                                  {' '}
-                                  Etislate <img src={etislate} width="20px" />
-                                </span>
-                              ),
-                              key: (
-                                <h5 className="text-center">
-                                  {' '}
-                                  #كود الشحن *555*
-                                </h5>
-                              ),
-                              icon: <img src={etislate} width="50px" />,
-                            })
-                          }}
-                        >
-                          Etislate <img src={etislate} alt="" width="20" />
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          eventKey=" Orange"
-                          
-                        >
-                          Orange <img src={orange} alt="" width="20" />
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          eventKey=" We"
-                          onSelect={(e) => {
-                            this.setState({
-                              name: (
-                                <span>
-                                  We <img src={we} width="20px" />
-                                </span>
-                              ),
-                              key: (
-                                <h5 className="text-center">
-                                  {' '}
-                                  #كود الشحن *555*
-                                </h5>
-                              ),
-                              icon: <img src={we} width="50px" />,
-                            })
-                          }}
-                        >
-                          We <img src={we} alt="" width="20" />
-                        </Dropdown.Item>
+                        {allNetwork.map((x) => (
+                          <Dropdown.Item
+                            key={x._id}
+                            onSelect={(e) => {
+                              console.log(x._id)
+                              this.setState({
+                                name: (
+                                  <span>
+                                    {x.title}{' '}
+                                    <img src={x.logo} width="20px" alt="" />
+                                  </span>
+                                ),
+                                startcode: x.startCode,
+                                endcode: x.endCode,
+                               
+                                icon: <img src={x.logo} width="50px" alt="" />,
+                                id: x._id,
+                              })
+                            }}
+                          >
+                            {' '}
+                            {x.title} <img src={x.logo} alt="" width="20" />
+                          </Dropdown.Item>
+                        ))}
+                       
+                        
+                        
+                       
                       </Dropdown.Menu>
                     </Dropdown>
-                  </div>
-                  <div className="d-flex my-3">
-                    <label className="ml-1">اضافه شبكه: </label>
-                    <AddNetwork
-                    showModle={this.state.showModle}
-                     showModleChange={this.showModleChange}
-                      name={modelname}
-                      handleName={(event) =>
-                        this.setState({
-                          modelname: event.target.value,
-                         
-                        })
-                      }
-                      modelkeys={modelkeys}
-                      inputModalKeys={(event) => {
-                        this.setState({
-                          modelkeys: event.target.value,
-                         
-                        })
-                      }}
-                      uplodIcon={(event) =>
-                        this.setState({
-                          modleIcon: URL.createObjectURL(event.target.files[0]),
-                        })
-                      }
-                      handleModal={this.handleModal}
-                    />
+                    <span className="mt-2 error">{errors['dropCart']}</span>
                   </div>
 
-                  <div className="d-flex my-3">
-                    <label htmlFor="valueCart" className="ml-1">
-                      {' '}
-                      قيمه الكارت :
-                    </label>
+                  <div className="d-md-flex my-3 d-block">
+                    <div className="addAds text-nowrap "> قيمه الكارت :</div>
                     <input
                       className="p-1 inputCrat "
                       type="number"
@@ -205,11 +236,26 @@ class ChargingCart extends Component {
                         this.setState({ valueCart: event.target.value })
                       }
                     />
+                    <span className="mt-2 error">{errors['valueCart']}</span>
                   </div>
-                  <div className="d-flex my-3">
-                    <label htmlFor="point" className="ml-1">
-                      قيمه النقاط :
-                    </label>
+                  <div className="d-md-flex my-3 d-block">
+                    <div addAds className="addAds text-nowrap ">
+                      كود الشحن :
+                    </div>
+                    <input
+                      className="p-1 inputCrat "
+                      type="number"
+                      id="code"
+                      name="code"
+                      value={code}
+                      onChange={(event) =>
+                        this.setState({ code: event.target.value })
+                      }
+                    />
+                    <span className="mt-2 error">{errors['code']}</span>
+                  </div>
+                  <div className="d-md-flex my-3 d-block">
+                    <div className="addAds text-nowrap ">قيمه النقاط :</div>
                     <input
                       className="p-1 inputCrat "
                       type="number"
@@ -220,51 +266,38 @@ class ChargingCart extends Component {
                         this.setState({ point: event.target.value })
                       }
                     />
+                    <span className="mt-2 error">{errors['point']}</span>
                   </div>
-                  <div className="d-flex my-3">
-                  <label  className="ml-1">
-                      تاريخ الانتهاء:
-                    </label>
-                    <input
-                      type="date"
-                      id="start"
-                      name="date"
-                      className=" inputCrat px-2 p-1"
-                      value={date}
-                      min={new Date().toISOString().split('T')[0]}
-                      max="2022-12-31"
-                      onChange={(event) =>
-                        this.setState({ date: event.target.value })
-                      }
-                    />
-                  
-                  </div>
-                  <div className="d-flex my-3">
-                    <label htmlFor="descrption" className="ml-4 text-nowrap">
-                      الوصف :
-                    </label>
+
+                  <div className="d-md-flex my-3 d-block">
+                    <div className="addAds text-nowrap">الوصف :</div>
                     <textarea
                       id="descrption"
-                      className="mr-1"
-                      name="descrption"
-                      rows="3"
-                      cols="45"
+                      className="inputCrat p-2"
+                      name="descrption" 
+                      value={descraption}
+                      onChange={(event) =>
+                        this.setState({descraption : event.target.value })}
+
                     />
                   </div>
 
-                  <div className="d-flex  my-3">
-                    <label className="text-nowrap ml-2"> لون الخلفيه:</label>
+                  <div className="d-md-flex my-3 d-block">
+                    <label className=" addAds text-nowrap ">
+                      {' '}
+                      لون الخلفيه:
+                    </label>
                     {showHide && (
                       <SketchPicker
                         color={this.state.background}
                         onChangeComplete={this.handleChangeComplete}
-                        width="312px"
+                        width="70%"
                       />
                     )}
                     {showHideBtn && (
                       <button
                         className="btnColor border border-light rounded-pill p-2"
-                        onClick={() => this.hideComponent()}
+                        onClick={this.hideComponent}
                       >
                         اضغط لي اختيار اللون
                       </button>
@@ -278,16 +311,26 @@ class ChargingCart extends Component {
                       <div className="m-2"> {icon}</div>
                       <h3 className="mt-2">{valueCart} جنيه</h3>
                     </div>
-                    <div className="my-4"> {key}</div>
+                    <div className="my-4 text-center">
+                      {' '}
+                      {endcode} {code} {startcode}{' '}
+                    </div>
                     <h5 className="pointPostionCart">تبديل ب {point} نقطه</h5>
                   </div>
-                  <div className="  d-flex my-3 justify-content-around">
-                    <button className=" addcatrbtn   rounded-pill p-2">
-                      اضافه اكسل شيت
-                    </button>
-                    <button className=" addcatrbtn  border-light rounded-pill p-2">
-                      اضافه الكارت
-                    </button>
+                  <div className="  d-md-flex my-3 justify-content-between d-sm-block p-3">
+                    <div className="d-flex justify-content-center d-md-block">
+                      <button className="addQuestion mb-2">
+                        اضافه اكسل شيت
+                      </button>
+                    </div>
+                    <div className="d-flex justify-content-center d-md-block">
+                      <button
+                        className=" addQuestion mb-2"
+                        onClick={this.addCard}
+                      >
+                        اضافه الكارت
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
