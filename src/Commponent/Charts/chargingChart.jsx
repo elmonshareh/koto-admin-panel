@@ -3,7 +3,7 @@ import FusionCharts from 'fusioncharts'
 import charts from 'fusioncharts/fusioncharts.charts'
 import ReactFusioncharts from 'react-fusioncharts'
 import  Dropdown  from 'react-bootstrap/Dropdown';
-
+import axios from 'axios'
 // Resolves charts dependancy
 charts(FusionCharts) 
 
@@ -12,24 +12,31 @@ class ChargingChart extends React.Component {
     super(props)
     this.state = { 
       title:"قيمه الكرت",
+      token: localStorage.getItem('token'),
+      filter:"50",
+      filters:[],
       data: [
         {
-          label: 'Vodafon',
-          value: '100',
+            "color": "#ffa500",
+            "label": "Orange",
+            "value": "33%"
         },
         {
-          label: 'We',
-          value: '520',
+            "color": "#ff0000",
+            "label": "Vodafone",
+            "value": "17%"
         },
         {
-          label: 'Etislat',
-          value: '200',
+            "color": "#008000",
+            "label": "Etislat",
+            "value": "33%"
         },
         {
-          label: 'Orange',
-          value: '185',
-        },
-      ],
+            "color": "#800080",
+            "label": "WE",
+            "value": "19"
+        }
+    ],
        data100: [
         {
           label: 'Vodafon',
@@ -70,6 +77,7 @@ class ChargingChart extends React.Component {
         {
           label: 'Vodafon',
           value: '800',
+          
         },
         {
           label: 'We',
@@ -121,14 +129,53 @@ class ChargingChart extends React.Component {
       ],
     }
   }
+
+  ChargingCardApi = async () => {
+  
+      const {filter , token,} = this.state
+      try {
+        const resp = await axios({
+          method: 'post',
+          url: 'https://koto2020.herokuapp.com/api/dashboard/chart/card/filter',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            filter: filter,
+           
+          },
+        })
+
+        console.log(resp)
+        await this.setState({filters:resp.data.filters ,data:resp.data.data})
+      } catch (err) {
+        // Handle Error
+        console.log(err)
+        if (err.response) {
+          console.log(err)
+         
+        }
+      }
+
+     
+    
+  }
+  handelChangeFilter= async(x)=>{
+await this.setState({filter: x ,title:x})
+    this.ChargingCardApi()
+  }
+  componentDidMount(){
+    this.ChargingCardApi()
+  }
+
   render() {
-    const { data,data5,data10,data25,data50,data100,title } = this.state
+    const { data,filter,filters,title } = this.state
     return (
         <div > <div>
       <ReactFusioncharts
         type="doughnut2d"
         width="100%"
-        height="400"
+        height="300"
         dataFormat="JSON"
         dataSource={{
           chart: {
@@ -147,36 +194,16 @@ class ChargingChart extends React.Component {
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu className="menuYears">
-                  <Dropdown.Item
-                    eventKey="0"
-                    onSelect={() => this.setState({data:data5,title:"كرت فكه" })}
-                  >
-                   كرت فكه
-                  </Dropdown.Item>
-                  <Dropdown.Item
+                {filters.map((x) => (  
+                <Dropdown.Item
                     eventKey="1"
-                    onSelect={() => this.setState({data:data10  ,title:"كرت 10"})}
+                    onSelect={()=>this.handelChangeFilter(x)}
                   >
-                   10 
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    eventKey="2"
-                    onSelect={() => this.setState({data:data25,title:"كرت 25"})}
-                  >
-                   25
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    eventKey="3"
-                    onSelect={() => this.setState({data:data50, title:"كرت 50"})}
-                  >
-                   50
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    eventKey="4"
-                    onSelect={() => this.setState({data:data100 ,title:"كرت 100"})}
-                  >
-                   100
-                  </Dropdown.Item>
+                 {x}
+                  </Dropdown.Item>))}
+                 
+                 
+                 
                 </Dropdown.Menu>
               </Dropdown>
               </div>

@@ -15,8 +15,8 @@ class SurvayDetailes extends Component {
               Authorization: `Bearer ${token}`,
             },
           })
-          console.log(resp)
-          await this.setState({ survay: resp.data.survey ,questions:resp.data.survey.questions})
+          console.log(resp.data.survey.data )
+          await this.setState({ survay: resp.data.survey.data[0] ,questions:resp.data.survey.data[0].questions})
           
         } catch (err) {
           console.log(err)

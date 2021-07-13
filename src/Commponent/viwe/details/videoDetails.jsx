@@ -13,8 +13,8 @@ class VideoDetailes extends Component {
               Authorization: `Bearer ${token}`,
             },
           })
-          console.log(resp)
-          await this.setState({ video: resp.data.video })
+          console.log(resp.data.video.data[0] )
+          await this.setState({ video: resp.data.video.data[0] })
         } catch (err) {
           console.log(err)
         }
@@ -36,7 +36,7 @@ class VideoDetailes extends Component {
           <div className="my-3 d-md-flex d-sm-block  ">   <div  className="text-nowrap">-الوصف :  </div>  {video.description}</div>
           </div>
           <div className="col-sm-12 col-md-6 ">  
-          <video src={video.link}  width="90%" controls />
+          <video src={video.link}  width="90%" controls height="200" />
          </div>
         </div>}/> 
          </div>);

@@ -187,7 +187,9 @@ class AppChart extends React.Component {
               theme: "fusion"
             },
             data: data }
+           
           }
+          
       />
       <div onChange={this.onValueChange} className="d-md-flex d-sm-block text-right">
           <div className="mx-2">

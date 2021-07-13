@@ -1,47 +1,61 @@
-import React, { Component } from 'react';
-import FusionCharts from "fusioncharts";
-import charts from "fusioncharts/fusioncharts.charts";
-import ReactFusioncharts from "react-fusioncharts";
-
+import React, { Component } from 'react'
+import FusionCharts from 'fusioncharts'
+import charts from 'fusioncharts/fusioncharts.charts'
+import ReactFusioncharts from 'react-fusioncharts'
+import axios from 'axios'
 // Resolves charts dependancy
-charts(FusionCharts);
-
-const dataSource = {
-  chart: {
-
- 
-    captionpadding: '0',
-    decimals: '1',
-    theme: 'fusion',
-  },
-  data: [
-    {
-      label: "العاب",
-      value: "1000"
-    },
-    {
-      label: " مطاعم",
-      value: "5300"
-    },
-    {
-      label: "سوبر مركت",
-      value: "1050"
-    },
-   
-  ]
-};
+charts(FusionCharts)
 
 class BillChats extends React.Component {
+  state = { token: localStorage.getItem('token'), data: [] }
+  getBialChart = async () => {
+    const { token } = this.state
+
+    try {
+      const resp = await axios({
+        method: 'get',
+        url: 'https://koto2020.herokuapp.com/api/dashboard/chart/gift',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(resp)
+      await this.setState({ data: resp.data.data })
+    } catch (err) {
+      // Handle Error
+      console.log(err)
+    }
+  }
+
+  componentDidMount() {
+    this.getBialChart()
+  }
   render() {
+    const{data}=this.state
     return (
       <ReactFusioncharts
-        type="pie2d"
+        type="doughnut2d"
+        renderAt="chart-container"
         width="100%"
-        height="400"
+        height="335"
         dataFormat="JSON"
-        dataSource={dataSource}
+        dataSource={{
+          chart: {
+  
+            theme: 'fusion',
+         
+            minAngleForValue: '75',
+    
+            decimals: '0',
+            centerLabel: ' $label: $value',
+            
+            showTooltip: '0',
+            caption: 'الفواتير ',
+          },
+          data:data
+        }}
       />
-    );
+    )
   }
 }
-export default BillChats;
+export default BillChats

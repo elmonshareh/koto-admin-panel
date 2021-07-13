@@ -32,7 +32,8 @@ class AddSurvay extends Component {
       isLoading: false,
       apiMsg: '',
       showToast: false,
-      toastColor:""
+      toastColor: '',
+      disablenext:false
     }
   }
   addNewItem = () => {
@@ -46,7 +47,6 @@ class AddSurvay extends Component {
       arrayADD,
       number,
     } = this.state
-
     var Expidate = new Object()
     Expidate.Expidate = date
     var Points = new Object()
@@ -68,12 +68,9 @@ class AddSurvay extends Component {
         questionType: '',
       })
     }
-
     this.timestanp()
-
     console.log(arrayADD.items)
   }
-
   removeInputField = (key) => {
     var { inputs, answers } = this.state
     answers.splice(key, 1)
@@ -107,17 +104,14 @@ class AddSurvay extends Component {
   }
   timestanp = () => {
     var date = this.state.date
-
     var mint = new Date().getMinutes()
     var hours = new Date().getHours()
-
     var output =
       date + ':' + ('0' + hours).slice(-2) + ':' + ('0' + mint).slice(-2)
     var datastanp = new Date(output).getTime()
     this.setState({ datastanp: datastanp })
   }
   handleValidation = () => {
-    console.log(',,,')
     const {
       answers,
       questionType,
@@ -168,13 +162,23 @@ class AddSurvay extends Component {
     this.setState({ errors: errors })
     return formIsValid
   }
-
+  handleValidationAPI = () => {
+    const { items } = this.state
+    let errors = {}
+    let formIsValid = true
+    if (items.length === 0) {
+      formIsValid = false
+      errors['add'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
+    this.setState({ errors: errors })
+    return formIsValid
+  }
   addSurvayAPI = async () => {
     // let fields = this.state.fields;
     const { token, date, datastanp, arrayADD } = this.state
     let errorAPI = ''
     this.setState({ isLoading: true })
-   
+
     try {
       const resp = await axios({
         method: 'post',
@@ -189,7 +193,7 @@ class AddSurvay extends Component {
           points: '5',
         },
       })
-     
+
       console.log(resp.data.message)
       this.setState({
         name: '',
@@ -200,8 +204,8 @@ class AddSurvay extends Component {
         items: [],
         isLoading: false,
         showToast: true,
-        apiMsg:resp.data.message,
-        toastColor:'success'
+        apiMsg: resp.data.message,
+        toastColor: 'success',
       })
     } catch (err) {
       // Handle Error
@@ -211,9 +215,9 @@ class AddSurvay extends Component {
         errorAPI = err.response.data
         this.setState({
           showToast: true,
-          apiMsg: err.response.data.error[0].msg,
+          apiMsg: err.response.data.error,
           isLoading: false,
-          toastColor:"error"
+          toastColor: 'error',
         })
       }
     }
@@ -222,10 +226,10 @@ class AddSurvay extends Component {
     console.log(this.state.massagerror)
   }
   addSurvay = () => {
-    this.addSurvayAPI()
+    if (this.handleValidationAPI()) {
+      this.addSurvayAPI()
+    }
   }
- 
-
   render() {
     const {
       name,
@@ -240,7 +244,10 @@ class AddSurvay extends Component {
       date,
       errors,
       apiMsg,
-      isLoading,showToast,toastColor
+      isLoading,
+      showToast,
+      toastColor,
+     
     } = this.state
     return (
       <div className="pb-3">
@@ -276,7 +283,6 @@ class AddSurvay extends Component {
                   </div>
 
                   <div className="d-md-flex d-block my-3 ">
-                    
                     <span className="  ml-3 text-nowrap">نوع السوال :</span>
                     <Dropdown>
                       <Dropdown.Toggle
@@ -410,7 +416,7 @@ class AddSurvay extends Component {
                         onClick={this.addNewItem}
                         className="addQuestion mb-2 "
                       >
-                        اضافه سؤال اخر
+                        اضافه سؤال
                       </button>
                       <span className="d-flex justify-content-center error mt-3">
                         {errors['add']}
@@ -418,15 +424,16 @@ class AddSurvay extends Component {
                     </div>
                     <div className="d-flex justify-content-center">
                       <button className="addQuestion" onClick={this.addSurvay}>
-                      {!isLoading ? ( "اضافه الاستبيان" ) : (
-                              <div class="lds-ellipsis">
-                              <div></div>
-                              <div></div>
-                              <div></div>
-                              <div></div>
-                            </div>
-    
-                            )}      
+                        {!isLoading ? (
+                          'اضافه الاستبيان'
+                        ) : (
+                          <div class="lds-ellipsis">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                          </div>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -449,7 +456,10 @@ class AddSurvay extends Component {
                               console.log(y, x.questionType)
                               return (
                                 <div className="mx-3 mt-4" key={index}>
-                                  <input type={x.questionType} className="ml-2" />
+                                  <input
+                                    type={x.questionType}
+                                    className="ml-2"
+                                  />
                                   {y}
                                 </div>
                               )
@@ -460,9 +470,7 @@ class AddSurvay extends Component {
                     </Carousel>
                   </div>
                 </div>
-                
               </div>
-            
             </div>
           }
         />

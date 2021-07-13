@@ -10,7 +10,10 @@ import VedioTable from './showTables/vedioTables';
 import AppTable from './showTables/appTable';
 import SurveyTable from './showTables/surveyTable';
 import ChargingTable from './showTables/chargingTable';
-import NotificationTables from './details/notificationTables';
+import SolvedSurvey from './showTables/solvedSurvey';
+import SolvedSurveryUses from './showTables/solvedSurvatUsers';
+import SolvedServayDetailes from './details/surveySolvedDetailes';
+
 class AddADS extends Component {
   state = {}
   handleSelect = (eventKey) => alert(`selected ${eventKey}`)
@@ -30,15 +33,18 @@ class AddADS extends Component {
             path="/admin/AddADS/survay:id"
             render={(props) => <SurvayDetailes {...props} />}
           />
-          <Route
-            path="/admin/AddADS/App:id"
-            render={(props) => <AppDeatiles {...props} />}
+            <Route
+            path="/admin/AddADS/SolvedServayDetailes:id"
+            render={(props) => <SolvedServayDetailes {...props} />}
           /> 
+          <Route path="/admin/AddADS/App:id" render={(props) => <AppDeatiles {...props} />} /> 
           <Route path="/admin/AddADS/VedioTable" component={VedioTable} />
           <Route path="/admin/AddADS/ApTable" component={AppTable} />
           <Route path="/admin/AddADS/SurveyTable" component={SurveyTable} />
           <Route path="/admin/AddADS/ChargingTable" component={ChargingTable} />
-       
+           <Route path="/admin/AddADS/SolvedSurvey" component={SolvedSurvey}/>
+           <Route path="/admin/AddADS/SolvedSurveyUser" component={ SolvedSurveryUses}/>
+         
 
         </div>
       </div>

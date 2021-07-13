@@ -9,190 +9,125 @@ import Chart from 'fusioncharts/fusioncharts.charts'
 
 //Including react-fusioncharts component
 import ReactFC from 'react-fusioncharts'
-
 //Including the theme as fusion
 import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.fusion'
 import Dropdown from 'react-bootstrap/Dropdown'
+import charts from 'fusioncharts/fusioncharts.charts'
+import ReactFusioncharts from 'react-fusioncharts'
+import axios from 'axios'
+import { ThemeConsumer } from 'react-bootstrap/esm/ThemeProvider'
 ReactFC.fcRoot(FusionCharts, Chart, FusionTheme)
-
-const chartConfigs = {
-  type: 'column2d',
-  width: '100%',
-  height: 400,
-  dataFormat: 'json',
-  dataSource: {
-    chart: {
-      
-      decimals: '3',
-      theme: 'fusion',
-    },
-    // Chart data
-    data: [
-      {
-        label: 'JAN',
-        value: 'FAB',
-      },
-      {
-        label: 'MAR',
-        value: '260',
-      },
-      {
-        label: 'APR',
-        value: '180',
-      },
-      {
-        label: 'MAY',
-        value: '140',
-      },
-      {
-        label: 'JUN',
-        value: '115',
-      },
-      {
-        label: 'JUL',
-        value: '100',
-      },
-      {
-        label: 'AGU',
-        value: '390',
-      },
-      {
-        label: 'SPE',
-        value: '350',
-      },
-      {
-        label: 'OCT',
-        value: '306',
-      },
-      {
-        label: 'NOV',
-        value: '309',
-      },
-      {
-        label: 'DEC',
-        value: '350',
-      },
-    ],
-  },
-}
-
-class Chartfff extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { yaers: [2021, 2022, 2023], showHide: true ,dropdown:"اختر السنه"}
-    this.state = chartConfigs
+charts(FusionCharts)
+class UserChart extends Component {
+  state = {
+    showHide: false,
+    token: localStorage.getItem('token'),
+    data: [],
+    year: 2021,
+    filters:[],
+    title:"اختر السنه"
   }
 
-  updateData() {
-    var prevDs = Object.assign({}, this.state.dataSource)
-    var year = new Date().getUTCFullYear()
-
-    prevDs.data = [
-      {
-        label: year.toString(),
-        value: '309',
-      },
-      {
-        label: (new Date().getUTCFullYear() - 1).toString(),
-        value: '756',
-      },
-      {
-        label: (new Date().getUTCFullYear() - 2).toString(),
-        value: '488',
-      },
-      {
-        label: (new Date().getUTCFullYear() - 3).toString(),
-        value: '550',
-      },
-    ]
-    this.setState({
-      dataSource: prevDs,
-      showHide: false,
-    })
-  }
-  updatedefult() {
-    var prevDs = Object.assign({}, this.state.dataSource)
-    prevDs.data = chartConfigs.dataSource.data
-    this.setState({
-      dataSource: prevDs,
-      showHide: true,
-    })
-  }
   onValueChange = (event) => {
-    console.log(event.target.value)
-    event.target.value === 'years' ? this.updateData() : this.updatedefult()
+    const { data } = this.state
+    event.target.value === 'years' ? this.years() : this.monthly()
   }
-  updateData2021() {
-    var prevDs = Object.assign({}, this.state.dataSource)
-    prevDs.data = [
-      {
-        label: 'JAN',
-        value: '525',
-      },
-      {
-        label: 'Feb',
-        value: '266',
-      },
-      {
-        label: ' MAR',
-        value: '190',
-      },
-      {
-        label: ' APR',
-        value: '840',
-      },
-      {
-        label: ' MAY',
-        value: '115',
-      },
-      {
-        label: ' JUN',
-        value: '1300',
-      },
-      {
-        label: 'JUL',
-        value: '340',
-      },
-      {
-        label: ' AGU ',
-        value: '650',
-      },
-      {
-        label: ' SPE ',
-        value: '366',
-      },
-      {
-        label: ' OCT',
-        value: '3049',
-      },
-      {
-        label: ' NOVDEC',
-        value: '350',
-      },
-      {
-        label: ' DEC',
-        value: '358',
-      },
-    ]
-
-    this.setState({
-      dataSource: prevDs,
-      showHide: true,
-    })
+  usesDefult = async () => {
+    const { token, year } = this.state
+    let errorAPI = ''
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: 'https://koto2020.herokuapp.com/api/dashboard/chart/user',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          filter: 'monthly',
+          year: year,
+        },
+      })
+      console.log(resp)
+      await this.setState({ data: resp.data.data,filters:resp.data.years })
+    } catch (err) {
+      // Handle Error
+      console.log(err)
+      if (err.response) {
+        console.log(err.response.data.error)
+        errorAPI = err.response.data.error
+        this.setState({
+          apiMsg: err.response.data.error,
+        })
+      }
+    }
   }
+  monthly = () => {
+    this.usesDefult()
+    this.setState({ showHide: true })
+  }
+  slecteyear = async () => {
+    await this.setState({ year: new Date().getUTCFullYear() })
+    this.usesDefult()
+  }
+  years = async () => {
+    const { token } = this.state
+    let errorAPI = ''
+    this.setState({ showHide: false })
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: 'https://koto2020.herokuapp.com/api/dashboard/chart/user',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          filter: 'annual',
+        },
+      })
+      console.log(resp)
+      await this.setState({ data: resp.data.data })
+    } catch (err) {
+      // Handle Error
+      console.log(err)
+      if (err.response) {
+        console.log(err.response.data.error)
+        errorAPI = err.response.data.error
+        this.setState({
+          apiMsg: err.response.data.error,
+        })
+      }
+    }
+  }
+handelChangeYear= async (x)=>{
+  await this.setState({year:x ,title:x})
+  this.usesDefult()
 
+}
+  componentDidMount() {
+    this.usesDefult()
+  }
   render() {
-    const { showHide,dropdown } = this.state
-
-    console.log()
-
+    const { showHide, data, year,filters ,title} = this.state
+    console.log(year)
     return (
-      <div className="text-right">
-        <div>
-          {' '}
-          <ReactFC {...this.state} />
-        </div>
-        <div onChange={this.onValueChange} className="d-md-flex d-sm-block text-right">
+      <div>
+        <ReactFusioncharts
+          type="column2d"
+          width="100%"
+          height="400"
+          dataFormat="JSON"
+          dataSource={{
+            chart: {
+              numbersuffix: 'K',
+              theme: 'fusion',
+            },
+            data: data,
+          }}
+        />
+        <div
+          onChange={this.onValueChange}
+          className="d-md-flex d-sm-block text-right"
+        >
           <div className="mx-2">
             {' '}
             <input type="radio" value="years" name="gender" /> سنوي
@@ -201,44 +136,24 @@ class Chartfff extends Component {
             <div className="mx-2">
               <input type="radio" value="months" name="gender" /> شهري
             </div>
-            {showHide && (
-              <Dropdown className="chartsbnt">
-                <Dropdown.Toggle id="dropdown-basic">
-                  اختر السنه
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu className="menuYears">
-                  <Dropdown.Item
-                    eventKey="0"
-                    onSelect={() => this.updatedefult()}
-                  >
-                    {new Date().getUTCFullYear()}
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    eventKey="1"
-                    onSelect={() => this.updateData2021()}
-                  >
-                    {new Date().getUTCFullYear() - 1}
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    eventKey="2"
-                    onSelect={() => this.updatedefult()}
-                  >
-                    {new Date().getUTCFullYear() - 2}
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    eventKey="3"
-                    onSelect={() => this.updateData2021()}
-                  >
-                    {new Date().getUTCFullYear() - 3}
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            )}
           </div>
+          {showHide && (
+            <Dropdown className="chartsbnt">
+              <Dropdown.Toggle id="dropdown-basic"> {title} </Dropdown.Toggle>
+
+              <Dropdown.Menu className="menuYears">
+                {filters.map((x)=> 
+                <Dropdown.Item eventKey="0" onSelect={() => this.handelChangeYear(x)}>
+                 {x}
+                </Dropdown.Item>)}
+                
+                
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
         </div>
       </div>
     )
   }
 }
-export default Chartfff
+export default UserChart

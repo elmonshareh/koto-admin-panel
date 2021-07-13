@@ -1,17 +1,23 @@
 import React, { Component } from 'react'
 import { Card } from './../../login/Card'
 import axios from 'axios'
-import  Toast from 'react-bootstrap/Toast';
+import Toast from 'react-bootstrap/Toast'
 class AddBillCategory extends Component {
-  state = { name: '', errors: '', subTitle: '', logo: '' ,token: localStorage.getItem('token'), massagerror: '',
-  showToast: false,
-  apiMsg: '',
-  toastColor:"",}
+  state = {
+    name: '',
+    errors: '',
+    subTitle: '',
+    logo: '',
+    token: localStorage.getItem('token'),
+    massagerror: '',
+    showToast: false,
+    apiMsg: '',
+    toastColor: '',
+  }
   uploadimg = async (e) => {
     await this.setState({
       logo: e.target.files[0],
     })
-   
   }
   handleValidation = () => {
     const { name, logo } = this.state
@@ -29,7 +35,7 @@ class AddBillCategory extends Component {
     return formIsValid
   }
   addApiCategory = async () => {
-    const { token, name,  logo} = this.state
+    const { token, name, logo } = this.state
     let errorAPI = ''
     var bodyFormData = new FormData()
     bodyFormData.append('name', name)
@@ -45,9 +51,14 @@ class AddBillCategory extends Component {
         data: bodyFormData,
       })
 
-      this.setState({ name:"",logo:"", img:'' ,showToast: true,
-      apiMsg: resp.data.message
-        ,toastColor:"success" })
+      this.setState({
+        name: '',
+        logo: '',
+        img: '',
+        showToast: true,
+        apiMsg: resp.data.message,
+        toastColor: 'success',
+      })
       console.log(resp)
     } catch (err) {
       // Handle Error
@@ -58,7 +69,7 @@ class AddBillCategory extends Component {
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error[0].msg,
-        toastColor:"error"
+          toastColor: 'error',
         })
       }
     }
@@ -67,11 +78,10 @@ class AddBillCategory extends Component {
     console.log(this.state.massagerror)
   }
   render() {
-    const { name, errors, subTitle , showToast,
-        apiMsg,toastColor} = this.state
+    const { name, errors, subTitle, showToast, apiMsg, toastColor } = this.state
     return (
       <div>
-           <Toast
+        <Toast
           onClose={() => {
             this.setState({ showToast: false })
           }}
@@ -87,52 +97,55 @@ class AddBillCategory extends Component {
             <div className="container text-right  mb-3">
               <div className="row mt-3 ">
                 <div className="col-sm-12 col-md-6">
-                    <div className="d-md-flex my-3 d-block">
-                      <span className="addAds  "> الاسم :</span>
-                      <input
-                        type="text"
-                        name="name"
-                        className="imputservary  px-2 p-1 "
-                        maxLength="100"
-                        value={name}
-                        required
-                        onChange={(event) =>
-                          this.setState({ name: event.target.value })
-                          
-                        }
-                      />
-                      <span className="mt-2 error">{errors['name']}</span>
-                    </div>
-                    <div className="d-md-flex d-block">
-                      <span className="addAds  text-nowrap ">الوصف :</span>
-                      <textarea
-                        type="textarea"
-                        className="imputservary px-2 p-1"
-                        maxLength="500"
-                        value={subTitle}
-                        onChange={(event) =>
-                          this.setState({ subTitle: event.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="d-md-flex my-3 d-block">
-                      <span className="addAds  "> اخر الصوره :</span>
-                      <input
-                        className="p-1 inputCrat border-0"
-                        type="file"
-                        id="logo"
-                        accept="image/*"
-                        name="logo"
-                        onChange={this.uploadimg} required
-                      />
-                      <span className="mt-2 error">{errors['logo']}</span>
-                    </div>
-                    <div className="d-flex justify-content-center p-3">
-                    <button className="addQuestion"  onClick={this.addApiCategory}>
+                  <div className="d-md-flex my-3 d-block">
+                    <span className="addAds  "> الاسم :</span>
+                    <input
+                      type="text"
+                      name="name"
+                      className="imputservary  px-2 p-1 "
+                      maxLength="100"
+                      value={name}
+                      required
+                      onChange={(event) =>
+                        this.setState({ name: event.target.value })
+                      }
+                    />
+                    <span className="mt-2 error">{errors['name']}</span>
+                  </div>
+                  <div className="d-md-flex d-block">
+                    <span className="addAds  text-nowrap ">الوصف :</span>
+                    <textarea
+                      type="textarea"
+                      className="imputservary px-2 p-1"
+                      maxLength="500"
+                      value={subTitle}
+                      onChange={(event) =>
+                        this.setState({ subTitle: event.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="d-md-flex my-3 d-block">
+                    <span className="addAds  "> اخر الصوره :</span>
+                    <input
+                      className="p-1 inputCrat border-0"
+                      type="file"
+                      id="logo"
+                      accept="image/*"
+                      name="logo"
+                      onChange={this.uploadimg}
+                      required
+                    />
+                    <span className="mt-2 error">{errors['logo']}</span>
+                  </div>
+                  <div className="d-flex justify-content-center p-3">
+                    <button
+                      className="addQuestion"
+                      onClick={this.addApiCategory}
+                    >
                       اضافه النوع
                     </button>
                   </div>
-              </div>
+                </div>
               </div>
             </div>
           }

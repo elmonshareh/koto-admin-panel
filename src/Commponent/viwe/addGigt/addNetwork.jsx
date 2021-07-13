@@ -65,7 +65,7 @@ class AddNetwork1 extends Component {
   addNetworkAPI = async () => {
     // let fields = this.state.fields;
 
-    const { token, name, stratCode, endCode, logo} = this.state
+    const { token, name, stratCode, endCode, logo,background} = this.state
 
     let errorAPI = ''
     var bodyFormData = new FormData()
@@ -73,6 +73,7 @@ class AddNetwork1 extends Component {
     bodyFormData.append('startCode', stratCode)
     bodyFormData.append('endCode', endCode)
     bodyFormData.append('photo', logo)
+    bodyFormData.append('networkColor', background)
 
     try {
       const resp = await axios({
@@ -111,6 +112,8 @@ class AddNetwork1 extends Component {
       this.addNetworkAPI()
     }
   }
+  
+
   render() {
     const {
       name,
@@ -149,7 +152,7 @@ class AddNetwork1 extends Component {
         <Card
           title="اضافه  شبكه اخري"
           content={
-            <div className="container  text-right">
+            <div className="container text-right">
               <div className="row  mt-3">
                 <div className="col-md-6 col-sm-12">
                   <div className="d-md-flex my-3  d-block">
@@ -162,8 +165,7 @@ class AddNetwork1 extends Component {
                       id="name"
                       name="name"
                       value={name}
-                      maxLength="50"
-                            
+                      maxLength="50" 
                       onChange={(event) =>
                         this.setState({ name: event.target.value })
                         

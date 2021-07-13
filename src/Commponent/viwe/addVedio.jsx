@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { Table } from 'react-bootstrap'
 import axios from 'axios'
 import { Card } from '../login/Card'
 import Toast from 'react-bootstrap/Toast'
+import  img from "../../Img/logo.png"
+
 class AddVedio extends Component {
   constructor(props) {
     super(props)
@@ -19,7 +20,9 @@ class AddVedio extends Component {
       showToast: false,
       apiMsg: '',
       isLoading: false,
-      toastColor:""
+      toastColor: '',
+    logo:"",
+    img:""
     }
   }
   uploadVedio = async (e) => {
@@ -88,7 +91,7 @@ class AddVedio extends Component {
       video,
       selectedFile,
       key,
-      toastColor
+      toastColor,
     } = this.state
     let errorAPI = ''
     var bodyFormData = new FormData()
@@ -97,7 +100,7 @@ class AddVedio extends Component {
     bodyFormData.append('expireDate', date)
     bodyFormData.append('points', number)
     bodyFormData.append('video', selectedFile)
-    this.setState({isLoading:true})
+    this.setState({ isLoading: true })
     try {
       const resp = await axios({
         method: 'post',
@@ -108,7 +111,9 @@ class AddVedio extends Component {
         },
         data: bodyFormData,
       })
-      if(resp.data.message){console.log("manar")}
+      if (resp.data.message) {
+        console.log('manar')
+      }
       console.log(resp.data.message)
       this.setState({
         title: '',
@@ -118,28 +123,36 @@ class AddVedio extends Component {
         date: new Date().toISOString().split('T')[0],
         subTitle: '',
         showToast: true,
-        isLoading:false,
-        apiMsg: resp.data.message
-        ,toastColor:"success"
+        isLoading: false,
+        apiMsg: resp.data.message,
+        toastColor: 'success',
       })
     } catch (err) {
       console.log(err)
 
       if (err.response) {
-        console.log(err.response.data.error[0].msg)
         errorAPI = err.response.data.error
         this.setState({
           showToast: true,
-          apiMsg: err.response.data.error[0].msg,
-          isLoading:false,toastColor:"error"
+          apiMsg: err.response.data.error,
+          isLoading: false,
+          toastColor: 'error',
         })
       }
     }
     this.setState({ massagerror: errorAPI })
     console.log(this.state.massagerror)
   }
+ 
+  uploadimg = async (e) => {
+    await this.setState({
+      logo: e.target.files[0],
+    })
+     this.state.logo&&this.setState({ img: URL.createObjectURL(this.state.logo) })
+    
+  }
 
-
+ 
   render() {
     const {
       vedio,
@@ -151,13 +164,19 @@ class AddVedio extends Component {
       subTitle,
       showToast,
       apiMsg,
-      isLoading,toastColor
+      isLoading,
+      toastColor,
+      logo,
+      img
+   
     } = this.state
-    console.log(allVedio)
+  
     return (
-      <div >
+      <div>
         <Toast
-          
+          onClose={() => {
+            this.setState({ showToast: false })
+          }}
           show={showToast}
           delay={3000}
           autohide
@@ -171,9 +190,8 @@ class AddVedio extends Component {
             <div className="container text-right ">
               <div className=" row mt-3 ">
                 <div className="col-md-6 col-sm-12">
-                
                   <div className="d-md-flex my-3 d-block">
-                    <span className="addAds  ">عنوان الاعلان :</span>
+                    <span className="addAds text-nowrap ">عنوان الاعلان :</span>
                     <input
                       type="text"
                       name="title"
@@ -198,6 +216,7 @@ class AddVedio extends Component {
                       }
                     />
                   </div>
+                 
                   <div className="d-md-flex d-block mt-3">
                     <span className="addAds  text-nowrap ">
                       تاريخ الانتهاء :
@@ -229,6 +248,20 @@ class AddVedio extends Component {
                     ></input>
                     <span className="mt-2 error">{errors['number']}</span>
                   </div>
+                  <div className="d-md-flex my-3  d-block">
+                    <div  className="aadAds mt-1 text-nowrap">
+                      اختار الخلفيه  :
+                    </div>
+                    <input
+                      className="p-1 inputCrat border-0"
+                      type="file"
+                      id="logo"
+                      accept="image/*"
+                      name="logo"
+                      
+                      onChange={this.uploadimg}
+                    />
+                  </div>
 
                   <div className="file-input d-md-flex justify-content-around d-sm-block m-3 ">
                     <input
@@ -239,6 +272,7 @@ class AddVedio extends Component {
                       value={vedio}
                       onChange={this.uploadVedio}
                       name="vedio"
+                      
                     />
 
                     <label htmlFor="file">
@@ -250,33 +284,29 @@ class AddVedio extends Component {
                       type="submit"
                       className="addQuestion mr-2"
                       onClick={this.addVedio}
-                     
-                    > {!isLoading ? ( "اضافه الاعلان " ) : (
-                      <div class="lds-ellipsis">
-                      <div></div>
-                      <div></div>
-                      <div></div>
-                      <div></div>
-                    </div>
-
-                    )}</button>
+                    >
+                 
+                      {!isLoading ? (
+                        'اضافه الاعلان '
+                      ) : (
+                        <div class="lds-ellipsis">
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                          <div></div>
+                        </div>
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                <div className="col-md-6 col-sm-12 d-flex justify-content-center my-2 ">
-                  <video
-                    src={this.state.video}
-                    autoPlay={true}
-                    controls="controls"
-                    width="90%"
-                  />
+                <div className="col-md-6 col-sm-12 d-flex justify-content-center my-2 ">  
+                  <video muted autoplay poster={img} controls src={this.state.video} height="200" />
                   <span className="d-flex align-items-center error">
                     {errors['vedio']}
                   </span>
                 </div>
               </div>
-              
-              
             </div>
           }
         />

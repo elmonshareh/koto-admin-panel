@@ -3,7 +3,7 @@ import { Card } from './../../login/Card'
 import Dropdown from 'react-bootstrap/Dropdown'
 import { SketchPicker } from 'react-color'
 import axios from 'axios'
-import  Toast  from 'react-bootstrap/Toast'
+import  Toast  from 'react-bootstrap/Toast' 
 
 class ChargingCart extends Component {
   state = {
@@ -50,13 +50,13 @@ class ChargingCart extends Component {
       const { token, allNetwork } = this.state
       const resp = await axios({
         method: 'get',
-        url: 'https://koto2020.herokuapp.com/api/Network?page=2',
+        url: 'https://koto2020.herokuapp.com/api/Network',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       console.log(resp.data.networks)
-      await this.setState({ allNetwork: resp.data.networks })
+      await this.setState({ allNetwork: resp.data.networks.data })
       console.log(allNetwork)
     } catch (err) {
       console.log(err)
@@ -133,6 +133,27 @@ class ChargingCart extends Component {
   componentDidMount() {
     this.getAllNetwork()
   }
+  deleteApp = async (x) => {
+    const allNetwork = [...this.state.allNetwork]
+    
+    try {
+      const { token } = this.state
+      const resp = await axios({
+        method: 'delete',
+        url: `https://koto2020.herokuapp.com/api/network/${x._id}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(resp)
+      allNetwork.splice(x._id, 1)
+      this.setState({ allNetwork,  startcode: '',
+      endcode: '',icon:"",  name: 'اختار الشركه' })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   render() {
     const {
       showHide,
@@ -200,7 +221,7 @@ class ChargingCart extends Component {
                                 name: (
                                   <span>
                                     {x.title}{' '}
-                                    <img src={x.logo} width="20px" alt="" />
+                                    <img src={x.logo} width="20px" alt="" /> 
                                   </span>
                                 ),
                                 startcode: x.startCode,
@@ -211,8 +232,13 @@ class ChargingCart extends Component {
                               })
                             }}
                           >
-                            {' '}
-                            {x.title} <img src={x.logo} alt="" width="20" />
+                         <button
+                              className="addBtn"
+                              onClick={() => this.deleteApp(x)}
+                            >
+                              <i className="fas fa-minus-circle"></i>
+                            </button>
+                            {x.title} <img src={x.logo} alt="" width="20" /> 
                           </Dropdown.Item>
                         ))}
                        

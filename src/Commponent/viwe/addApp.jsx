@@ -15,8 +15,7 @@ class AddApp extends Component {
     token: localStorage.getItem('token'),
     showToast: false,
     apiMsg: '',
-    toastColor:""
-   
+    toastColor: '',
   }
   timestanp = () => {
     var date = this.state.date
@@ -86,19 +85,19 @@ class AddApp extends Component {
         date: new Date().toISOString().split('T')[0],
         name: '',
         showToast: true,
-        apiMsg: resp.data.message
-        ,toastColor:"success"
+        apiMsg: resp.data.message,
+        toastColor: 'success',
       })
     } catch (err) {
       // Handle Error
       console.log(err)
       if (err.response) {
-        console.log(err.response.data.error[0].msg)
+        console.log(err.response.data.error)
         errorAPI = err.response.data.error
         this.setState({
           showToast: true,
-          apiMsg: err.response.data.error[0].msg,
-        toastColor:"error"
+          apiMsg: err.response.data.error,
+          toastColor: 'error',
         })
       }
     }
@@ -106,8 +105,6 @@ class AddApp extends Component {
     this.setState({ massagerror: errorAPI })
     console.log(this.state.massagerror)
   }
- 
-  
 
   render() {
     const {
@@ -117,12 +114,13 @@ class AddApp extends Component {
       name,
       errors,
       showToast,
-      apiMsg,toastColor
+      apiMsg,
+      toastColor,
     } = this.state
-   
+
     return (
       <div>
-         <Toast
+        <Toast
           onClose={() => {
             this.setState({ showToast: false })
           }}
@@ -217,8 +215,6 @@ class AddApp extends Component {
                   </div>
                 </div>
               </div>
-              
-             
             </div>
           }
         />

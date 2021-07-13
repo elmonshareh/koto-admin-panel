@@ -14,7 +14,7 @@ class AppDeatiles extends Component {
         },
       })
       console.log(resp)
-      await this.setState({ app: resp.data.app })
+      await this.setState({ app: resp.data.app.data[0] })
     } catch (err) {
       console.log(err)
     }

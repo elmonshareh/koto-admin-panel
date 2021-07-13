@@ -10,9 +10,11 @@ import AddADS from './viwe/Ads'
 import AddGift from './viwe/addGift'
 import Notification from './addNotification'
 import jwt_decode from 'jwt-decode'
-import Users from './users'
-import NotificationTables from './viwe/details/notificationTables'
 
+import NotificationTables from './viwe/showTables/notificationTables'
+import Users from './viwe/users/users'
+import UserInfo from './viwe/users/userImfo'
+import SpinnerNav from './viwe/spinner/spinnerNav';
 class Sidebar extends Component {
   state = {
     open: false,
@@ -25,8 +27,8 @@ class Sidebar extends Component {
     arrowAppOpen: false,
     notificationOpen: false,
     arrowBillOpen: false,
+    arrowCoboneOpen: false,
   }
-
   render() {
     const {
       open,
@@ -39,6 +41,7 @@ class Sidebar extends Component {
       notificationOpen,
       arrowAppOpen,
       arrowBillOpen,
+      arrowCoboneOpen,
     } = this.state
     let arrow,
       arrowAD,
@@ -47,7 +50,8 @@ class Sidebar extends Component {
       arrowSurvey,
       arrowApp,
       arrowNotification,
-      arrowBill
+      arrowBill,
+      arrowCobone
     var decoded = jwt_decode(token)
     decoded.exp === data && this.props.history.replace('/login')
     openCrited
@@ -76,6 +80,9 @@ class Sidebar extends Component {
     arrowBillOpen
       ? (arrowBill = <i className="fas fa-chevron-up mr-2 navIcon"></i>)
       : (arrowBill = <i className="fas fa-chevron-down mr-2 navIcon "></i>)
+    arrowCoboneOpen
+      ? (arrowCobone = <i className="fas fa-chevron-up mr-2 navIcon"></i>)
+      : (arrowCobone = <i className="fas fa-chevron-down mr-2 navIcon "></i>)
     return (
       <div className="side">
         <div className="d-block">
@@ -118,7 +125,6 @@ class Sidebar extends Component {
                 </Nav.Item>
                 {openAds && (
                   <div>
-                    {' '}
                     <Nav.Item
                       className=" d-block  py-1 px-3"
                       onClick={() =>
@@ -135,7 +141,7 @@ class Sidebar extends Component {
                           className=" d-block  py-1 px-4"
                           to="/admin/AddADS/AddVedio"
                         >
-                          اضافه
+                           اضافه فيديو
                         </Nav.Link>
                         <Nav.Link
                           eventKey="1.2"
@@ -143,7 +149,7 @@ class Sidebar extends Component {
                           className=" d-block  py-1 px-4"
                           to="/admin/AddADS/VedioTable"
                         >
-                          عرض
+                          عرض فيديوهات
                         </Nav.Link>
                       </div>
                     )}
@@ -153,7 +159,6 @@ class Sidebar extends Component {
                         this.setState({ arrowSurveyOpen: !arrowSurveyOpen })
                       }
                     >
-                      {' '}
                       استبيانات {arrowSurvey}
                     </Nav.Item>
                     {arrowSurveyOpen && (
@@ -164,7 +169,7 @@ class Sidebar extends Component {
                           className=" d-block  py-1 px-4"
                           to="/admin/AddADS/AddSurvay"
                         >
-                          اضافه
+                          اضافه استبيان
                         </Nav.Link>
                         <Nav.Link
                           eventKey="2.2"
@@ -172,7 +177,15 @@ class Sidebar extends Component {
                           className=" d-block  py-1 px-4"
                           to="/admin/AddADS/SurveyTable"
                         >
-                          عرض
+                          عرض الاستبيانات
+                        </Nav.Link>
+                        <Nav.Link
+                          eventKey="2.3"
+                          as={Link}
+                          className=" d-block  py-1 px-4"
+                          to="/admin/AddADS/SolvedSurvey"
+                        >
+                          الاستبيانات المحلوله
                         </Nav.Link>
                       </div>
                     )}
@@ -182,7 +195,7 @@ class Sidebar extends Component {
                         this.setState({ arrowAppOpen: !arrowAppOpen })
                       }
                     >
-                      تطبيقات {arrowApp}{' '}
+                      تطبيقات {arrowApp}
                     </Nav.Item>
                     {arrowAppOpen && (
                       <div>
@@ -192,7 +205,7 @@ class Sidebar extends Component {
                           className=" d-block  py-1 px-4"
                           to="/admin/AddADS/AddApp"
                         >
-                          اضافه
+                          اضافه تطبيق
                         </Nav.Link>
                         <Nav.Link
                           eventKey="3.2"
@@ -200,7 +213,7 @@ class Sidebar extends Component {
                           className=" d-block  py-1 px-4"
                           to="/admin/AddADS/ApTable"
                         >
-                          عرض
+                           عرض التطبيقات
                         </Nav.Link>
                       </div>
                     )}
@@ -208,14 +221,12 @@ class Sidebar extends Component {
                 )}
                 <Nav.Item
                   eventKey="2"
-                  // as={Link}
                   className="navbar-nav py-3 "
-                  // to="/admin/gift"
                   onClick={() => this.setState({ open: !open })}
                   aria-controls="example-fade-text"
                   aria-expanded={open}
                 >
-                  <i className="fas fa-gifts px-2 navIcon"></i> اضافه هدايا{' '}
+                  <i className="fas fa-gifts px-2 navIcon"></i> اضافه هدايا
                   {arrow}
                 </Nav.Item>
                 {open && (
@@ -229,7 +240,6 @@ class Sidebar extends Component {
                       >
                         كروت الشحن {button}
                       </Nav.Item>
-
                       {openCrited && (
                         <div>
                           <Nav.Link
@@ -238,7 +248,6 @@ class Sidebar extends Component {
                             className=" d-block  py-1 px-4"
                             to="/admin/gift/carts"
                           >
-                            {' '}
                             اضافه كرت شحن
                           </Nav.Link>
                           <Nav.Link
@@ -255,15 +264,13 @@ class Sidebar extends Component {
                             className=" d-block  py-1 px-4"
                             to="/admin/AddADS/ChargingTable"
                           >
-                            عرض
+                     عرض كروت الشحن
                           </Nav.Link>
                         </div>
                       )}
 
                       <Nav.Item
-                        
                         className="d-block  py-1 px-3"
-                       
                         onClick={() =>
                           this.setState({ arrowBillOpen: !arrowBillOpen })
                         }
@@ -277,7 +284,7 @@ class Sidebar extends Component {
                             eventKey="6.1"
                             as={Link}
                             className=" d-block  py-1 px-4"
-                            to="/admin/gift/bail/Category"
+                            to="/admin/gift/billCategory"
                           >
                             اضافه نوع الفاتوره
                           </Nav.Link>
@@ -287,20 +294,47 @@ class Sidebar extends Component {
                             className=" d-block  py-1 px-4"
                             to="/admin/gift/bill"
                           >
-                            اضافه  الفاتوره
+                            اضافه الفاتوره
                           </Nav.Link>
-                          
 
+                          <Nav.Link
+                            eventKey="6.3"
+                            as={Link}
+                            className=" d-block  py-1 px-4"
+                            to="/admin/gift/billTables"
+                          >
+                            عرض الفواتير
+                          </Nav.Link>
                         </div>
                       )}
-                      <Nav.Link
-                        eventKey="7"
-                        as={Link}
+                      <Nav.Item
                         className="d-block  py-1 px-3"
-                        to="/admin/gift/cobone"
+                        onClick={() =>
+                          this.setState({ arrowCoboneOpen: !arrowCoboneOpen })
+                        }
                       >
-                        كوبون خصم
-                      </Nav.Link>
+                        كوبون خصم{arrowCobone}
+                      </Nav.Item>
+                      {arrowCoboneOpen && (
+                        <div>
+                          <Nav.Link
+                            eventKey="7.1"
+                            as={Link}
+                            className="d-block  py-1 px-4"
+                            to="/admin/gift/cobone"
+                          >
+                            اضافه كوبون
+                          </Nav.Link>
+                          <Nav.Link
+                            eventKey="7.2"
+                            as={Link}
+                            className="d-block  py-1 px-4"
+                            to="/admin/gift/coubonTable"
+                          >
+                            عرض كوبونات
+                          </Nav.Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -315,27 +349,26 @@ class Sidebar extends Component {
                 </Nav.Item>
                 {notificationOpen && (
                   <div>
-                    {' '}
                     <Nav.Link
                       eventKey="8.1"
                       as={Link}
                       to="/admin/Notification"
                       className="d-block  py-1 px-3"
                     >
-                      {' '}
                       اضافه
                     </Nav.Link>
+
                     <Nav.Link
                       eventKey="8.2"
                       as={Link}
                       to="/admin/Notificationtables"
                       className="d-block  py-1 px-3"
                     >
-                      {' '}
-                      عرض{' '}
+                      عرض
                     </Nav.Link>
                   </div>
                 )}
+
                 <Nav.Link
                   eventKey="9"
                   as={Link}
@@ -343,6 +376,14 @@ class Sidebar extends Component {
                   to="/admin/Users"
                 >
                   <i class="fas fa-user-friends px-2 navIcon"></i> المستخدمين
+                </Nav.Link>
+                <Nav.Link
+                  eventKey="10"
+                  as={Link}
+                  className="navbar-nav py-3 pr-0"
+                  to="/admin/Spinner"
+                >
+                  <i class="fas fa-user-friends px-2 navIcon"></i> spinner
                 </Nav.Link>
               </Nav>
             </Navbar.Collapse>
@@ -358,10 +399,11 @@ class Sidebar extends Component {
           <Route path="/admin/AddADS" component={AddADS} />
           <Route path="/admin/Notification" component={Notification} />
           <Route path="/admin/Users" component={Users} />
-          <Route
-            path="/admin/Notificationtables"
-            component={NotificationTables}
+          <Route path="/admin/Notificationtables" component={NotificationTables} />
+          <Route path="/admin/UserInfo:id" render={(props) => <UserInfo {...props} />}
+          
           />
+           <Route path="/admin/Spinner" component={SpinnerNav} />
         </div>
       </div>
     )
