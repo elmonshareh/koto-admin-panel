@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { Table } from 'react-bootstrap'
+import Delete from './../../variables/delete';
+import SpinnerChart from './../../variables/spinnerCharts';
 class CoubonTable extends Component {
   state = {
     token: localStorage.getItem('token'),
@@ -16,9 +18,13 @@ class CoubonTable extends Component {
     disablepre: true,
     disablenext: false,
     styleNext: '',
-    stylePre: '#6b18ff80'
+    stylePre: '#6b18ff80',
+    show: false,
+    status:"",   
+     isLoading: false,
   }
   getCoubonApi = async () => {
+    this.setState({ isLoading:true})
     try {
       const { token } = this.state
       const resp = await axios({
@@ -30,19 +36,23 @@ class CoubonTable extends Component {
       })
       console.log(resp)
       await this.setState({ allCoubon: resp.data.gifts.data,max_id: resp.data.gifts.paging.cursors.max_id,
-        min_id: resp.data.gifts.paging.cursors.min_id, })
-      console.log(this.state.allCoubon)
+        min_id: resp.data.gifts.paging.cursors.min_id,  isLoading: false, })
+        if (!resp.data.gifts.paging.hasNext) {
+          this.setState({
+            disablenext: true,
+            styleNext: '#6b18ff80',
+          })}
+   
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
-  deleteApp = async (item) => {
-     
+  delete = async (status) => {
     try {
-      const { token } = this.state
+      const { token,show } = this.state
       const resp = await axios({
         method: 'delete',
-        url: `https://koto2020.herokuapp.com/api/gift/${item._id}`,
+        url: `https://koto2020.herokuapp.com/api/gift/${status}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -50,11 +60,12 @@ class CoubonTable extends Component {
       console.log(resp)
       this.setState(prevState => ({
         allCoubon: prevState.allCoubon.filter(row => (
-          row._id !== item._id
+          row._id !== status
         ))
       }))
+      this.setState({show:!show})
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   componentDidMount() {
@@ -62,7 +73,7 @@ class CoubonTable extends Component {
   }
   next = async () => {
     const { token, max_id, key, keypagnation } = this.state
-
+    this.setState({ isLoading:true})
     try {
       await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
       const resp = await axios({
@@ -77,6 +88,7 @@ class CoubonTable extends Component {
         allCoubon: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
         min_id: resp.data.gifts.paging.cursors.min_id,
+        isLoading:false
       })
       if (!resp.data.gifts.paging.hasNext) {
         this.setState({
@@ -93,11 +105,12 @@ class CoubonTable extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   pre = async () => {
     const { key, keypagnation, token, min_id } = this.state
+    this.setState({ isLoading:true})
     try {
       await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
       const resp = await axios({
@@ -112,6 +125,7 @@ class CoubonTable extends Component {
         allCoubon: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
         min_id: resp.data.gifts.paging.cursors.min_id,
+        isLoading:false
       })
       if (!resp.data.gifts.paging.hasPrevious) {
         this.setState({
@@ -128,8 +142,12 @@ class CoubonTable extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
+  }
+  handleShow = (item) => {
+    const { show } = this.state
+    this.setState({ show: !show ,status:item._id})
   }
   render() {
       const{allCoubon,filter,
@@ -137,9 +155,13 @@ class CoubonTable extends Component {
       styleNext,
       disablenext,
       disablepre,
-      stylePre,}=this.state
+      stylePre,
+      show,
+      status,isLoading
+    }=this.state
     return <div className="col-12 py-5 px-3 my-1 border rounded bg-light">
-    <div className="d-flex ">
+       <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
+    {/* <div className="d-flex ">
       <label>البحث :</label>
       <input
         type="text"
@@ -147,7 +169,7 @@ class CoubonTable extends Component {
         vaule={filter}
         onChange={this.handleChange}
       />
-    </div>
+    </div> */}
 
     <Table
       striped
@@ -163,14 +185,21 @@ class CoubonTable extends Component {
           <th> كود الشحن </th>
           <th> قيمه الكارت </th>
           <th> الاستخدام </th>
-          <th> التفاصيل </th>
+          {/* <th> التفاصيل </th> */}
           <th> مسح </th>
         </tr>
       </thead>
       <tbody className="trCatergory text-center">
-
-        {allCoubon.map((item) => {
-            console.log(allCoubon.used)
+      {isLoading ? 
+              <tr>
+            
+              <td colspan="8" > <div className="d-flex justify-content-center uerSpiner ">
+            <SpinnerChart />
+          </div></td>
+             
+                </tr>
+             :
+        allCoubon.map((item) => {
           return (
             <tr key={item._id}>
               <td>{item.title}</td>
@@ -178,16 +207,16 @@ class CoubonTable extends Component {
               <td>{item.code}</td>
               <td>{item.value}</td>
               <td>{item.used.toString()}</td>
-              <td
+              {/* <td
                 onClick={() => {
                     this.redirect(item)
                 }}
               >
                 <i className="far fa-eye"></i>
-              </td>
+              </td> */}
               <td
                 onClick={() => {
-                  this.deleteApp(item)
+                  this.handleShow(item)
                 }}
               >
                 <i className="fas fa-trash-alt"></i>

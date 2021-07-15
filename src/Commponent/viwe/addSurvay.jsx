@@ -5,6 +5,7 @@ import { Card } from './../login/Card'
 import axios from 'axios'
 import Carousel from 'react-bootstrap/Carousel'
 import Toast from 'react-bootstrap/Toast'
+import Loader from './../variables/loaderModal';
 class AddSurvay extends Component {
   constructor(props) {
     super(props)
@@ -251,6 +252,7 @@ class AddSurvay extends Component {
     } = this.state
     return (
       <div className="pb-3">
+          <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -424,16 +426,9 @@ class AddSurvay extends Component {
                     </div>
                     <div className="d-flex justify-content-center">
                       <button className="addQuestion" onClick={this.addSurvay}>
-                        {!isLoading ? (
-                          'اضافه الاستبيان'
-                        ) : (
-                          <div class="lds-ellipsis">
-                            <div></div>
-                            <div></div>
-                            <div></div>
-                            <div></div>
-                          </div>
-                        )}
+                        
+                          اضافه الاستبيان
+                        
                       </button>
                     </div>
                   </div>

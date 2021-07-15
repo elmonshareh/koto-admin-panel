@@ -3,10 +3,15 @@ import React, { Component } from 'react'
 import { Card } from './../../login/Card'
 import  Dropdown  from 'react-bootstrap/Dropdown'
 import ModaleUser from './userModal';
+import SpinnerChart from './../../variables/spinnerCharts';
 class UserInfo extends Component {
-  state = { token: localStorage.getItem('token'), user: {} ,status:"",show:false}
+  state = { token: localStorage.getItem('token'), user: {} ,status:"",show:false,
+  isLoading:false,
+ 
+}
 
   getUser = async () => {
+    this.setState({ isLoading:true})
     try {
       const { token } = this.state
       const resp = await axios({
@@ -17,25 +22,26 @@ class UserInfo extends Component {
         },
       })
       console.log(resp.data.data)
-      await this.setState({ user: resp.data.data,status: resp.data.data.status })
+      await this.setState({ user: resp.data.data,status: resp.data.data.status,isLoading:false })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   changeStutes = async () => {
     try {
-      const { token } = this.state
+      const { token,status } = this.state
       const resp = await axios({
         method: 'patch',
-        url: `https://koto2020.herokuapp.com/api/user/${this.props.match.params.id}/block`,
+        url: `https://koto2020.herokuapp.com/api/user/${this.props.match.params.id}/status`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        data:{ "status":status}
       })
       console.log(resp)
-   
+      this.handleShow()
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   componentDidMount() {
@@ -45,20 +51,21 @@ class UserInfo extends Component {
     const{show}=this.state
     this.setState({show:!show})}
   render() {
-    const { user,status ,show} = this.state
+    const { user,status ,show,isLoading} = this.state
     let newStutes
-    if(status==="ACTIVE") {newStutes=["BLOCKED","DElETE"]} else if (status==="BLOCKED") {
-      newStutes=["ACTIVE","DElETE"]
+    if(status==="ACTIVE") {newStutes=["BLOCKED","DELETED"]} else if (status==="BLOCKED") {
+      newStutes=["ACTIVE","DELETED"]
     } else{ newStutes=["ACTIVE","BLOCKED"]}
 
     return (
       <div className="container p-5">
         <div className="row">
           <div className="col-sm-12 col-md-8">
-            <ModaleUser show={show} handleShow={this.handleShow} status={status} />
+            <ModaleUser show={show} handleShow={this.changeStutes} status={status}  delete={this.handleShow}/>
             <Card
               title="بينات المستخدم"
-              content={
+              content={  <div>
+                { isLoading?  <div className="d-flex justify-content-center uerSpiner ">   <SpinnerChart />  </div> :
                 <div className="container text-right">
                   <div className="row my-3">
                     <div className="col-12">
@@ -130,6 +137,7 @@ class UserInfo extends Component {
               </div>
                     </div>
                   </div>
+                </div>}
                 </div>
               }
             />

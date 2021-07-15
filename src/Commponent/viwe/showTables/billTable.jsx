@@ -1,180 +1,209 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import axios from 'axios'
 import { Table } from 'react-bootstrap'
+import Delete from './../../variables/delete'
+import SpinnerChart from './../../variables/spinnerCharts';
 class BillTables extends Component {
-    state = {
-        token: localStorage.getItem('token'),
-        allBill:[],
-        key: 0,
-        filter: '',
-        filterData: [],
-        keypagnation: 0,
-        max_id: '',
-        min_id: '',
-        disablepre: true,
-        disablenext: false,
-        styleNext: '',
-        stylePre: '#6b18ff80',
-      }
-  
-      getBillApi = async () => {
-        try {
-          const { token, key } = this.state
-          const resp = await axios({
-            method: 'get',
-            url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&size=4`,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          console.log(resp)
-       await this.setState({ allBill:resp.data.gifts.data,
+  state = {
+    token: localStorage.getItem('token'),
+    allBill: [],
+    key: 0,
+    filter: '',
+    filterData: [],
+    keypagnation: 0,
+    max_id: '',
+    min_id: '',
+    disablepre: true,
+    disablenext: false,
+    styleNext: '',
+    stylePre: '#6b18ff80',
+    show: false,
+    status:"",
+    isLoading: false,
+  }
+
+  getBillApi = async () => {
+    this.setState({ isLoading:true})
+    try {
+    
+      const { token, key } = this.state
+      const resp = await axios({
+        method: 'get',
+        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&size=4`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(resp)
+      await this.setState({
+        allBill: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
-        min_id: resp.data.gifts.paging.cursors.min_id,})
-        
-        } catch (err) {
-          console.log(err)
-        }
+        min_id: resp.data.gifts.paging.cursors.min_id,
+        isLoading:false
+      })
+      if (!resp.data.gifts.paging.hasNext) {
+        this.setState({
+          disablenext: true,
+          styleNext: '#6b18ff80',
+        })}
+    } catch (err) {
+      this.props.history.push(`/404`)
+    }
+  }
+  componentDidMount() {
+    this.getBillApi()
+  }
+  redirect = (item) => {
+ 
+    this.props.history.push(`/admin/gift/billDetailes${item._id}`)
+  }
+  getFiltertion = async () => {
+    const { token, filter, key } = this.state
+    var filterData = []
+    try {
+      const resp = await axios({
+        method: 'get',
+        url: `https://koto2020.herokuapp.com/api/Card?title=${filter}&page=${key} `,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(resp)
+      filterData = resp.data.cards
+      this.setState({ filterData: filterData })
+
+      this.setState({ allBill: filterData })
+    } catch (err) {
+      this.props.history.push(`/404`)
+    }
+  }
+  handleChange = async (e) => {
+    const { filter } = this.state
+    this.setState({ filter: e.target.value })
+    if (filter) {
+      this.getFiltertion()
+    } else {
+      await this.getCardApi()
+      console.log('emtyy')
+    }
+  }
+
+  next = async () => {
+    const { token, max_id, key, keypagnation } = this.state
+    this.setState({ isLoading:true})
+    try {
+      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      const resp = await axios({
+        method: 'get',
+        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&max_id=${max_id}&size=4`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(resp.data.gifts.paging)
+      await this.setState({
+        allBill: resp.data.gifts.data,
+        max_id: resp.data.gifts.paging.cursors.max_id,
+        min_id: resp.data.gifts.paging.cursors.min_id,
+        isLoading:false
+      })
+      if (!resp.data.gifts.paging.hasNext) {
+        this.setState({
+          disablenext: true,
+          styleNext: '#6b18ff80',
+          disablepre: false,
+          stylePre: '#6b18ff',
+        })
+      } else {
+        this.setState({
+          disablenext: false,
+          disablepre: false,
+          stylePre: '#6b18ff',
+        })
       }
-      componentDidMount() {
-        this.getBillApi()
+    } catch (err) {
+       this.props.history.push(`/404`)
+    }
+  }
+  pre = async () => {
+    const { key, keypagnation, token, min_id, hasPrevious } = this.state
+    this.setState({ isLoading:true})
+    try {
+      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      const resp = await axios({
+        method: 'get',
+        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&min_id=${min_id}&size=4`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(resp.data.gifts.paging)
+      await this.setState({
+        allBill: resp.data.gifts.data,
+        max_id: resp.data.gifts.paging.cursors.max_id,
+        min_id: resp.data.gifts.paging.cursors.min_id,
+        isLoading:false
+      })
+      if (!resp.data.gifts.paging.hasPrevious) {
+        this.setState({
+          disablepre: true,
+          disablenext: false,
+          styleNext: '#6b18ff',
+          stylePre: '#6b18ff80',
+        })
+      } else {
+        this.setState({
+          disablepre: false,
+          disablenext: false,
+          styleNext: '#6b18ff',
+        })
       }
-      redirect = (item) => {
-        console.log(item._id)
-        this.props.history.push(`/admin/gift/billDetailes${item._id}`)
-      }
-      getFiltertion = async () => {
-        const { token, filter, key } = this.state
-        var filterData = []
-        try {
-          const resp = await axios({
-            method: 'get',
-            url: `https://koto2020.herokuapp.com/api/Card?title=${filter}&page=${key} `,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          console.log(resp)
-          filterData = resp.data.cards
-          this.setState({ filterData: filterData })
-        
-          this.setState({ allBill: filterData })
-        } catch (err) {
-          console.log(err.response)
-        }
-      }
-      handleChange = async (e) => {
-        const { filter } = this.state
-        this.setState({ filter: e.target.value })
-        if (filter) {
-          this.getFiltertion()
-        } else {
-          await this.getCardApi()
-          console.log('emtyy')
-        }
-      }
-     
-      next = async () => {
-        const { token, max_id, key, keypagnation } = this.state
-    
-        try {
-          await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
-          const resp = await axios({
-            method: 'get',
-            url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&max_id=${max_id}&size=4`,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          console.log(resp.data.gifts.paging)
-          await this.setState({
-            allBill: resp.data.gifts.data,
-            max_id:resp.data.gifts.paging.cursors.max_id,
-            min_id: resp.data.gifts.paging.cursors.min_id,
-          })
-          if (!resp.data.gifts.paging.hasNext) {
-            this.setState({
-              disablenext: true,
-              styleNext: '#6b18ff80',
-              disablepre: false,
-              stylePre: '#6b18ff',
-            })
-          } else {
-            this.setState({
-              disablenext: false,
-              disablepre: false,
-              stylePre: '#6b18ff',
-            })
-          }
-        } catch (err) {
-          console.log(err)
-        }
-      }
-      pre = async () => {
-        const { key, keypagnation, token, min_id, hasPrevious } = this.state
-        try {
-          await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
-          const resp = await axios({
-            method: 'get',
-            url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&min_id=${min_id}&size=4`,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          console.log(resp.data.gifts.paging)
-          await this.setState({
-            allBill: resp.data.gifts.data,
-            max_id: resp.data.gifts.paging.cursors.max_id,
-            min_id: resp.data.gifts.paging.cursors.min_id,
-          })
-          if (!resp.data.gifts.paging.hasPrevious) {
-            this.setState({
-              disablepre: true,
-              disablenext: false,
-              styleNext: '#6b18ff',
-              stylePre: '#6b18ff80',
-            })
-          } else {
-            this.setState({
-              disablepre: false,
-              disablenext: false,
-              styleNext: '#6b18ff',
-            })
-          }
-        } catch (err) {
-          console.log(err)
-        }
-      }
-      deleteApp = async (item) => {
-     
-        try {
-          const { token } = this.state
-          const resp = await axios({
-            method: 'delete',
-            url: `https://koto2020.herokuapp.com/api/gift/${item._id}`,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          console.log(resp)
-          this.setState(prevState => ({
-            allBill: prevState.allBill.filter(row => (
-              row._id !== item._id
-            ))
-          }))
-        } catch (err) {
-          console.log(err)
-        }
-      }
-    render() { 
-    
-        const { allBill, filter, keypagnation,  styleNext,
-          disablenext,
-          disablepre,
-          stylePre, } = this.state
-       
-        return (<div className="col-12 py-5 px-3 my-1 border rounded bg-light">
-        <div className="d-flex ">
+    } catch (err) {
+       this.props.history.push(`/404`)
+    }
+  }
+  delete= async (status) => {
+    try {
+      const { token,show } = this.state
+      const resp = await axios({
+        method: 'delete',
+        url: `https://koto2020.herokuapp.com/api/gift/${status}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(resp)
+      this.setState((prevState) => ({
+        allBill: prevState.allBill.filter((row) => row._id !== status),
+      }))
+    this.setState({show:!show})
+    } catch (err) {
+       this.props.history.push(`/404`)
+    }
+  
+  }
+  handleShow = (item) => {
+    const { show } = this.state
+    this.setState({ show: !show ,status:item._id})
+  }
+  render() {
+    const {
+      allBill,
+      filter,
+      keypagnation,
+      styleNext,
+      disablenext,
+      disablepre,
+      stylePre,
+      show,
+      status,
+      isLoading
+    } = this.state
+
+    return (
+      <div className="col-12 py-5 px-3 my-1 border rounded bg-light">
+        <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
+        {/* <div className="d-flex ">
           <label>البحث :</label>
           <input
             type="text"
@@ -182,7 +211,7 @@ class BillTables extends Component {
             vaule={filter}
             onChange={this.handleChange}
           />
-        </div>
+        </div> */}
 
         <Table
           striped
@@ -199,14 +228,22 @@ class BillTables extends Component {
               <th> كود الشحن </th>
               <th> قيمه الكارت </th>
               <th> الاستخدام </th>
-              <th> التفاصيل </th>
+              {/* <th> التفاصيل </th> */}
               <th> مسح </th>
             </tr>
           </thead>
           <tbody className="trCatergory text-center">
-
-            {allBill.map((item) => {
-                console.log(allBill)
+          {isLoading ? 
+              <tr>
+            
+              <td colspan="8" > <div className="d-flex justify-content-center uerSpiner ">
+            <SpinnerChart />
+          </div></td>
+             
+                </tr>
+             :
+            allBill.map((item) => {
+              console.log(allBill)
               return (
                 <tr key={item._id}>
                   <td>{item.title}</td>
@@ -215,16 +252,17 @@ class BillTables extends Component {
                   <td>{item.code}</td>
                   <td>{item.value}</td>
                   <td>{item.used.toString()}</td>
-                  <td
+                  {/* <td
                     onClick={() => {
-                        this.redirect(item)
+                      this.redirect(item)
                     }}
                   >
                     <i className="far fa-eye"></i>
-                  </td>
+                  </td> */}
                   <td
                     onClick={() => {
-                      this.deleteApp(item)
+                    
+                      this.handleShow(item)
                     }}
                   >
                     <i className="fas fa-trash-alt"></i>
@@ -235,30 +273,30 @@ class BillTables extends Component {
           </tbody>
         </Table>
         <div className="d-flex justify-content-between px-5 pb-4 mt-3">
-       
           <button
-              onClick={this.next}
-              className="pgnationbtn"
-              disabled={disablenext}
-              style={{ background: styleNext }}
-            >
-              التالي{' '}
-            </button>
+            onClick={this.next}
+            className="pgnationbtn"
+            disabled={disablenext}
+            style={{ background: styleNext }}
+          >
+            التالي{' '}
+          </button>
 
-            <p className="text-nowrap px-2">
-              من{keypagnation} الي {keypagnation + 20}{' '}
-            </p>
-            <button
-              className="pgnationbtn "
-              onClick={this.pre}
-              disabled={disablepre}
-              style={{ background: stylePre }}
-            >
-              السابق
-            </button>
+          <p className="text-nowrap px-2">
+            من{keypagnation} الي {keypagnation + 20}
+          </p>
+          <button
+            className="pgnationbtn "
+            onClick={this.pre}
+            disabled={disablepre}
+            style={{ background: stylePre }}
+          >
+            السابق
+          </button>
         </div>
-      </div> );
-    }
+      </div>
+    )
+  }
 }
- 
-export default BillTables;
+
+export default BillTables

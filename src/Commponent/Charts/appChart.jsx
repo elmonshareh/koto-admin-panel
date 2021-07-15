@@ -1,231 +1,139 @@
-import React, { Component } from 'react';
-import FusionCharts from "fusioncharts";
-import charts from "fusioncharts/fusioncharts.charts";
-import ReactFusioncharts from "react-fusioncharts";
-import  Dropdown from 'react-bootstrap/Dropdown';
-
-charts(FusionCharts);
+import React, { Component } from 'react'
+import FusionCharts from 'fusioncharts'
+import charts from 'fusioncharts/fusioncharts.charts'
+import ReactFusioncharts from 'react-fusioncharts'
+import Dropdown from 'react-bootstrap/Dropdown'
+import axios from 'axios'
+import SpinnerChart from './../variables/spinnerCharts';
+charts(FusionCharts)
 class AppChart extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            dropdown:"اختر السنه", showHide: false,
-             data:[
-            {
-                label: 'JAN',
-                value: '555',
-              },
-              {
-                label: 'MAR',
-                value: '260',
-              },
-              {
-                label: 'APR',
-                value: '180',
-              },
-              {
-                label: 'MAY',
-                value: '140',
-              },
-              {
-                label: 'JUN',
-                value: '115',
-              },
-              {
-                label: 'JUL',
-                value: '100',
-              },
-              {
-                label: 'AGU',
-                value: '390',
-              },
-              {
-                label: 'SPE',
-                value: '350',
-              },
-              {
-                label: 'OCT',
-                value: '306',
-              },
-              {
-                label: 'NOV',
-                value: '309',
-              },
-              {
-                label: 'DEC',
-                value: '350',
-              },
-            ],
-            data2021:[
-                {
-                    label: 'JAN',
-                    value: '56',
-                  },
-                  {
-                    label: 'MAR',
-                    value: '20',
-                  },
-                  {
-                    label: 'APR',
-                    value: '10',
-                  },
-                  {
-                    label: 'MAY',
-                    value: '10',
-                  },
-                  {
-                    label: 'JUN',
-                    value: '15',
-                  },
-                  {
-                    label: 'JUL',
-                    value: '80',
-                  },
-                  {
-                    label: 'AGU',
-                    value: '90',
-                  },
-                  {
-                    label: 'SPE',
-                    value: '50',
-                  },
-                  {
-                    label: 'OCT',
-                    value: '306',
-                  },
-                  {
-                    label: 'NOV',
-                    value: '309',
-                  },
-                  {
-                    label: 'DEC',
-                    value: '350',
-                  },
-                ]
-            ,
-             dataMonth:[
-            {
-                label: 'JAN',
-                value: 'FAB',
-              },
-              {
-                label: 'MAR',
-                value: '260',
-              },
-              {
-                label: 'APR',
-                value: '180',
-              },
-              {
-                label: 'MAY',
-                value: '140',
-              },
-              {
-                label: 'JUN',
-                value: '115',
-              },
-              {
-                label: 'JUL',
-                value: '100',
-              },
-              {
-                label: 'AGU',
-                value: '390',
-              },
-              {
-                label: 'SPE',
-                value: '350',
-              },
-              {
-                label: 'OCT',
-                value: '306',
-              },
-              {
-                label: 'NOV',
-                value: '309',
-              },
-              {
-                label: 'DEC',
-                value: '350',
-              },
-            ],
-            dataYear:[  {
-                label: '2021',
-                value: '232',
-              },
-              {
-                label: '2020',
-                value: '850',
-              },
-              {
-                label: '2019',
-                value: '180',
-              },
-              {
-                label: '2018',
-                value: '232',
-              },
-              ]
-        }}
-        onValueChange = (event) => {
-            const{dataYear,dataMonth}=this.state
-            event.target.value === 'years' ? this.setState({showHide:false,data:dataYear})
-             : this.setState({showHide:true,data:dataMonth})
-          }
+  constructor(props) {
+    super(props)
+    this.state = {
+      token: localStorage.getItem('token'),
+      year: 2021,
+      filters: [],
+      title: 'اختر السنه',
+      isLoading: false,
+    }
+  }
+  Defult = async () => {
+    const { token, year } = this.state
+    let errorAPI = ''
+    this.setState({ isLoading: true })
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: 'https://koto2020.herokuapp.com/api/dashboard/chart/app',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          filter: 'monthly',
+          year: year,
+        },
+      })
+      console.log(resp)
+      await this.setState({
+        data: resp.data.data,
+        filters: resp.data.years,
+        isLoading: false,
+      })
+    } catch (err) {
+      // Handle Error
+      console.log(err)
+    }
+  }
+  componentDidMount() {
+    this.Defult()
+  }
+  handelChangeYear = async (x) => {
+    await this.setState({ year: x, title: x })
+    this.Defult()
+  }
+  monthly = () => {
+    this.Defult()
+    this.setState({ showHide: true })
+  }
+  slecteyear = async () => {
+    await this.setState({ year: new Date().getUTCFullYear() })
+    this.Defult()
+  }
+  years = async () => {
+    const { token } = this.state
+    let errorAPI = ''
+    this.setState({ showHide: false, isLoading: true })
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: 'https://koto2020.herokuapp.com/api/dashboard/chart/app',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          filter: 'annual',
+        },
+      })
+      console.log(resp)
+      await this.setState({ data: resp.data.data ,isLoading:false })
+    } catch (err) {
+      // Handle Error
+      this.props.history.push(`/404`)
+     
+    }
+  }
+
+  onValueChange = (event) => {
+    const { data } = this.state
+    event.target.value === 'years' ? this.years() : this.monthly()
+  }
   render() {
-      const{dataMonth,data, dropdown,showHide ,data2021}=this.state
-    return (
-   <div>   
-       <ReactFusioncharts
+    const { filters, data, title, showHide, isLoading } = this.state
+    return ( <div> {isLoading?(  <div className="d-flex justify-content-center uerSpiner " > <SpinnerChart /></div>):(  <div>
+      <ReactFusioncharts
         type="line"
         width="100%"
         height="400"
         dataFormat="JSON"
-        dataSource= {{
-            chart: {
-            
-              theme: "fusion"
-            },
-            data: data }
-           
-          }
-          
+        dataSource={{
+          chart: {
+            theme: 'fusion',
+          },
+          data: data,
+        }}
       />
-      <div onChange={this.onValueChange} className="d-md-flex d-sm-block text-right">
+      <div
+        onChange={this.onValueChange}
+        className="d-md-flex d-sm-block text-right"
+      >
+        <div className="mx-2">
+          <input type="radio" value="years" name="gender" /> سنوي
+        </div>
+        <div className="d-md-flex d-sm-block text-right">
           <div className="mx-2">
-            <input type="radio" value="years" name="gender" /> سنوي
+            <input type="radio" value="months" name="gender" /> شهري
           </div>
-          <div className="d-md-flex d-sm-block text-right">
-            <div className="mx-2">
-              <input type="radio" value="months" name="gender" /> شهري
-            </div>
-            {showHide && (
-              <Dropdown className="chartsbnt">
-                <Dropdown.Toggle id="dropdown-basic">
-                 { dropdown}
-                </Dropdown.Toggle>
+          {showHide && (
+            <Dropdown className="chartsbnt">
+              <Dropdown.Toggle id="dropdown-basic">{title}</Dropdown.Toggle>
 
-                <Dropdown.Menu className="menuYears">
+              <Dropdown.Menu className="menuYears">
+                {filters.map((x) => (
                   <Dropdown.Item
                     eventKey="0"
-                    onSelect={() => this.setState({data:dataMonth,dropdown:"2021"})}
+                    onSelect={() => this.handelChangeYear(x)}
                   >
-                    {new Date().getUTCFullYear()}
+                    {x}
                   </Dropdown.Item>
-                  <Dropdown.Item
-                    eventKey="1"
-                    onSelect={() => this.setState({data:data2021,dropdown:"2020"})}
-                  >
-                    {new Date().getUTCFullYear() - 1}
-                  </Dropdown.Item>
-                  
-                </Dropdown.Menu>
-              </Dropdown>
-            )}
-          </div>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
         </div>
-      </div>   
-    );
+      </div>
+    </div>)}</div>
+     
+    )
   }
 }
-export default AppChart;
+export default AppChart

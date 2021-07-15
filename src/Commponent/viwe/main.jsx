@@ -8,6 +8,7 @@ import AppChart from './../Charts/appChart'
 import axios from 'axios'
 import UserChart from './../Charts/charts';
 import ChargingChart2 from './../Charts/Charging2';
+import SpinnerChart from './../variables/spinnerCharts';
 class Main extends Component {
   state = {
     token: localStorage.getItem('token'),
@@ -48,7 +49,7 @@ class Main extends Component {
         allDownloadedApp: resp.data.data.countDownloadedApps,
       })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   getCounterGift = async () => {
@@ -71,7 +72,7 @@ class Main extends Component {
         allUsedCards: resp.data.data.countUsedCards,
       })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   getCounterVideo = async () => {
@@ -92,7 +93,7 @@ class Main extends Component {
         allUnity: resp.data.data.countWatchesUnity,
       })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   componentDidMount() {
@@ -127,6 +128,7 @@ class Main extends Component {
           <div className="col-12  d-md-flex d-sm-block">
         
             <div className="col-sm-12 col-md-6 col-lg-3">
+             
               <Cart
                 cart="pink cart"
                 cartIcon={<i className="fas fa-users"></i>}

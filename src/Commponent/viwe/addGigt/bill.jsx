@@ -7,6 +7,8 @@ import shopping from '../../../Img/Icon/shopping-cart.svg'
 import { SketchPicker } from 'react-color'
 import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
+import Delete from './../../variables/delete';
+import Loader from './../../variables/loaderModal';
 class Bill extends Component {
   state = {
     date: new Date().toISOString().split('T')[0],
@@ -33,6 +35,8 @@ class Bill extends Component {
     showToast: false,
     apiMsg: '',
     toastColor: '',
+    show: false,
+    status:"",isLoading:false
   }
   handleChangeComplete = async (color) => {
     const { colorarry,  backgroundHex, colorarryHex } = this.state
@@ -87,7 +91,7 @@ class Bill extends Component {
   }
   getAllBill = async () => {
     try {
-      const { token, allBill } = this.state
+      const { token } = this.state
       const resp = await axios({
         method: 'get',
         url: 'https://koto2020.herokuapp.com/api/Category/all',
@@ -95,26 +99,29 @@ class Bill extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.categories)
       await this.setState({ allBill: resp.data.categories.data })
     } catch (err) {
       console.log(err)
     }
   }
-  deleteApp = async (x) => {
-    const allBill = [...this.state.allBill]
+   delete = async (status) => {
     try {
-      const { token } = this.state
+      const { token,show} = this.state
       const resp = await axios({
         method: 'delete',
-        url: `https://koto2020.herokuapp.com/api/Category/${x._id}`,
+        url: `https://koto2020.herokuapp.com/api/category/${status}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       console.log(resp)
-      allBill.splice(x._id, 1)
-      this.setState({ allBill })
+      this.setState(prevState => ({
+        allBill: prevState. allBill.filter(row => (
+          row._id !== status
+        ))
+      }))
+      this.setState({show:!show, type: 'اختر النوع',
+      })
     } catch (err) {
       console.log(err)
     }
@@ -122,7 +129,7 @@ class Bill extends Component {
 
   addBillApi = async () => {
     const { date, discount, points, id, name, token, colorarryHex,disCode } = this.state
-    // let fields = this.state.fields;
+    this.setState({ isLoading: true })
     let errorAPI = ''
     try {
       const resp = await axios({
@@ -140,6 +147,7 @@ class Bill extends Component {
           color: colorarryHex,
           type: 'BILL',
           code:  disCode,
+        
         },
       })
       console.log(resp.data.message)
@@ -153,7 +161,7 @@ class Bill extends Component {
         points: '',
         apiMsg: resp.data.message,
         toastColor: 'success',
-        type: 'اختر النوع',
+        type: 'اختر النوع',isLoading:false
       })
     } catch (err) {
       // Handle Error
@@ -165,6 +173,8 @@ class Bill extends Component {
           showToast: true,
           apiMsg: err.response.data.error,
           toastColor: 'error',
+          isLoading:false
+        
         })
       }
     }
@@ -212,6 +222,11 @@ class Bill extends Component {
   componentDidMount() {
     this.getAllBill()
     
+   
+  }
+  handleShow = (item) => {
+    const { show } = this.state
+    this.setState({ show: !show ,status:item._id})
   }
   render() {
     const {
@@ -231,6 +246,8 @@ class Bill extends Component {
       showToast,
       apiMsg,
       toastColor,
+      show,
+      status,isLoading
     } = this.state
 
     const mycolor = {
@@ -242,6 +259,8 @@ class Bill extends Component {
     }
     return (
       <div>
+          <Loader show={isLoading} />
+         <Delete show={show} handleShow={this.handleShow} status={type} delete={()=>this.delete(status)}  />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -281,55 +300,14 @@ class Bill extends Component {
                             <img src={x.icon} alt="" width="20" /> {x.name}
                             <button
                               className="addBtn"
-                              onClick={() => this.deleteApp(x)}
+                              onClick={() =>this.handleShow(x)}
                             >
                               <i className="fas fa-minus-circle"></i>
                             </button>
                           </Dropdown.Item>
                         ))}
-                        <Dropdown.Item
-                          eventKey="game"
-                          onSelect={(e) => {
-                            this.setState({
-                              type: (
-                                <span>
-                                  <i className="fas fa-gamepad"></i> العاب
-                                </span>
-                              ),
-                            })
-                          }}
-                        >
-                          <img src={game} width="20px" alt="" /> العاب
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          eventKey=" shopping"
-                          onSelect={(e) => {
-                            this.setState({
-                              type: (
-                                <span>
-                                  <i className="fas fa-shopping-cart"></i> سوبر
-                                  مركت
-                                </span>
-                              ),
-                            })
-                          }}
-                        >
-                          <img src={shopping} width="20px" alt="" /> سوبر مركت
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          eventKey="food"
-                          onSelect={(e) => {
-                            this.setState({
-                              type: (
-                                <span>
-                                  <i className="fas fa-hamburger"></i> مطاعم
-                                </span>
-                              ),
-                            })
-                          }}
-                        >
-                          <img src={food} width="20px" alt="" /> مطاعم
-                        </Dropdown.Item>
+                       
+                       
                       </Dropdown.Menu>
                     </Dropdown>
                     </div>

@@ -10,13 +10,13 @@ class ModaleUser extends Component {
              Launch demo modal
            </Button> */}
 
-      <Modal show={ this.props.show} onHide={this.props.handleShow}>
+      <Modal show={ this.props.show} onHide={this.props.handleShow} className="text-right">
         <Modal.Header>
           <Modal.Title>تاكيد{this.props.status}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+        <Modal.Body>    هل تريد  {this.props.status} المستخدم</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={this.props.handleShow}>
+          <Button variant="secondary" onClick={this.props.delete}>
             Close
           </Button>
           <Button variant="primary" onClick={ this.props.handleShow}>

@@ -4,6 +4,7 @@ import { SketchPicker } from 'react-color'
 import axios from 'axios'
 import { Card } from './../../login/Card'
 import Toast from 'react-bootstrap/Toast'
+import Loader from './../../variables/loaderModal';
 class Spinner extends React.Component {
   state = {
     list: [],
@@ -16,10 +17,12 @@ class Spinner extends React.Component {
     showToast: false,
     apiMsg: '',
     toastColor: '',
+    isLoading: false,
+  
   }
   add = () => {
     const { number, backgroundColor } = this.state
-
+  
     this.state.list.push({
       option: number,
       style: { backgroundColor: backgroundColor },
@@ -33,15 +36,19 @@ class Spinner extends React.Component {
       backgroundColor: color.hex,
       showHide: !this.state.showHide,
       showHideBtn: !this.state.showHideBtn,
+   
     })
   }
   hideComponent = () => {
     this.setState({
       showHide: !this.state.showHide,
       showHideBtn: !this.state.showHideBtn,
+     
     })
   }
   addAPI = async (e) => {
+    
+    this.setState({ isLoading: true })
     const { number, token, backgroundColor } = this.state
     let errorAPI = ''
     try {
@@ -56,9 +63,10 @@ class Spinner extends React.Component {
           color: backgroundColor,
         },
       })
-      console.log(resp.data.message)
+ 
       this.add()
       this.setState({
+        isLoading: false,
         number: '',
         backgroundColor: '',
         showToast: true,
@@ -75,6 +83,7 @@ class Spinner extends React.Component {
           showToast: true,
           apiMsg: err.response.data.error,
           toastColor: 'error',
+          isLoading: false,
         })
       }
     }
@@ -105,8 +114,6 @@ class Spinner extends React.Component {
     }
   }
   render() {
-    console.log(this.state.list)
-
     const {
       number,
       backgroundColor,
@@ -116,9 +123,11 @@ class Spinner extends React.Component {
       showToast,
       apiMsg,
       toastColor,
+      isLoading
     } = this.state
     return (
       <div>
+         <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -142,7 +151,7 @@ class Spinner extends React.Component {
                     <input
                       type="number"
                       name="number"
-                      className="imputservary px-2 p-1"
+                      className="inptSpinner px-2 p-1"
                       maxLength="100"
                       value={number}
                       onChange={(e) => {
@@ -152,7 +161,7 @@ class Spinner extends React.Component {
                     <span className="mt-2 error">{errors['number']}</span>
                   </div>
 
-                  <div className="d-md-flex  d-block   my-3">
+                  <div className="d-md-flex  d-block my-3" >
                     <spin className="text-nowrap addAds"> لون الخلفيه:</spin>
                     {showHide && (
                       <SketchPicker
@@ -175,12 +184,12 @@ class Spinner extends React.Component {
                     </span>
                   </div>
 
-                  <div className="d-flex justify-content-center  ">
-                    <button onClick={this.addSpinner}>kk</button>{' '}
+                  <div className="d-flex justify-content-center mt-5 spinnerAdBtn  mb-5 ">
+                    <button onClick={this.addSpinner} className="addQuestion ">kk</button>{' '}
                   </div>
                 </div>
 
-                <div className="col-sm-12 col-md-6 p-3 d-flex justify-content-center">
+                <div className="col-sm-12 col-md-6 p-3 d-flex justify-content-center ">
                   <Wheel
                     prizeNumber={3}
                     data={this.state.list}

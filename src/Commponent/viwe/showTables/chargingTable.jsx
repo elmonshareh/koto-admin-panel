@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { Table } from 'react-bootstrap'
+import Delete from './../../variables/delete'
+import SpinnerChart from './../../variables/spinnerCharts'
 class ChargingTable extends Component {
   state = {
     token: localStorage.getItem('token'),
@@ -13,9 +15,12 @@ class ChargingTable extends Component {
     disablenext: false,
     styleNext: '',
     stylePre: '#6b18ff80',
-
+    show: false,
+    status: '',
+    isLoading: false,
   }
   getCardApi = async () => {
+    this.setState({ isLoading: true })
     try {
       const { token, key } = this.state
       const resp = await axios({
@@ -26,12 +31,19 @@ class ChargingTable extends Component {
         },
       })
       console.log(resp)
-      await this.setState({ allCard: resp.data.cards.data,
+      await this.setState({
+        allCard: resp.data.cards.data,
         max_id: resp.data.cards.paging.cursors.max_id,
-        min_id:resp.data.cards.paging.cursors.min_id })
-      console.log(this.state.allCard)
+        min_id: resp.data.cards.paging.cursors.min_id,
+        isLoading: false,
+      })
+      if (!resp.data.cards.paging.hasNext) {
+        this.setState({
+          disablenext: true,
+          styleNext: '#6b18ff80',
+        })}
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   componentDidMount() {
@@ -73,6 +85,7 @@ class ChargingTable extends Component {
   }
 
   next = async () => {
+    this.setState({ isLoading: true })
     const { token, max_id, min_id, key, keypagnation } = this.state
 
     try {
@@ -88,7 +101,8 @@ class ChargingTable extends Component {
       await this.setState({
         allCard: resp.data.cards.data,
         max_id: resp.data.cards.paging.cursors.max_id,
-        min_id:resp.data.cards.paging.cursors.min_id,
+        min_id: resp.data.cards.paging.cursors.min_id,
+        isLoading: false,
       })
       if (!resp.data.cards.paging.hasNext) {
         this.setState({
@@ -105,11 +119,12 @@ class ChargingTable extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   pre = async () => {
-    const { key, keypagnation, token, min_id} = this.state
+    const { key, keypagnation, token, min_id } = this.state
+    this.setState({ isLoading: true })
     try {
       await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
       const resp = await axios({
@@ -123,7 +138,8 @@ class ChargingTable extends Component {
       await this.setState({
         allCard: resp.data.cards.data,
         max_id: resp.data.cards.paging.cursors.max_id,
-        min_id:resp.data.cards.paging.cursors.min_id,
+        min_id: resp.data.cards.paging.cursors.min_id,
+        isLoading: false,
       })
       if (!resp.data.cards.paging.hasPrevious) {
         this.setState({
@@ -140,41 +156,55 @@ class ChargingTable extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
 
-  deleteApp = async (item) => {
+  delete = async (status) => {
     try {
-      const { token } = this.state
+      const { token, show } = this.state
       const resp = await axios({
         method: 'delete',
-        url: `https://koto2020.herokuapp.com/api/Card/${item._id}`,
+        url: `https://koto2020.herokuapp.com/api/Card/${status}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       this.setState((prevState) => ({
-        allCard: prevState.allCard.filter((row) => row._id !== item._id),
+        allCard: prevState.allCard.filter((row) => row._id !== status),
       }))
+      this.setState({ show: !show })
       console.log(resp)
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
+  }
+  handleShow = (item) => {
+    const { show } = this.state
+    this.setState({ show: !show, status: item._id })
   }
   render() {
     const {
       allCard,
-      filter,
+    
       keypagnation,
       styleNext,
       disablenext,
       disablepre,
       stylePre,
+      show,
+      status,
+      isLoading,
     } = this.state
     return (
       <div className="col-12 py-5 px-3 my-1 border rounded bg-light">
-        <div className="d-flex ">
+        <Delete
+          show={show}
+          handleShow={this.handleShow}
+          status={status}
+          delete={() => this.delete(status)}
+        />
+        {/* <div className="d-flex ">
           <label>البحث :</label>
           <input
             type="text"
@@ -182,7 +212,7 @@ class ChargingTable extends Component {
             vaule={filter}
             onChange={this.handleChange}
           />
-        </div>
+        </div> */}
 
         <Table
           striped
@@ -202,25 +232,36 @@ class ChargingTable extends Component {
             </tr>
           </thead>
           <tbody className="trCatergory text-center">
-            {allCard.map((item) => {
-              console.log(item.used.toString())
-              return (
-                <tr key={item._id}>
-                  <td>{item.title}</td>
-                  <td>{item.points}</td>
-                  <td>{item.chargeCode}</td>
-                  <td>{item.value}</td>
-                  <td>{item.used.toString()}</td>
-                  <td
-                    onClick={() => {
-                      this.deleteApp(item)
-                    }}
-                  >
-                    <i className="fas fa-trash-alt"></i>
-                  </td>
-                </tr>
-              )
-            })}
+            {isLoading ? (
+              <tr>
+                <td colspan="6">
+                  {' '}
+                  <div className="d-flex justify-content-center uerSpiner ">
+                    <SpinnerChart />
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              allCard.map((item) => {
+                console.log(item.used.toString())
+                return (
+                  <tr key={item._id}>
+                    <td>{item.title}</td>
+                    <td>{item.points}</td>
+                    <td>{item.chargeCode}</td>
+                    <td>{item.value}</td>
+                    <td>{item.used.toString()}</td>
+                    <td
+                      onClick={() => {
+                        this.handleShow(item)
+                      }}
+                    >
+                      <i className="fas fa-trash-alt"></i>
+                    </td>
+                  </tr>
+                )
+              })
+            )}
           </tbody>
         </Table>
         <div className="d-flex justify-content-between px-5 pb-4 mt-3">

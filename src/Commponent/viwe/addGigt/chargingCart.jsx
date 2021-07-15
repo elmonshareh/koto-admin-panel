@@ -3,7 +3,9 @@ import { Card } from './../../login/Card'
 import Dropdown from 'react-bootstrap/Dropdown'
 import { SketchPicker } from 'react-color'
 import axios from 'axios'
-import  Toast  from 'react-bootstrap/Toast' 
+import Toast from 'react-bootstrap/Toast'
+import Delete from './../../variables/delete'
+import Loader from './../../variables/loaderModal';
 
 class ChargingCart extends Component {
   state = {
@@ -27,8 +29,9 @@ class ChargingCart extends Component {
     endcode: '',
     showToast: false,
     apiMsg: '',
-    toastColor:"",
-    descraption:""
+    toastColor: '',
+    descraption: '',
+    isLoading: false,
   }
   handleChangeComplete = (color, event) => {
     this.setState({
@@ -48,6 +51,7 @@ class ChargingCart extends Component {
   getAllNetwork = async () => {
     try {
       const { token, allNetwork } = this.state
+
       const resp = await axios({
         method: 'get',
         url: 'https://koto2020.herokuapp.com/api/Network',
@@ -63,7 +67,6 @@ class ChargingCart extends Component {
     }
   }
   handleValidation = () => {
-  
     const { valueCart, code, id, point } = this.state
     let errors = {}
     let formIsValid = true
@@ -88,8 +91,17 @@ class ChargingCart extends Component {
     return formIsValid
   }
   addCard = async () => {
+    this.setState({ isLoading: true })
     if (this.handleValidation()) {
-      const { valueCart, point, code, id, token, backgroundHex,descraption } = this.state
+      const {
+        valueCart,
+        point,
+        code,
+        id,
+        token,
+        backgroundHex,
+        descraption,
+      } = this.state
       let errorAPI = ''
       try {
         const resp = await axios({
@@ -107,9 +119,18 @@ class ChargingCart extends Component {
             color: backgroundHex,
           },
         })
-        this.setState({  name: 'اختار الشركه', code:" ", point:'',valueCart:'' ,backgroundHex:"#6b18ff", showToast: true, id:'',
-        apiMsg: resp.data.message
-        ,toastColor:"success"})
+        this.setState({
+          name: 'اختار الشركه',
+          code: ' ',
+          point: '',
+          valueCart: '',
+          backgroundHex: '#6b18ff',
+          showToast: true,
+          id: '',
+          apiMsg: resp.data.message,
+          toastColor: 'success',
+          isLoading: false 
+        })
 
         console.log(resp)
       } catch (err) {
@@ -121,8 +142,11 @@ class ChargingCart extends Component {
           this.setState({
             showToast: true,
             apiMsg: err.response.data.error[0].msg,
-          toastColor:"error"
+            toastColor: 'error',
+            isLoading: false 
           })
+
+
         }
       }
 
@@ -133,25 +157,35 @@ class ChargingCart extends Component {
   componentDidMount() {
     this.getAllNetwork()
   }
-  deleteApp = async (x) => {
-    const allNetwork = [...this.state.allNetwork]
-    
+
+  delete = async (status) => {
     try {
-      const { token } = this.state
+      const { token, show } = this.state
       const resp = await axios({
         method: 'delete',
-        url: `https://koto2020.herokuapp.com/api/network/${x._id}`,
+        url: `https://koto2020.herokuapp.com/api/network/${status}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       console.log(resp)
-      allNetwork.splice(x._id, 1)
-      this.setState({ allNetwork,  startcode: '',
-      endcode: '',icon:"",  name: 'اختار الشركه' })
+      this.setState((prevState) => ({
+        allNetwork: prevState.allNetwork.filter((row) => row._id !== status),
+      }))
+      this.setState({
+        show: !show,
+        icon: '',
+        startcode: '',
+        endcode: '',
+        name: 'اختار الشركه',
+      })
     } catch (err) {
       console.log(err)
     }
+  }
+  handleShow = (item) => {
+    const { show } = this.state
+    this.setState({ show: !show, status: item._id })
   }
 
   render() {
@@ -170,7 +204,11 @@ class ChargingCart extends Component {
       startcode,
       descraption,
       showToast,
-      apiMsg,toastColor
+      apiMsg,
+      toastColor,
+      show,
+      status,
+      isLoading
     } = this.state
 
     const mystyle = {
@@ -181,10 +219,16 @@ class ChargingCart extends Component {
       borderRadius: '17px',
       position: 'relative',
     }
-    console.log(startcode)
 
     return (
       <div>
+          <Loader show={isLoading} />
+        <Delete
+          show={show}
+          handleShow={this.handleShow}
+          status={name}
+          delete={() => this.delete(status)}
+        />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -221,30 +265,26 @@ class ChargingCart extends Component {
                                 name: (
                                   <span>
                                     {x.title}{' '}
-                                    <img src={x.logo} width="20px" alt="" /> 
+                                    <img src={x.logo} width="20px" alt="" />
                                   </span>
                                 ),
                                 startcode: x.startCode,
                                 endcode: x.endCode,
-                               
+
                                 icon: <img src={x.logo} width="50px" alt="" />,
                                 id: x._id,
                               })
                             }}
                           >
-                         <button
+                            <button
                               className="addBtn"
-                              onClick={() => this.deleteApp(x)}
+                              onClick={() => this.handleShow(x)}
                             >
                               <i className="fas fa-minus-circle"></i>
                             </button>
-                            {x.title} <img src={x.logo} alt="" width="20" /> 
+                            {x.title} <img src={x.logo} alt="" width="20" />
                           </Dropdown.Item>
                         ))}
-                       
-                        
-                        
-                       
                       </Dropdown.Menu>
                     </Dropdown>
                     <span className="mt-2 error">{errors['dropCart']}</span>
@@ -300,11 +340,11 @@ class ChargingCart extends Component {
                     <textarea
                       id="descrption"
                       className="inputCrat p-2"
-                      name="descrption" 
+                      name="descrption"
                       value={descraption}
                       onChange={(event) =>
-                        this.setState({descraption : event.target.value })}
-
+                        this.setState({ descraption: event.target.value })
+                      }
                     />
                   </div>
 

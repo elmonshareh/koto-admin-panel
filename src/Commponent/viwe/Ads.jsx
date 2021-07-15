@@ -33,17 +33,15 @@ class AddADS extends Component {
             path="/admin/AddADS/survay:id"
             render={(props) => <SurvayDetailes {...props} />}
           />
-            <Route
-            path="/admin/AddADS/SolvedServayDetailes:id"
-            render={(props) => <SolvedServayDetailes {...props} />}
-          /> 
+            
+            <Route path="/admin/AddADS/SolvedServayDetailes:iduser/:idsurvay" component={ SolvedServayDetailes}/>
           <Route path="/admin/AddADS/App:id" render={(props) => <AppDeatiles {...props} />} /> 
           <Route path="/admin/AddADS/VedioTable" component={VedioTable} />
           <Route path="/admin/AddADS/ApTable" component={AppTable} />
           <Route path="/admin/AddADS/SurveyTable" component={SurveyTable} />
           <Route path="/admin/AddADS/ChargingTable" component={ChargingTable} />
            <Route path="/admin/AddADS/SolvedSurvey" component={SolvedSurvey}/>
-           <Route path="/admin/AddADS/SolvedSurveyUser" component={ SolvedSurveryUses}/>
+           <Route path="/admin/AddADS/SolvedSurveyUser:id" component={ SolvedSurveryUses}/>
          
 
         </div>

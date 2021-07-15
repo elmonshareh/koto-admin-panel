@@ -2,10 +2,10 @@ import React, { Component } from 'react'
 import { Card } from '../login/Card'
 import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
+import Loader from './../variables/loaderModal';
 class AddApp extends Component {
   state = {
     items: [],
-    IOS: '',
     Android: '',
     number: 0,
     date: new Date().toISOString().split('T')[0],
@@ -16,6 +16,10 @@ class AddApp extends Component {
     showToast: false,
     apiMsg: '',
     toastColor: '',
+    subTitle:"",
+    img:"",
+    logo:"",
+     isLoading: false,
   }
   timestanp = () => {
     var date = this.state.date
@@ -58,9 +62,18 @@ class AddApp extends Component {
     }
   }
   addAppAPI = async () => {
-    const { date, IOS, Android, number, name, token } = this.state
-    // let fields = this.state.fields;
+    const { date, Android, number, name, token,subTitle,logo } = this.state
+
     let errorAPI = ''
+    var bodyFormData = new FormData()
+    bodyFormData.append('title', name)
+    bodyFormData.append('description', subTitle)
+    bodyFormData.append('expireDate', date)
+    bodyFormData.append('points', number)
+    bodyFormData.append( 'androidLink', Android)
+    bodyFormData.append( 'photo', logo)
+    this.setState({ isLoading: true })
+
     try {
       const resp = await axios({
         method: 'post',
@@ -68,25 +81,19 @@ class AddApp extends Component {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        data: {
-          title: name,
-          description: 'mm',
-          iosLink: IOS,
-          androidLink: Android,
-          expireDate: date,
-          points: number,
-        },
+        data:bodyFormData,
       })
-      console.log(resp.data.message)
+     
       this.setState({
-        IOS: '',
         Android: '',
         number: 0,
         date: new Date().toISOString().split('T')[0],
         name: '',
         showToast: true,
         apiMsg: resp.data.message,
-        toastColor: 'success',
+        toastColor: 'success', 
+        isLoading: false,
+        subTitle:"",
       })
     } catch (err) {
       // Handle Error
@@ -98,17 +105,23 @@ class AddApp extends Component {
           showToast: true,
           apiMsg: err.response.data.error,
           toastColor: 'error',
+          isLoading: false,
         })
       }
     }
 
     this.setState({ massagerror: errorAPI })
-    console.log(this.state.massagerror)
+   
   }
-
+  uploadimg = async (e) => {
+    await this.setState({
+      logo: e.target.files[0],
+    })
+     this.state.logo&&this.setState({ img: URL.createObjectURL(this.state.logo) })
+    
+  }
   render() {
     const {
-      IOS,
       Android,
       number,
       name,
@@ -116,10 +129,12 @@ class AddApp extends Component {
       showToast,
       apiMsg,
       toastColor,
+      subTitle, isLoading
     } = this.state
-
+  
     return (
       <div>
+            <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -165,20 +180,7 @@ class AddApp extends Component {
                       }}
                     />
                   </div>
-                  <div className="d-md-flex my-3  d-block">
-                    <span className="addAds w-25">اضافه الرابط Ios :</span>
-
-                    <input
-                      type="text"
-                      name="IOS"
-                      className="imputservary px-2 p-1"
-                      maxLength="200"
-                      value={IOS}
-                      onChange={(e) => {
-                        this.setState({ IOS: e.target.value })
-                      }}
-                    />
-                  </div>
+                  
                   <div className="d-md-flex my-3  d-block">
                     <span className="addAds  w-25">تاريخ الانتهاء :</span>
                     <input
@@ -195,8 +197,35 @@ class AddApp extends Component {
                     ></input>
                     <span className="mt-2 error">{errors['date']}</span>
                   </div>
+                  <div className="d-md-flex d-block">
+                    <span className="  w-25 text-nowrap "> وصف التطبيق :</span>
+                    <textarea
+                      type="textarea"
+                      className="imputservary px-2 p-1"
+                      maxLength="500"
+                      value={subTitle}
+                      onChange={(event) =>
+                        this.setState({ subTitle: event.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="d-md-flex my-3  d-block">
+                    <div  className="w-25 mt-1 text-nowrap">
+                      اختيار لوجو التطبيق   :
+                    </div>
+                    <input
+                      className="p-1 inputCrat border-0"
+                      type="file"
+                      id="logo"
+                      accept="image/png"
+                      name="logo"
+                      
+                      onChange={this.uploadimg}
+                    />
+                     <span className="mt-2 mr-2 error"> {errors['logo']}</span>
+                  </div>
                   <div className="d-md-flex my-3   d-block">
-                    <span className="addAds w-25"> عدد النقاط المكتسبة :</span>
+                    <span className=" w-25"> عدد النقاط المكتسبة :</span>
                     <input
                       type="number"
                       name="number"

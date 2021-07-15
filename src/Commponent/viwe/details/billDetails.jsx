@@ -16,7 +16,7 @@ class BillDetailes extends Component {
         //   await this.setState({ g: resp.data.survey ,questions:resp.data.survey.questions})
           
         } catch (err) {
-          console.log(err)
+          this.props.history.push(`/404`)
         }
       }
      componentDidMount(){this.getBill()}

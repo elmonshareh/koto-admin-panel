@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Card } from './../../login/Card'
 import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
+import Loader from './../../variables/loaderModal'
 class AddBillCategory extends Component {
   state = {
     name: '',
@@ -13,6 +14,7 @@ class AddBillCategory extends Component {
     showToast: false,
     apiMsg: '',
     toastColor: '',
+    isLoading: false,
   }
   uploadimg = async (e) => {
     await this.setState({
@@ -35,6 +37,7 @@ class AddBillCategory extends Component {
     return formIsValid
   }
   addApiCategory = async () => {
+    this.setState({ isLoading: true })
     const { token, name, logo } = this.state
     let errorAPI = ''
     var bodyFormData = new FormData()
@@ -58,6 +61,8 @@ class AddBillCategory extends Component {
         showToast: true,
         apiMsg: resp.data.message,
         toastColor: 'success',
+        subTitle: '',
+        isLoading: false,
       })
       console.log(resp)
     } catch (err) {
@@ -68,19 +73,33 @@ class AddBillCategory extends Component {
         errorAPI = err.response.data
         this.setState({
           showToast: true,
-          apiMsg: err.response.data.error[0].msg,
+          apiMsg: err.response.data.error,
           toastColor: 'error',
+          isLoading: false,
         })
       }
     }
 
     this.setState({ massagerror: errorAPI })
-    console.log(this.state.massagerror)
+  }
+  addCategory = () => {
+    if (this.handleValidation()) {
+      this.addApiCategory()
+    }
   }
   render() {
-    const { name, errors, subTitle, showToast, apiMsg, toastColor } = this.state
+    const {
+      name,
+      errors,
+      subTitle,
+      showToast,
+      apiMsg,
+      toastColor,
+      isLoading,
+    } = this.state
     return (
       <div>
+        <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -138,10 +157,7 @@ class AddBillCategory extends Component {
                     <span className="mt-2 error">{errors['logo']}</span>
                   </div>
                   <div className="d-flex justify-content-center p-3">
-                    <button
-                      className="addQuestion"
-                      onClick={this.addApiCategory}
-                    >
+                    <button className="addQuestion" onClick={this.addCategory}>
                       اضافه النوع
                     </button>
                   </div>

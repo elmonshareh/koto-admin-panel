@@ -3,6 +3,8 @@ import Card from '../../login/Card'
 import { SketchPicker } from 'react-color'
 import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
+import Loader from '../../variables/loaderModal'
+
 class Cobone extends Component {
   state = {
     date: new Date().toISOString().split('T')[0],
@@ -11,7 +13,6 @@ class Cobone extends Component {
     points: '',
     name: '',
     disCode: '',
-    // background: 'rgba(52, 52, 52, 0.8)',
     backgroundHex: '#8080808a',
     showHide: false,
     showHideBtn: true,
@@ -21,7 +22,9 @@ class Cobone extends Component {
     errors: '',
     showToast: false,
     apiMsg: '',
-    toastColor: '',
+    toastColor: '', 
+    isLoading: false,
+
   }
   handleChangeComplete = async (color) => {
     const { colorarry, backgroundHex, colorarryHex } = this.state
@@ -83,7 +86,7 @@ class Cobone extends Component {
       token,
       colorarryHex,
     } = this.state
-    // let fields = this.state.fields;
+    this.setState({ isLoading:true})
     let errorAPI = ''
     try {
       const resp = await axios({
@@ -112,6 +115,7 @@ class Cobone extends Component {
         points: '',
         apiMsg: resp.data.message,
         toastColor: 'success',
+        isLoading: false,
       })
     } catch (err) {
       // Handle Error
@@ -123,6 +127,7 @@ class Cobone extends Component {
           showToast: true,
           apiMsg: err.response.data.error,
           toastColor: 'error',
+          isLoading: false,
         })
       }
     }
@@ -176,7 +181,7 @@ class Cobone extends Component {
       errors,
       showToast,
       apiMsg,
-      toastColor,
+      toastColor,isLoading
     } = this.state
     const mycolor = {
       background:
@@ -187,6 +192,7 @@ class Cobone extends Component {
     }
     return (
       <div>
+       <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })

@@ -8,13 +8,13 @@ import AddSurvay from './viwe/addSurvay'
 import AddApp from './viwe/addApp'
 import AddADS from './viwe/Ads'
 import AddGift from './viwe/addGift'
-import Notification from './addNotification'
+import Notification from './viwe/addNotification'
 import jwt_decode from 'jwt-decode'
-
 import NotificationTables from './viwe/showTables/notificationTables'
 import Users from './viwe/users/users'
 import UserInfo from './viwe/users/userImfo'
 import SpinnerNav from './viwe/spinner/spinnerNav';
+import InviteFriends from './viwe/invite';
 class Sidebar extends Component {
   state = {
     open: false,
@@ -28,6 +28,7 @@ class Sidebar extends Component {
     notificationOpen: false,
     arrowBillOpen: false,
     arrowCoboneOpen: false,
+    arrowSpinnerOpen:false
   }
   render() {
     const {
@@ -42,6 +43,7 @@ class Sidebar extends Component {
       arrowAppOpen,
       arrowBillOpen,
       arrowCoboneOpen,
+      arrowSpinnerOpen
     } = this.state
     let arrow,
       arrowAD,
@@ -51,7 +53,7 @@ class Sidebar extends Component {
       arrowApp,
       arrowNotification,
       arrowBill,
-      arrowCobone
+      arrowCobone,  arrowSpinner
     var decoded = jwt_decode(token)
     decoded.exp === data && this.props.history.replace('/login')
     openCrited
@@ -83,6 +85,8 @@ class Sidebar extends Component {
     arrowCoboneOpen
       ? (arrowCobone = <i className="fas fa-chevron-up mr-2 navIcon"></i>)
       : (arrowCobone = <i className="fas fa-chevron-down mr-2 navIcon "></i>)
+      arrowSpinnerOpen?  (arrowSpinner = <i className="fas fa-chevron-up mr-2 navIcon"></i>)
+      : (arrowSpinner = <i className="fas fa-chevron-down mr-2 navIcon "></i>)
     return (
       <div className="side">
         <div className="d-block">
@@ -118,9 +122,9 @@ class Sidebar extends Component {
                 <Nav.Item
                   eventKey="1"
                   className=" navbar-nav py-3"
-                  onClick={() => this.setState({ openAds: !openAds })}
+                  onClick={() => this.setState({ openAds: !openAds , open: false,notificationOpen:false,arrowSpinnerOpen:false })}
                 >
-                  <i className="fab fa-adn px-2 navIcon"></i> تصنيف الاعلانات{' '}
+                  <i className="fab fa-adn px-2 navIcon"></i> تصنيف الاعلانات
                   {arrowAD}
                 </Nav.Item>
                 {openAds && (
@@ -222,7 +226,7 @@ class Sidebar extends Component {
                 <Nav.Item
                   eventKey="2"
                   className="navbar-nav py-3 "
-                  onClick={() => this.setState({ open: !open })}
+                  onClick={() => this.setState({ open: !open,openAds: false ,notificationOpen:false,arrowSpinnerOpen:false })}
                   aria-controls="example-fade-text"
                   aria-expanded={open}
                 >
@@ -341,7 +345,7 @@ class Sidebar extends Component {
                 <Nav.Item
                   className="navbar-nav py-3 pr-0"
                   onClick={() =>
-                    this.setState({ notificationOpen: !notificationOpen })
+                    this.setState({ notificationOpen: !notificationOpen,openAds: false, open:false, arrowSpinnerOpen:false })
                   }
                 >
                   <i className="fas fa-bell px-2 navIcon"></i> الاشعارات{' '}
@@ -355,7 +359,7 @@ class Sidebar extends Component {
                       to="/admin/Notification"
                       className="d-block  py-1 px-3"
                     >
-                      اضافه
+                      اضافه اشعار
                     </Nav.Link>
 
                     <Nav.Link
@@ -364,7 +368,7 @@ class Sidebar extends Component {
                       to="/admin/Notificationtables"
                       className="d-block  py-1 px-3"
                     >
-                      عرض
+                      عرض الاشعارات
                     </Nav.Link>
                   </div>
                 )}
@@ -375,16 +379,55 @@ class Sidebar extends Component {
                   className="navbar-nav py-3 pr-0"
                   to="/admin/Users"
                 >
-                  <i class="fas fa-user-friends px-2 navIcon"></i> المستخدمين
+                  <i className="fas fa-user-friends px-2 navIcon"></i> المستخدمين
                 </Nav.Link>
-                <Nav.Link
+                <Nav.Item
                   eventKey="10"
-                  as={Link}
+                 
                   className="navbar-nav py-3 pr-0"
-                  to="/admin/Spinner"
+                  onClick={() =>
+                    this.setState({ arrowSpinnerOpen: !arrowSpinnerOpen  ,open: false,openAds: false ,notificationOpen:false })
+                  }
                 >
-                  <i class="fas fa-user-friends px-2 navIcon"></i> spinner
-                </Nav.Link>
+              
+                  <i className="fas fa-dharmachakra px-2 navIcon"></i> spinner { arrowSpinner}
+                </Nav.Item>
+               { arrowSpinnerOpen&& <div>
+                <Nav.Link
+                      eventKey="10.1"
+                      as={Link}
+                    to="/admin/Spinner/add"
+                      className="d-block  py-1 px-3"
+                    >
+                       اضافه قيمه
+                    </Nav.Link>
+                    <Nav.Link
+                      eventKey="10.2"
+                      as={Link}
+                    to="/admin/Spinner/Tables"
+                      className="d-block  py-1 px-3"
+                    >
+                     عرض القيم
+                    </Nav.Link>
+                 </div>}
+                 {/* <Nav.Link
+                      eventKey="11"
+                      as={Link}
+                    to="/admin/InviteFriends"
+                    className="navbar-nav py-3 pr-0"
+                    >
+                
+  <i className="fas fa-list-ol px-2 navIcon"></i> الارقام
+                    </Nav.Link> */}
+                    <Nav.Link
+                      eventKey="12"
+                      as={Link}
+                    to="/"
+                    className="navbar-nav py-3 pr-0"
+                    >
+                
+  <i className="fas fa-sign-out-alt px-2 navIcon"></i> خروج
+                    </Nav.Link>
               </Nav>
             </Navbar.Collapse>
           </Navbar>
@@ -400,10 +443,10 @@ class Sidebar extends Component {
           <Route path="/admin/Notification" component={Notification} />
           <Route path="/admin/Users" component={Users} />
           <Route path="/admin/Notificationtables" component={NotificationTables} />
-          <Route path="/admin/UserInfo:id" render={(props) => <UserInfo {...props} />}
-          
-          />
+          <Route path="/admin/UserInfo:id" render={(props) => <UserInfo {...props} />} />
            <Route path="/admin/Spinner" component={SpinnerNav} />
+           <Route path="/admin/InviteFriends" component={InviteFriends} />
+          
         </div>
       </div>
     )

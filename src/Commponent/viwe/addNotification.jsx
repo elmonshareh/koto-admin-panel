@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import Card from './login/Card'
+import Card from '../login/Card'
 import { Form } from 'react-bootstrap'
 import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
+import Loader from './../variables/loaderModal'
 class Notification extends Component {
   state = {
     title: '',
@@ -13,6 +14,7 @@ class Notification extends Component {
     showToast: false,
     apiMsg: '',
     toastColor: '',
+    isLoading: false,
   }
 
   handleFormSubmit = (e) => {
@@ -41,8 +43,8 @@ class Notification extends Component {
     return formIsValid
   }
   addNotificationAPI = async (e) => {
-  const { title, token, body } = this.state
-  
+    const { title, token, body } = this.state
+    this.setState({ isLoading: true })
     let errorAPI = ''
     try {
       const resp = await axios({
@@ -63,6 +65,7 @@ class Notification extends Component {
         showToast: true,
         apiMsg: resp.data.message,
         toastColor: 'success',
+        isLoading: false,
       })
     } catch (err) {
       // Handle Error
@@ -74,6 +77,7 @@ class Notification extends Component {
           showToast: true,
           apiMsg: err.response.data.error,
           toastColor: 'error',
+          isLoading: false,
         })
       }
     }
@@ -81,12 +85,12 @@ class Notification extends Component {
     this.setState({ massagerror: errorAPI })
     console.log(this.state.massagerror)
   }
-addNotfitcaion=(e)=>{
-  e.preventDefault()
-  if( this.handlevalidation()){
-    this.addNotificationAPI()
+  addNotfitcaion = (e) => {
+    e.preventDefault()
+    if (this.handlevalidation()) {
+      this.addNotificationAPI()
+    }
   }
-}
   render() {
     const {
       title,
@@ -96,9 +100,11 @@ addNotfitcaion=(e)=>{
       showToast,
       apiMsg,
       toastColor,
+      isLoading,
     } = this.state
     return (
       <div className=" mx-4 mt-5">
+        <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -165,8 +171,6 @@ addNotfitcaion=(e)=>{
                         onClick={this.addNotfitcaion}
                       />
                     </div>
-
-                  
                   </Form>
                 </div>
               </div>

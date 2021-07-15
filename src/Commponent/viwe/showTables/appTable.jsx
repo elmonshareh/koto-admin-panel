@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { Table } from 'react-bootstrap'
+import Delete from './../../variables/delete';
+import Loader from '../../variables/loaderModal';
+import SpinnerChart from './../../variables/spinnerCharts';
 class AppTable extends Component {
   state = {
     allApp: [],
@@ -16,8 +19,11 @@ class AppTable extends Component {
     disablenext: false,
     styleNext: '',
     stylePre: '#6b18ff80',
+    show: false,
+    status:"", isLoading:false
   }
   getApp = async () => {
+    this.setState({ isLoading:true})
     try {
       const { token, key } = this.state
       const resp = await axios({
@@ -32,7 +38,13 @@ class AppTable extends Component {
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
         min_id: resp.data.apps.paging.cursors.min_id,
+        isLoading:false
       })
+      if (!resp.data.apps.paging.hasNext) {
+        this.setState({
+          disablenext: true,
+          styleNext: '#6b18ff80',
+        })}
     } catch (err) {
       console.log(err)
     }
@@ -41,23 +53,30 @@ class AppTable extends Component {
     console.log(item._id)
     this.props.history.push(`/admin/AddADS/App${item._id}`)
   }
-  deleteApp = async (item) => {
+  handleShow = (item) => {
+    const { show } = this.state
+    this.setState({ show: !show ,status:item._id})
+  
+  }
+  delete= async (status) => {
     try {
-      const { token } = this.state
+      const { token,show } = this.state
       const resp = await axios({
         method: 'delete',
-        url: `https://koto2020.herokuapp.com/api/app/${item._id}`,
+        url: `https://koto2020.herokuapp.com/api/app/${status}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       console.log(resp)
       this.setState((prevState) => ({
-        allApp: prevState.allApp.filter((row) => row._id !== item._id),
+        allApp: prevState.allApp.filter((row) => row._id !== status),
       }))
+    this.setState({show:!show})
     } catch (err) {
       console.log(err)
     }
+  
   }
   getFiltertion = async () => {
     const { token, filter, key } = this.state
@@ -91,7 +110,7 @@ class AppTable extends Component {
   }
   next = async () => {
     const { token, max_id, key, keypagnation } = this.state
-
+this.setState({isLoading:true})
     try {
       await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
       const resp = await axios({
@@ -106,6 +125,7 @@ class AppTable extends Component {
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
         min_id: resp.data.apps.paging.cursors.min_id,
+        isLoading:false
       })
       if (!resp.data.apps.paging.hasNext) {
         this.setState({
@@ -127,6 +147,7 @@ class AppTable extends Component {
   }
   pre = async () => {
     const { key, keypagnation, token, min_id, hasPrevious } = this.state
+    this.setState({isLoading:true})
     try {
       await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
       const resp = await axios({
@@ -141,6 +162,7 @@ class AppTable extends Component {
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
         min_id: resp.data.apps.paging.cursors.min_id,
+        isLoading:false
       })
       if (!resp.data.apps.paging.hasPrevious) {
         this.setState({
@@ -157,7 +179,7 @@ class AppTable extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   componentDidMount() {
@@ -172,11 +194,15 @@ class AppTable extends Component {
       disablenext,
       disablepre,
       stylePre,
+      show,
+      status,
+      isLoading
     } = this.state
     return (
       <div>
-        <div className="py-5 px-3 mt-5 border rounded bg-light ">
-          <div className="d-flex mb-3 ">
+          <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
+        <div className="py-5 px-3  border rounded bg-light ">
+          {/* <div className="d-flex mb-3 ">
             <label>البحث :</label>{' '}
             <input
               type="text"
@@ -184,7 +210,7 @@ class AppTable extends Component {
               vaule={filter}
               onChange={this.handleChange}
             />
-          </div>
+          </div> */}
           <Table
             striped
             hover
@@ -202,7 +228,15 @@ class AppTable extends Component {
               </tr>
             </thead>
             <tbody className="trCatergory ">
-              {allApp.map((item) => {
+            {isLoading ? 
+              <tr>
+            
+              <td colspan="5" > <div className="d-flex justify-content-center uerSpiner ">
+            <SpinnerChart />
+          </div></td>
+             
+                </tr>
+             : allApp.map((item) => {
                 console.log(item)
                 return (
                   <tr key={item._id} className="text-center">
@@ -218,7 +252,7 @@ class AppTable extends Component {
                     </td>
                     <td
                       onClick={() => {
-                        this.deleteApp(item)
+                        this.handleShow(item)
                       }}
                     >
                       <i className="fas fa-trash-alt"></i>

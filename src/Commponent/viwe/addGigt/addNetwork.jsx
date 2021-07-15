@@ -3,6 +3,7 @@ import axios from 'axios'
 import { SketchPicker } from 'react-color'
 import Card from '../../login/Card'
 import  Toast  from 'react-bootstrap/Toast';
+import Loader from './../../variables/loaderModal';
 class AddNetwork1 extends Component {
   state = {
     name: '',
@@ -21,6 +22,7 @@ class AddNetwork1 extends Component {
     showToast: false,
     apiMsg: '',
     toastColor:"",
+    isLoading: false,
   }
   handleChangeComplete = (color, event) => {
     this.setState({ background: color.rgb, backgroundHex: color.hex, showHide: !this.state.showHide,
@@ -66,6 +68,7 @@ class AddNetwork1 extends Component {
     // let fields = this.state.fields;
 
     const { token, name, stratCode, endCode, logo,background} = this.state
+    this.setState({ isLoading: true })
 
     let errorAPI = ''
     var bodyFormData = new FormData()
@@ -88,7 +91,7 @@ class AddNetwork1 extends Component {
 
       this.setState({ name:"", stratCode:"",endCode:"" ,logo:"", img:'' ,showToast: true,
       apiMsg: resp.data.message
-        ,toastColor:"success" })
+        ,toastColor:"success" ,isLoading:false})
       console.log(resp)
     } catch (err) {
       // Handle Error
@@ -99,7 +102,8 @@ class AddNetwork1 extends Component {
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error[0].msg,
-        toastColor:"error"
+        toastColor:"error",
+        isLoading:false
         })
       }
     }
@@ -126,9 +130,9 @@ class AddNetwork1 extends Component {
       showHideBtn,
       backgroundHex,
       errors, showToast,
-      apiMsg,toastColor
+      apiMsg,toastColor,isLoading
     } = this.state
-    console.log(logo)
+   
     const mystyle = {
       color: 'white',
       backgroundColor: backgroundHex,
@@ -139,6 +143,7 @@ class AddNetwork1 extends Component {
     }
     return (
       <div>
+         <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })

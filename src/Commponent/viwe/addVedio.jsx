@@ -3,6 +3,8 @@ import axios from 'axios'
 import { Card } from '../login/Card'
 import Toast from 'react-bootstrap/Toast'
 import  img from "../../Img/logo.png"
+import Loader from './../variables/loaderModal';
+import PageNotFound from './../page404';
 
 class AddVedio extends Component {
   constructor(props) {
@@ -10,9 +12,9 @@ class AddVedio extends Component {
     this.state = {
       items: [],
       number: 0,
-      video: '',
+      video:'',
       title: '',
-      selectedFile: null,
+      selectedFile: "",
       date: new Date().toISOString().split('T')[0],
       errors: {},
       subTitle: '',
@@ -21,8 +23,8 @@ class AddVedio extends Component {
       apiMsg: '',
       isLoading: false,
       toastColor: '',
-    logo:"",
-    img:""
+      logo:"",
+     img:""
     }
   }
   uploadVedio = async (e) => {
@@ -30,7 +32,7 @@ class AddVedio extends Component {
     await this.setState({
       selectedFile: e.target.files[0],
     })
-    console.log(selectedFile)
+    
     this.state.selectedFile &&
       this.setState({ video: URL.createObjectURL(this.state.selectedFile) })
   }
@@ -57,7 +59,7 @@ class AddVedio extends Component {
   }
   handleValidation = () => {
     console.log(',,,')
-    const { title, video, date, number } = this.state
+    const { title, video, date, number ,logo} = this.state
     let errors = {}
     let formIsValid = true
     if (!title) {
@@ -76,22 +78,24 @@ class AddVedio extends Component {
       formIsValid = false
       errors['vedio'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
+    if(!logo){
+      formIsValid = false
+      errors['logo'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
+    }
 
     this.setState({ errors: errors })
     return formIsValid
   }
   addVideoAPI = async () => {
-    // let fields = this.state.fields;
+    this.setState({ isLoading: true })
     const {
       token,
       title,
       date,
       number,
       subTitle,
-      video,
       selectedFile,
       key,
-      toastColor,
     } = this.state
     let errorAPI = ''
     var bodyFormData = new FormData()
@@ -100,7 +104,7 @@ class AddVedio extends Component {
     bodyFormData.append('expireDate', date)
     bodyFormData.append('points', number)
     bodyFormData.append('video', selectedFile)
-    this.setState({ isLoading: true })
+    
     try {
       const resp = await axios({
         method: 'post',
@@ -111,14 +115,12 @@ class AddVedio extends Component {
         },
         data: bodyFormData,
       })
-      if (resp.data.message) {
-        console.log('manar')
-      }
-      console.log(resp.data.message)
+    
+     
       this.setState({
         title: '',
         number: '',
-        video: '',
+        video: null,
         selectedFile: null,
         date: new Date().toISOString().split('T')[0],
         subTitle: '',
@@ -126,11 +128,14 @@ class AddVedio extends Component {
         isLoading: false,
         apiMsg: resp.data.message,
         toastColor: 'success',
+        logo:null,
+        img:""
       })
     } catch (err) {
       console.log(err)
 
       if (err.response) {
+      //  this.props.history.push(`/404`)
         errorAPI = err.response.data.error
         this.setState({
           showToast: true,
@@ -141,7 +146,7 @@ class AddVedio extends Component {
       }
     }
     this.setState({ massagerror: errorAPI })
-    console.log(this.state.massagerror)
+
   }
  
   uploadimg = async (e) => {
@@ -151,15 +156,12 @@ class AddVedio extends Component {
      this.state.logo&&this.setState({ img: URL.createObjectURL(this.state.logo) })
     
   }
-
- 
   render() {
     const {
-      vedio,
+      selectedFile,
       date,
       number,
       errors,
-      allVedio,
       title,
       subTitle,
       showToast,
@@ -170,9 +172,9 @@ class AddVedio extends Component {
       img
    
     } = this.state
-  
     return (
       <div>
+        <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -235,6 +237,37 @@ class AddVedio extends Component {
                     ></input>
                     <span className="mt-2 error">{errors['date']}</span>
                   </div>
+                 
+                  <div className="d-md-flex my-3  d-block">
+                    <div  className="addAds mt-1 text-nowrap">
+                      اختار الخلفيه  :
+                    </div>
+                    <input
+                      className="p-1 inputCrat border-0"
+                      type="file"
+                      id="logo"
+                      accept="image/*"
+                      name="logo"
+                      // key={logo}
+                      onChange={this.uploadimg}
+                    />
+                     <span className="mt-2 mr-2 error"> {errors['logo']}</span>
+                  </div>
+                  <div className="d-md-flex my-3  d-block">
+                    <div  className="addAds mt-1 text-nowrap">
+                    تحميل الفيديو:
+                    </div>
+                    <input
+                      className="p-1 inputCrat border-0"
+                      type="file"
+                      accept="video/*"
+                      id="vedio"
+                      onChange={this.uploadVedio}
+                      name="vedio"
+                      // key={selectedFile}
+                    />
+                       <span className="mt-2  mr-2  error"> {errors['vedio']}</span>
+                  </div>
                   <div className="d-md-flex my-3  d-block">
                     <span className="addAds  text-nowrap "> عدد النقاط :</span>
                     <input
@@ -248,37 +281,8 @@ class AddVedio extends Component {
                     ></input>
                     <span className="mt-2 error">{errors['number']}</span>
                   </div>
-                  <div className="d-md-flex my-3  d-block">
-                    <div  className="aadAds mt-1 text-nowrap">
-                      اختار الخلفيه  :
-                    </div>
-                    <input
-                      className="p-1 inputCrat border-0"
-                      type="file"
-                      id="logo"
-                      accept="image/*"
-                      name="logo"
-                      
-                      onChange={this.uploadimg}
-                    />
-                  </div>
-
                   <div className="file-input d-md-flex justify-content-around d-sm-block m-3 ">
-                    <input
-                      type="file"
-                      id="file"
-                      className="file"
-                      accept="video/*"
-                      value={vedio}
-                      onChange={this.uploadVedio}
-                      name="vedio"
-                      
-                    />
 
-                    <label htmlFor="file">
-                      تحميل الفيديو
-                      <p className="file-name"></p>
-                    </label>
 
                     <button
                       type="submit"
@@ -286,25 +290,15 @@ class AddVedio extends Component {
                       onClick={this.addVedio}
                     >
                  
-                      {!isLoading ? (
-                        'اضافه الاعلان '
-                      ) : (
-                        <div class="lds-ellipsis">
-                          <div></div>
-                          <div></div>
-                          <div></div>
-                          <div></div>
-                        </div>
-                      )}
+                     
+                        اضافه الاعلان 
                     </button>
                   </div>
                 </div>
 
                 <div className="col-md-6 col-sm-12 d-flex justify-content-center my-2 ">  
-                  <video muted autoplay poster={img} controls src={this.state.video} height="200" />
-                  <span className="d-flex align-items-center error">
-                    {errors['vedio']}
-                  </span>
+                  <video muted  poster={img} controls src={this.state.video} className="video" height="200" />
+                
                 </div>
               </div>
             </div>

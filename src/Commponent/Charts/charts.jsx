@@ -16,6 +16,7 @@ import charts from 'fusioncharts/fusioncharts.charts'
 import ReactFusioncharts from 'react-fusioncharts'
 import axios from 'axios'
 import { ThemeConsumer } from 'react-bootstrap/esm/ThemeProvider'
+import SpinnerChart from './../variables/spinnerCharts';
 ReactFC.fcRoot(FusionCharts, Chart, FusionTheme)
 charts(FusionCharts)
 class UserChart extends Component {
@@ -25,7 +26,8 @@ class UserChart extends Component {
     data: [],
     year: 2021,
     filters:[],
-    title:"اختر السنه"
+    title:"اختر السنه",
+    isLoading:false
   }
 
   onValueChange = (event) => {
@@ -35,6 +37,7 @@ class UserChart extends Component {
   usesDefult = async () => {
     const { token, year } = this.state
     let errorAPI = ''
+    this.setState({isLoading:true})
     try {
       const resp = await axios({
         method: 'post',
@@ -48,7 +51,7 @@ class UserChart extends Component {
         },
       })
       console.log(resp)
-      await this.setState({ data: resp.data.data,filters:resp.data.years })
+      await this.setState({ data: resp.data.data,filters:resp.data.years,isLoading:false })
     } catch (err) {
       // Handle Error
       console.log(err)
@@ -72,7 +75,8 @@ class UserChart extends Component {
   years = async () => {
     const { token } = this.state
     let errorAPI = ''
-    this.setState({ showHide: false })
+    this.setState({ showHide: false,isLoading:true })
+
     try {
       const resp = await axios({
         method: 'post',
@@ -85,17 +89,11 @@ class UserChart extends Component {
         },
       })
       console.log(resp)
-      await this.setState({ data: resp.data.data })
+      await this.setState({ data: resp.data.data ,isLoading:false })
     } catch (err) {
       // Handle Error
-      console.log(err)
-      if (err.response) {
-        console.log(err.response.data.error)
-        errorAPI = err.response.data.error
-        this.setState({
-          apiMsg: err.response.data.error,
-        })
-      }
+      this.props.history.push(`/404`)
+     
     }
   }
 handelChangeYear= async (x)=>{
@@ -107,11 +105,11 @@ handelChangeYear= async (x)=>{
     this.usesDefult()
   }
   render() {
-    const { showHide, data, year,filters ,title} = this.state
-    console.log(year)
+    const { showHide, data,filters ,title,isLoading} = this.state
+
     return (
-      <div>
-        <ReactFusioncharts
+      <div  >
+        {isLoading?(  <div className="d-flex justify-content-center uerSpiner" > <SpinnerChart /></div>):(  <div> <ReactFusioncharts
           type="column2d"
           width="100%"
           height="400"
@@ -124,7 +122,7 @@ handelChangeYear= async (x)=>{
             data: data,
           }}
         />
-        <div
+         <div
           onChange={this.onValueChange}
           className="d-md-flex d-sm-block text-right"
         >
@@ -151,7 +149,10 @@ handelChangeYear= async (x)=>{
               </Dropdown.Menu>
             </Dropdown>
           )}
-        </div>
+        </div></div>)}
+        
+       
+       
       </div>
     )
   }

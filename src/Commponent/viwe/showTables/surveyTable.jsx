@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { Table } from 'react-bootstrap'
 import axios from 'axios'
+import Delete from './../../variables/delete';
+import SpinnerChart from './../../variables/spinnerCharts';
 class SurveyTable extends Component {
   state = {
     filter: '',
@@ -17,10 +19,14 @@ class SurveyTable extends Component {
     disablepre:true,
     disablenext:false,
     styleNext:"",
-    stylePre:"#6b18ff80"
-   
+    stylePre:"#6b18ff80",
+    show: false,
+    status:"", 
+     isLoading:false
+
   }
   getSurvay = async () => {
+    this.setState({ isLoading:true})
     try {
       const { token, key } = this.state
 
@@ -36,7 +42,13 @@ class SurveyTable extends Component {
         allSurveys: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
         min_id: resp.data.data.paging.cursors.min_id,
+        isLoading:false
       })
+      if (!resp.data.data.paging.hasNext) {
+        this.setState({
+          disablenext: true,
+          styleNext: '#6b18ff80',
+        })}
     } catch (err) {
       console.log(err)
     }
@@ -48,12 +60,12 @@ class SurveyTable extends Component {
     console.log(item._id)
     this.props.history.push(`/admin/AddADS/survay${item._id}`)
   }
-  deleteSurvay = async (item) => {
+  delete = async (status) => {
     try {
-      const { token } = this.state
+      const { token ,show} = this.state
       const resp = await axios({
         method: 'delete',
-        url: `https://koto2020.herokuapp.com/api/Survey/${item._id}`,
+        url: `https://koto2020.herokuapp.com/api/Survey/${status}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -61,9 +73,11 @@ class SurveyTable extends Component {
       console.log(resp)
       this.setState(prevState => ({
         allSurveys: prevState.allSurveys.filter(row => (
-          row._id !== item._id
+          row._id !== status
         ))
+        
       }))
+      this.setState({show:!show})
     } catch (err) {
       console.log(err)
     }
@@ -102,7 +116,7 @@ class SurveyTable extends Component {
 
   next = async () => {
     const { token, max_id, key, keypagnation,min_id } = this.state
- 
+    this.setState({ isLoading:true})
     try {
       await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
       const resp = await axios({
@@ -118,7 +132,8 @@ class SurveyTable extends Component {
         allSurveys: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
         min_id: resp.data.data.paging.cursors.min_id,
-        hasNext:resp.data.data.paging.cursors.hasNext
+        hasNext:resp.data.data.paging.cursors.hasNext,
+        isLoading:false
       })
       if( !resp.data.data.paging.hasNext){
         this.setState({ disablenext:true,styleNext:"#6b18ff80", disablepre:false,stylePre:"#6b18ff"})
@@ -132,9 +147,8 @@ class SurveyTable extends Component {
 
   pre = async () => {
     const { key, keypagnation, token, min_id } = this.state
-    
-    
-    await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+
+    await this.setState({ keypagnation: keypagnation - 20, key: key - 1,isLoading:true })
     try {
       const resp = await axios({
         method: 'get',
@@ -148,6 +162,7 @@ class SurveyTable extends Component {
         allSurveys: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
         min_id: resp.data.data.paging.cursors.min_id,
+        isLoading:false
       })
       if(!resp.data.data.paging.hasPrevious){
      
@@ -193,12 +208,18 @@ class SurveyTable extends Component {
       console.log(err)
     }
   }
+  handleShow = (item) => {
+    const { show } = this.state
+    this.setState({ show: !show ,status:item._id})
+  }
   render() {
-    const { allSurveys, filter, keypagnation, date,disablenext, disablepre,stylePre,styleNext}  = this.state
-    //   
+    const { allSurveys, filter, keypagnation, date,disablenext, disablepre,stylePre,styleNext,show,isLoading,
+      status}  = this.state
+    
     return (
       <div className="col-12 py-5  mb-3 border rounded bg-light ">
-        <div className="d-flex mb-2">
+         <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
+        {/* <div className="d-flex mb-2">
           <label>البحث :</label>{' '}
           <input
             type="text"
@@ -207,7 +228,7 @@ class SurveyTable extends Component {
             onChange={this.handleChange}
           />
           <input type="date" name="date"  value={date}  onChange={this.timestanp }/>
-        </div>
+        </div> */}
         <Table
           striped
           hover
@@ -225,7 +246,16 @@ class SurveyTable extends Component {
             </tr>
           </thead>
           <tbody className="trCatergory text-center">
-            {allSurveys.map((all) => {
+          {isLoading ? 
+              <tr>
+            
+              <td colspan="5" > <div className="d-flex justify-content-center uerSpiner ">
+            <SpinnerChart />
+          </div></td>
+             
+                </tr>
+             : allSurveys.map((all) => {
+
               return (
                 <tr key={all._id}>
                   <td>{all.name}</td>
@@ -240,14 +270,16 @@ class SurveyTable extends Component {
                   </td>
                   <td
                     onClick={() => {
-                      this.deleteSurvay(all)
+                      
+                      this.handleShow(all)
                     }}
                   >
                     <i className="fas fa-trash-alt"></i>
                   </td>
                 </tr>
               )
-            })}
+            })} 
+            
           </tbody>
         </Table>
         <div className="d-flex justify-content-between px-5  mt-3">

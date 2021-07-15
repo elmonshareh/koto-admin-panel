@@ -28,7 +28,7 @@ class App extends Component {
 	   
 	   <Route path="/login" component={Login} />
 	   <Route path="/admin" render={(props) => <Sidebar {...props} />} />
-	   <Route  exact path='404' component={PageNotFound} />
+	   <Route  exact path='/404' component={PageNotFound} />
 	   {/* <Redirect  from="*" to="/404" /> */}
 	   <Redirect from="/" to="/login" />
 	   

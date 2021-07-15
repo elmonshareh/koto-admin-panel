@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { Table } from 'react-bootstrap'
+import Delete from './../../variables/delete';
+import SpinnerChart from './../../variables/spinnerCharts';
 class VedioTable extends Component {
   state = {
     items: [],
@@ -17,10 +19,14 @@ class VedioTable extends Component {
     disablenext: false,
     styleNext: '',
     stylePre: '#6b18ff80',
+    show: false,
+    status:"",
+    isLoading:false
   }
   getVideo = async () => {
+    this.setState({ isLoading:true})
     try {
-      const { token, key } = this.state
+      const { token } = this.state
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/video?size=10`,
@@ -33,7 +39,13 @@ class VedioTable extends Component {
         allVedio: resp.data.videos.data,
         max_id: resp.data.videos.paging.cursors.max_id,
         min_id: resp.data.videos.paging.cursors.min_id,
+        isLoading:false
       })
+      if (!resp.data.videos.paging.hasNext) {
+        this.setState({
+          disablenext: true,
+          styleNext: '#6b18ff80',
+        })}
     } catch (err) {
       console.log(err)
     }
@@ -42,13 +54,13 @@ class VedioTable extends Component {
     console.log(item._id)
     this.props.history.push(`/admin/AddADS/AddVedio${item._id}`)
   }
-  deleteVideo = async (item) => {
-    const allVedio = [...this.state.allVedio]
+
+  delete= async (status) => {
     try {
-      const { token } = this.state
+      const { token,show } = this.state
       const resp = await axios({
         method: 'delete',
-        url: `https://koto2020.herokuapp.com/api/video/${item._id}`,
+        url: `https://koto2020.herokuapp.com/api/video/${status}`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -56,8 +68,9 @@ class VedioTable extends Component {
       console.log(resp)
 
       this.setState((prevState) => ({
-        allVedio: prevState.allVedio.filter((row) => row._id !== item._id),
+        allVedio: prevState.allVedio.filter((row) => row._id !== status),
       }))
+      this.setState({show:!show})
     } catch (err) {
       console.log(err)
     }
@@ -93,8 +106,9 @@ class VedioTable extends Component {
     }
   }
   next = async () => {
-    const { token, max_id, min_id, key, keypagnation } = this.state
-
+    const { token, max_id, key, keypagnation } = this.state
+    this.setState({ isLoading:true})
+    
     try {
       await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
       const resp = await axios({
@@ -109,6 +123,7 @@ class VedioTable extends Component {
         allVedio: resp.data.videos.data,
         max_id: resp.data.videos.paging.cursors.max_id,
         min_id: resp.data.videos.paging.cursors.min_id,
+        isLoading:false
       })
       if (!resp.data.videos.paging.hasNext) {
         this.setState({
@@ -130,6 +145,7 @@ class VedioTable extends Component {
   }
   pre = async () => {
     const { key, keypagnation, token, min_id } = this.state
+    this.setState({ isLoading:true})
     try {
       await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
       const resp = await axios({
@@ -144,6 +160,7 @@ class VedioTable extends Component {
         allVedio: resp.data.videos.data,
         max_id: resp.data.videos.paging.cursors.max_id,
         min_id: resp.data.videos.paging.cursors.min_id,
+        isLoading:false
       })
       if (!resp.data.videos.paging.hasPrevious) {
         this.setState({
@@ -166,6 +183,10 @@ class VedioTable extends Component {
   componentDidMount() {
     this.getVideo()
   }
+  handleShow = (item) => {
+    const { show } = this.state
+    this.setState({ show: !show ,status:item._id})
+  }
   render() {
     const {
       filter,
@@ -175,12 +196,13 @@ class VedioTable extends Component {
       disablenext,
       disablepre,
       stylePre,
+      show,status,isLoading
     } = this.state
 
     return (
       <div>
-        {' '}
         <div className="pt-5 px-3 mb-5 border rounded bg-light">
+        <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
           <div className="d-flex mb-3 ">
             <label>البحث :</label>{' '}
             <input
@@ -190,7 +212,7 @@ class VedioTable extends Component {
               onChange={this.handleChange}
             />
           </div>
-
+         
           <Table
             striped
             hover
@@ -208,30 +230,41 @@ class VedioTable extends Component {
               </tr>
             </thead>
             <tbody className="trCatergory text-center ">
-              {allVedio.map((item) => {
-                return (
-                  <tr key={item._id}>
-                    <td>{item.title}</td>
-                    <td>{item.points}</td>
-                    <td>{item.expireDate}</td>
-                    <td
-                      onClick={() => {
-                        this.redirect(item)
-                      }}
-                    >
-                      <i className="far fa-eye"></i>
-                    </td>
-                    <td
-                      onClick={() => {
-                        this.deleteVideo(item)
-                      }}
-                    >
-                      <i className="fas fa-trash-alt"></i>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
+            {isLoading ? 
+              <tr>
+            
+              <td colspan="5" > <div className="d-flex justify-content-center uerSpiner ">
+            <SpinnerChart />
+          </div></td>
+             
+                </tr>
+             :  allVedio.map((item) => {
+              return ( 
+                <tr key={item._id}>
+                    
+                  <td>{item.title}</td>
+                  <td>{item.points}</td>
+                  <td>{item.expireDate}</td>
+                  <td
+                    onClick={() => {
+                      this.redirect(item)
+                    }}
+                  >
+                    <i className="far fa-eye"></i>
+                  </td>
+                  <td
+                    onClick={() => {
+                      this.handleShow(item)
+                    }}
+                  >
+                    <i className="fas fa-trash-alt"></i>
+                  </td>
+                </tr>
+              )
+            }) }
+       
+      </tbody>
+            
           </Table>
           <div className="d-flex justify-content-between px-5 pb-4 mt-3">
             <button
