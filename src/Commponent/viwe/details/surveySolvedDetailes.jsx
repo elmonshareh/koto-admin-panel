@@ -29,7 +29,7 @@ class SolvedServayDetailes extends Component {
           
         },
       })
-      console.log(resp.data.answers[0].survey.name)
+
       await this.setState({
         answer:resp.data.answers[0],
         questions: resp.data.answers[0].questionsWithAnswers,
@@ -37,6 +37,7 @@ class SolvedServayDetailes extends Component {
         isLoading:false
       })
     } catch (err) {
+     
       this.props.history.push(`/404`)
     }
   }
@@ -44,7 +45,7 @@ class SolvedServayDetailes extends Component {
     this.getAnswer()
   }
   render() {
-      console.log()
+ 
       const{answer,questions,name,isLoading}=this.state
     return (
 
@@ -68,7 +69,7 @@ class SolvedServayDetailes extends Component {
               <div className="survey-card p-3 d-flex  ">
                 <Carousel className="col-12">
                   {questions.map((x, index) => {
-                    console.log(x)
+                   
                     return (
                       <Carousel.Item key={index}>
                         <h4 className=" text-right mx-3 mt-3 mb-3">
@@ -76,7 +77,7 @@ class SolvedServayDetailes extends Component {
                         </h4>
                         { Array.isArray(x.answer)?
                          x.answer.map((y, index) => {
-                          console.log(y, x.questionType)
+                   
                           return (
                             <div className="mx-3 mt-4" key={index}>
                               {y}

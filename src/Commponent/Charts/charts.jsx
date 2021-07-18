@@ -50,13 +50,13 @@ class UserChart extends Component {
           year: year,
         },
       })
-      console.log(resp)
+      
       await this.setState({ data: resp.data.data,filters:resp.data.years,isLoading:false })
     } catch (err) {
       // Handle Error
-      console.log(err)
+
       if (err.response) {
-        console.log(err.response.data.error)
+      
         errorAPI = err.response.data.error
         this.setState({
           apiMsg: err.response.data.error,
@@ -88,7 +88,7 @@ class UserChart extends Component {
           filter: 'annual',
         },
       })
-      console.log(resp)
+   
       await this.setState({ data: resp.data.data ,isLoading:false })
     } catch (err) {
       // Handle Error
@@ -116,7 +116,6 @@ handelChangeYear= async (x)=>{
           dataFormat="JSON"
           dataSource={{
             chart: {
-              numbersuffix: 'K',
               theme: 'fusion',
             },
             data: data,

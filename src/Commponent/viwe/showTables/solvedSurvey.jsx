@@ -6,8 +6,8 @@ class SolvedSurvey extends Component {
   state = {
     allSurvey: [],
     filter: [],
-    key: 0,
-    keypagnation: 0,
+    key: 1,
+    keypagnation: 10,
     disablepre: true,
     token: localStorage.getItem('token'),
     max_id: '',
@@ -32,7 +32,7 @@ class SolvedSurvey extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.data)
+      (resp.data)
       await this.setState({
         allSurvey: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -46,14 +46,14 @@ class SolvedSurvey extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   next = async () => {
     const { token, max_id, key, keypagnation } = this.state
     this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/survey/solved?max_id=${max_id}&size=10`,
@@ -61,7 +61,7 @@ class SolvedSurvey extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.data.paging)
+ 
       await this.setState({
         allSurvey: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -83,14 +83,14 @@ class SolvedSurvey extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   pre = async () => {
     const { key, keypagnation, token, min_id } = this.state
     this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/survey/solved?min_id=${min_id}&size=10`,
@@ -98,7 +98,7 @@ class SolvedSurvey extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.data.paging)
+   
       await this.setState({
         allSurvey: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -120,7 +120,7 @@ class SolvedSurvey extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
 
@@ -137,10 +137,11 @@ class SolvedSurvey extends Component {
       disablenext,
       disablepre,
       stylePre,
+      key,
     } = this.state
     return (
       <div>
-        <div className="py-5 px-3 mt-5 border rounded bg-light ">
+        <div className=" px-3   py-5 mb-3 border rounded bg-light ">
           {/* <div className="d-flex mb-3 ">
             <label>البحث :</label>{' '}
             <input
@@ -149,7 +150,9 @@ class SolvedSurvey extends Component {
               vaule={filter}
               onChange={this.handleChange}
             />
+          
           </div> */}
+              <h3 className="d-flex mb-4"> عرض الاستبيانات المحلوله</h3>
           <Table
             striped
             hover
@@ -159,7 +162,7 @@ class SolvedSurvey extends Component {
           >
             <thead className="tdCatergory">
               <tr className="text-center">
-                <td> كود</td>
+                <th> كود</th>
                 <th> اسم </th>
                 <th> عدد النقاط</th>
                 <th> تاريخ الانتهاء </th>
@@ -210,7 +213,7 @@ class SolvedSurvey extends Component {
             </button>
 
             <p className="text-nowrap px-2">
-              من{keypagnation} الي {keypagnation + 20}{' '}
+            من{key} الي {keypagnation }{' '}
             </p>
             <button
               className="pgnationbtn "

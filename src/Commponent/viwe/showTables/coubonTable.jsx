@@ -9,8 +9,8 @@ class CoubonTable extends Component {
     allCoubon: [],
     filterData: [],
     filter: '',
-    key: 0,
-    keypagnation: 0,
+    key: 1,
+    keypagnation: 10,
     disablepre: true,
     token: localStorage.getItem('token'),
     max_id: '',
@@ -29,12 +29,12 @@ class CoubonTable extends Component {
       const { token } = this.state
       const resp = await axios({
         method: 'get',
-        url:`https://koto2020.herokuapp.com/api/gift/all?type=COUPON_CODE&size=2`,
+        url:`https://koto2020.herokuapp.com/api/gift/all?type=COUPON_CODE&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+  
       await this.setState({ allCoubon: resp.data.gifts.data,max_id: resp.data.gifts.paging.cursors.max_id,
         min_id: resp.data.gifts.paging.cursors.min_id,  isLoading: false, })
         if (!resp.data.gifts.paging.hasNext) {
@@ -57,7 +57,7 @@ class CoubonTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+     
       this.setState(prevState => ({
         allCoubon: prevState.allCoubon.filter(row => (
           row._id !== status
@@ -75,15 +75,15 @@ class CoubonTable extends Component {
     const { token, max_id, key, keypagnation } = this.state
     this.setState({ isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/gift/all?type=COUPON_CODE&max_id=${max_id}&size=2`,
+        url: `https://koto2020.herokuapp.com/api/gift/all?type=COUPON_CODE&max_id=${max_id}&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.gifts.paging)
+     
       await this.setState({
         allCoubon: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
@@ -112,15 +112,15 @@ class CoubonTable extends Component {
     const { key, keypagnation, token, min_id } = this.state
     this.setState({ isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/gift/all?type=COUPON_CODE&min_id=${min_id}&size=2`,
+        url: `https://koto2020.herokuapp.com/api/gift/all?type=COUPON_CODE&min_id=${min_id}&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.gifts.paging)
+  
       await this.setState({
         allCoubon: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
@@ -147,7 +147,7 @@ class CoubonTable extends Component {
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show ,status:item._id})
+    this.setState({ show: !show ,status:item.title})
   }
   render() {
       const{allCoubon,filter,
@@ -157,6 +157,7 @@ class CoubonTable extends Component {
       disablepre,
       stylePre,
       show,
+      key,
       status,isLoading
     }=this.state
     return <div className="col-12 py-5 px-3 my-1 border rounded bg-light">
@@ -170,7 +171,7 @@ class CoubonTable extends Component {
         onChange={this.handleChange}
       />
     </div> */}
-
+ <h3 className="d-flex mb-4"> عرض  كوبونات</h3>
     <Table
       striped
       hover
@@ -237,7 +238,7 @@ class CoubonTable extends Component {
             </button>
 
             <p className="text-nowrap px-2">
-              من{keypagnation} الي {keypagnation + 20}{' '}
+            من{key} الي {keypagnation}{' '}
             </p>
             <button
               className="pgnationbtn "

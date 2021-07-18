@@ -1,5 +1,5 @@
 import React from 'react'
-import { Wheel } from 'react-custom-roulette'
+
 import { SketchPicker } from 'react-color'
 import axios from 'axios'
 import { Card } from './../../login/Card'
@@ -18,7 +18,6 @@ class Spinner extends React.Component {
     apiMsg: '',
     toastColor: '',
     isLoading: false,
-  
   }
   add = () => {
     const { number, backgroundColor } = this.state
@@ -28,7 +27,7 @@ class Spinner extends React.Component {
       style: { backgroundColor: backgroundColor },
     })
     this.setState({ list: this.state.list })
-    console.log(this.state.list)
+ 
   }
 
   handleChangeComplete = (color, event) => {
@@ -75,21 +74,21 @@ class Spinner extends React.Component {
       })
     } catch (err) {
       // Handle Error
-      console.log(err)
+    
       if (err.response) {
-        console.log(err.response.data.error)
+     
         errorAPI = err.response.data.error
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error,
-          toastColor: 'error',
+          toastColor: 'errorToster',
           isLoading: false,
         })
       }
     }
 
     this.setState({ massagerror: errorAPI })
-    console.log(this.state.massagerror)
+
   }
   handlevalidation = () => {
     let errors = {}
@@ -134,7 +133,8 @@ class Spinner extends React.Component {
           }}
           show={showToast}
           delay={3000}
-          autohide
+          autohide 
+          
         >
           <Toast.Body className={toastColor}>{apiMsg}</Toast.Body>
         </Toast>
@@ -152,7 +152,7 @@ class Spinner extends React.Component {
                       type="number"
                       name="number"
                       className="inptSpinner px-2 p-1"
-                      maxLength="100"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 5)}
                       value={number}
                       onChange={(e) => {
                         this.setState({ number: e.target.value })
@@ -185,17 +185,11 @@ class Spinner extends React.Component {
                   </div>
 
                   <div className="d-flex justify-content-center mt-5 spinnerAdBtn  mb-5 ">
-                    <button onClick={this.addSpinner} className="addQuestion ">kk</button>{' '}
+                    <button onClick={this.addSpinner} className="addQuestion ">اضافه القيمه</button>{' '}
                   </div>
                 </div>
 
-                <div className="col-sm-12 col-md-6 p-3 d-flex justify-content-center ">
-                  <Wheel
-                    prizeNumber={3}
-                    data={this.state.list}
-                    textColors={['#ffffff']}
-                  />
-                </div>
+               
               </div>
             </div>
           }

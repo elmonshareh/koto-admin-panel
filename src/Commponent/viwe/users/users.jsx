@@ -6,10 +6,10 @@ class Users extends Component {
   state = {
     token: localStorage.getItem('token'),
     allUsers: [],
-    key: 0,
+    key: 1,
     filter: '',
     filterData: [],
-    keypagnation: 0,
+    keypagnation: 10,
     max_id: '',
     min_id: '',
     disablepre: true,
@@ -29,13 +29,12 @@ class Users extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+
       await this.setState({
         allUsers: resp.data.users.data,
         max_id: resp.data.users.paging.cursors.max_id,
         min_id: resp.data.users.paging.cursors.min_id,
         isLoading:false
-
       })
     } catch (err) {
       this.props.history.push(`/404`) 
@@ -48,7 +47,7 @@ class Users extends Component {
     const { token, max_id, key, keypagnation } = this.state
     this.setState({ isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key: key + 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/users?max_id=${max_id}&size=10`,
@@ -56,9 +55,9 @@ class Users extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.users.paging)
+
       await this.setState({
-        allBill: resp.data.users.data,
+        allUsers: resp.data.users.data,
         max_id: resp.data.users.paging.cursors.max_id,
         min_id: resp.data.users.paging.cursors.min_id,
         isLoading:false
@@ -82,10 +81,10 @@ class Users extends Component {
     }
   }
   pre = async () => {
-    const { key, keypagnation, token, min_id, hasPrevious } = this.state
+    const { key, keypagnation, token, min_id } = this.state
     this.setState({ isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/users?min_id=${min_id}&size=10`,
@@ -93,9 +92,9 @@ class Users extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.users.paging)
+   
       await this.setState({
-        allBill: resp.data.users.data,
+        allUsers: resp.data.users.data,
         max_id: resp.data.users.paging.cursors.max_id,
         min_id: resp.data.users.paging.cursors.min_id,
         isLoading:false
@@ -120,7 +119,7 @@ class Users extends Component {
   }
   componentDidMount(){ this.getUsers()}
   render() {
-    const {  allUsers, keypagnation,isLoading, styleNext,
+    const {  allUsers, keypagnation,isLoading, styleNext,key,
       disablenext,
       disablepre,
       stylePre, } = this.state
@@ -137,7 +136,7 @@ class Users extends Component {
                 onChange={this.handleChange}
               />
             </div> */}
-
+<h3 className="d-flex mb-4"> عرض المستخدمين  </h3>
             <Table
               striped
               hover
@@ -152,7 +151,7 @@ class Users extends Component {
                   <th> النوع </th>
                   <th> عدد النقاط </th>
                   <th>  الحاله </th>
-                  <th> رقم التليفوان </th>
+                  <th> رقم المحمول </th>
                   <th> التفاصيل </th>
                  
                 </tr>
@@ -167,7 +166,6 @@ class Users extends Component {
              
                 </tr>
              : allUsers.map((item) => {
-                  console.log( allUsers)
                   return (
                     <tr key={item._id}>
                       <td>{item._id}</td>
@@ -201,7 +199,7 @@ class Users extends Component {
           </button>
 
           <p className="text-nowrap px-2">
-            من{keypagnation} الي {keypagnation + 20}
+          من{key} الي {keypagnation}
           </p>
           <button
             className="pgnationbtn "

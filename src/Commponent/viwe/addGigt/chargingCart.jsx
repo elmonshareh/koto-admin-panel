@@ -16,7 +16,7 @@ class ChargingCart extends Component {
     name: 'اختار الشركه',
     icon: '',
     keys: '',
-    point: '',
+    point: null,
     valueCart: '',
     token: localStorage.getItem('token'),
     massagerror: {},
@@ -59,11 +59,11 @@ class ChargingCart extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.networks)
+
       await this.setState({ allNetwork: resp.data.networks.data })
-      console.log(allNetwork)
+ 
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   handleValidation = () => {
@@ -91,8 +91,9 @@ class ChargingCart extends Component {
     return formIsValid
   }
   addCard = async () => {
-    this.setState({ isLoading: true })
+   
     if (this.handleValidation()) {
+      this.setState({ isLoading: true })
       const {
         valueCart,
         point,
@@ -129,20 +130,20 @@ class ChargingCart extends Component {
           id: '',
           apiMsg: resp.data.message,
           toastColor: 'success',
-          isLoading: false 
+          isLoading :false
         })
 
-        console.log(resp)
+     
       } catch (err) {
-        // Handle Error
-        console.log(err)
+    
+
         if (err.response) {
-          console.log(err.response.data.error[0].msg)
+      
           errorAPI = err.response.data.error
           this.setState({
             showToast: true,
             apiMsg: err.response.data.error[0].msg,
-            toastColor: 'error',
+            toastColor: 'errorToster',
             isLoading: false 
           })
 
@@ -151,7 +152,7 @@ class ChargingCart extends Component {
       }
 
       this.setState({ massagerror: errorAPI })
-      console.log(this.state.massagerror)
+    
     }
   }
   componentDidMount() {
@@ -168,7 +169,7 @@ class ChargingCart extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+ 
       this.setState((prevState) => ({
         allNetwork: prevState.allNetwork.filter((row) => row._id !== status),
       }))
@@ -180,7 +181,7 @@ class ChargingCart extends Component {
         name: 'اختار الشركه',
       })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   handleShow = (item) => {
@@ -247,10 +248,10 @@ class ChargingCart extends Component {
                 <div className="col-md-6 col-sm-12">
                   <div className="d-md-flex my-3 d-block text-nowrap">
                     <div className="addAds"> اسم الشبكه:</div>
-                    <Dropdown>
+                    <Dropdown className="w-100">
                       <Dropdown.Toggle
                         id="dropdown-basic"
-                        className="dropCart"
+                        className="dropCart mr-3"
                         name="dropCart"
                       >
                         {name}
@@ -260,7 +261,7 @@ class ChargingCart extends Component {
                           <Dropdown.Item
                             key={x._id}
                             onSelect={(e) => {
-                              console.log(x._id)
+                            
                               this.setState({
                                 name: (
                                   <span>
@@ -297,6 +298,7 @@ class ChargingCart extends Component {
                       type="number"
                       id="valueCart"
                       name="valueCart"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 3)}
                       value={valueCart}
                       onChange={(event) =>
                         this.setState({ valueCart: event.target.value })
@@ -314,6 +316,7 @@ class ChargingCart extends Component {
                       id="code"
                       name="code"
                       value={code}
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 40)}
                       onChange={(event) =>
                         this.setState({ code: event.target.value })
                       }
@@ -328,6 +331,8 @@ class ChargingCart extends Component {
                       id="point"
                       name="point"
                       value={point}
+                      placeholder="0"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 5)}
                       onChange={(event) =>
                         this.setState({ point: event.target.value })
                       }
@@ -340,6 +345,7 @@ class ChargingCart extends Component {
                     <textarea
                       id="descrption"
                       className="inputCrat p-2"
+                      maxLength="500"
                       name="descrption"
                       value={descraption}
                       onChange={(event) =>

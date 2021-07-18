@@ -38,7 +38,7 @@ class ChargingChart extends React.Component {
           },
         })
 
-        console.log(resp)
+    
         await this.setState({filters:resp.data.filters ,data:resp.data.data,isLoading: false})
       } catch (err) {
         this.props.history.push(`/404`)
@@ -56,7 +56,9 @@ class ChargingChart extends React.Component {
   }
 
   render() {
+   
     const { data,filters,title ,isLoading} = this.state
+  
     return (
         <div > {isLoading ? (
           <div className="d-flex justify-content-center pieChart ">
@@ -70,10 +72,11 @@ class ChargingChart extends React.Component {
             dataFormat="JSON"
             dataSource={{
               chart: {
-                caption: 'كروت الشحن',
+                caption: 'قيمه كروت الشحن ',
                 captionpadding: '0',
                 decimals: '1',
                 theme: 'fusion',
+              
               },
               data: data,
             }}

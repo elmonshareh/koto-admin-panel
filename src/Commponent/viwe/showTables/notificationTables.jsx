@@ -9,9 +9,9 @@ class NotificationTables extends Component {
     allNotification: [],
     filter: '',
     filterData: [],
-    key: 0,
+    key: 1,
     token: localStorage.getItem('token'),
-    keypagnation: 0,
+    keypagnation: 10,
     max_id: '',
     min_id: '',
     disablepre: true,
@@ -33,7 +33,7 @@ class NotificationTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+     
       await this.setState({
         allNotification: resp.data.notifications.data,
         max_id: resp.data.notifications.paging.cursors.max_id,
@@ -45,7 +45,7 @@ class NotificationTables extends Component {
           disablenext: true,
           styleNext: '#6b18ff80',
         })}
-      console.log(this.state.allNotification)
+  
     } catch (err) {
        this.props.history.push(`/404`)
     }
@@ -55,7 +55,7 @@ class NotificationTables extends Component {
     const { token, max_id, key, keypagnation } = this.state
 
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key: key + 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/Notifications?max_id=${max_id}&size=10`,
@@ -63,7 +63,7 @@ class NotificationTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.notifications.paging)
+     
       await this.setState({
         allNotification: resp.data.notifications.data,
         max_id: resp.data.notifications.paging.cursors.max_id,
@@ -92,7 +92,7 @@ class NotificationTables extends Component {
     this.setState({ isLoading:true})
     const { key, keypagnation, token, min_id } = this.state
     try {
-      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/Notifications?min_id=${min_id}&size=10`,
@@ -100,7 +100,7 @@ class NotificationTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.notifications.paging)
+    
       await this.setState({
         allNotification: resp.data.notifications.data,
         max_id: resp.data.notifications.paging.cursors.max_id,
@@ -128,7 +128,7 @@ class NotificationTables extends Component {
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show, status: item._id })
+    this.setState({ show: !show, status: item.title })
   }
   
   componentDidMount() {
@@ -144,7 +144,7 @@ class NotificationTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+ 
       this.setState(prevState => ({
         allNotification: prevState.allNotification.filter(row => (
           row._id !== status
@@ -165,7 +165,7 @@ class NotificationTables extends Component {
       disablenext,
       stylePre,
       show,
-      status,isLoading
+      status,isLoading,key
     } = this.state
     return (
       <div className="px-4 py-5">
@@ -185,6 +185,7 @@ class NotificationTables extends Component {
               onChange={this.handleChange}
             />
           </div> */}
+            <h3 className="d-flex mb-4"> عرض  الاشعارات</h3>
           <Table
             striped
             hover
@@ -211,7 +212,7 @@ class NotificationTables extends Component {
                 </tr>
              : 
               allNotification.map((item) => {
-                console.log(item)
+            
                 return (
                   <tr key={item._id} className="text-center">
                     <td> {item._id}</td>
@@ -241,7 +242,7 @@ class NotificationTables extends Component {
             </button>
 
             <p className="text-nowrap px-2">
-              من{keypagnation} الي {keypagnation + 20}{' '}
+            من{key} الي {keypagnation}{' '}
             </p>
             <button
               className="pgnationbtn "

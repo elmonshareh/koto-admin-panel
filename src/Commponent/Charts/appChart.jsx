@@ -33,7 +33,7 @@ class AppChart extends React.Component {
           year: year,
         },
       })
-      console.log(resp)
+   
       await this.setState({
         data: resp.data.data,
         filters: resp.data.years,
@@ -41,7 +41,7 @@ class AppChart extends React.Component {
       })
     } catch (err) {
       // Handle Error
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   componentDidMount() {
@@ -74,7 +74,7 @@ class AppChart extends React.Component {
           filter: 'annual',
         },
       })
-      console.log(resp)
+  
       await this.setState({ data: resp.data.data ,isLoading:false })
     } catch (err) {
       // Handle Error

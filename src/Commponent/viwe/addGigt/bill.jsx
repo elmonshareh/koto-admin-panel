@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
 import { Card } from './../../login/Card'
 import Dropdown from 'react-bootstrap/Dropdown'
-import food from '../../../Img/Icon/fast-food.svg'
-import game from '../../../Img/Icon/games.svg'
-import shopping from '../../../Img/Icon/shopping-cart.svg'
 import { SketchPicker } from 'react-color'
 import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
@@ -11,12 +8,12 @@ import Delete from './../../variables/delete';
 import Loader from './../../variables/loaderModal';
 class Bill extends Component {
   state = {
-    date: new Date().toISOString().split('T')[0],
+    date:new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     type: 'اختر النوع',
     discount: '',
-    points: '',
+    points:null,
     name: '',
-    backgroundHex: '#8080808a',
+    backgroundHex:'#8080808a',
     showHide: false,
     showHideBtn: true,
     colorarry: [],
@@ -32,11 +29,9 @@ class Bill extends Component {
     allgift: [],
     disCode: '',
     errors: '',
-    showToast: false,
-    apiMsg: '',
-    toastColor: '',
     show: false,
-    status:"",isLoading:false
+    status:"",
+    counttoster:false
   }
   handleChangeComplete = async (color) => {
     const { colorarry,  backgroundHex, colorarryHex } = this.state
@@ -53,7 +48,7 @@ class Bill extends Component {
       showHideBtn: !this.state.showHideBtn,
     })
     if (backgroundHex === '') {
-      console.log('emty')
+     
     } else {
       if (colorarry.length === 2) {
       } else {
@@ -61,7 +56,6 @@ class Bill extends Component {
       }
     }
 
-    console.log(colorarryHex)
   }
   hideComponent = () => {
     this.setState({
@@ -71,16 +65,15 @@ class Bill extends Component {
   }
   removecolor = (key) => {
     var { colorarryHex } = this.state
-
-    colorarryHex.splice(key, 1)
+colorarryHex.splice(key, 1)
     colorarryHex.length === 1 &&
       this.setState({ backgroundHex: colorarryHex[0] })
 
     if (colorarryHex.length === 0) {
       this.setState({
-        backgroundHex: 'gray',
+        backgroundHex: '#8080808a',
       })
-      colorarryHex.push('gray')
+      colorarryHex.push('#8080808a')
     }
 
     this.setState({
@@ -101,7 +94,7 @@ class Bill extends Component {
       })
       await this.setState({ allBill: resp.data.categories.data })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
    delete = async (status) => {
@@ -114,7 +107,7 @@ class Bill extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+  
       this.setState(prevState => ({
         allBill: prevState. allBill.filter(row => (
           row._id !== status
@@ -123,7 +116,7 @@ class Bill extends Component {
       this.setState({show:!show, type: 'اختر النوع',
       })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
 
@@ -150,9 +143,8 @@ class Bill extends Component {
         
         },
       })
-      console.log(resp.data.message)
       this.setState({
-        date: new Date().toISOString().split('T')[0],
+        date: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         name: '',
         id: '',
         discount: '',
@@ -161,18 +153,20 @@ class Bill extends Component {
         points: '',
         apiMsg: resp.data.message,
         toastColor: 'success',
-        type: 'اختر النوع',isLoading:false
+        type: 'اختر النوع',
+        isLoading:false
+        ,  colorarryHex: ['#8080808a']
       })
     } catch (err) {
       // Handle Error
-      console.log(err.response)
+
       if (err.response) {
-        console.log(err.response.data.error)
+    
         errorAPI = err.response.data.error
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error,
-          toastColor: 'error',
+          toastColor: 'errorToster',
           isLoading:false
         
         })
@@ -188,7 +182,13 @@ class Bill extends Component {
       formIsValid = false
       errors['type'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
     }
-
+    if(discount>100)
+    {
+    
+      
+     this.setState({counttoster:true})
+     formIsValid = false
+    }
     if (!name) {
       formIsValid = false
       errors['name'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
@@ -247,6 +247,7 @@ class Bill extends Component {
       apiMsg,
       toastColor,
       show,
+      counttoster,
       status,isLoading
     } = this.state
 
@@ -259,6 +260,11 @@ class Bill extends Component {
     }
     return (
       <div>
+        <Toast show={counttoster} delay={3000} autohide>
+  
+  <Toast.Body>'قيمه الخصم اكبر من100
+</Toast.Body>
+</Toast>
           <Loader show={isLoading} />
          <Delete show={show} handleShow={this.handleShow} status={type} delete={()=>this.delete(status)}  />
         <Toast
@@ -279,11 +285,11 @@ class Bill extends Component {
                 <div className="col-md-6 col-sm-12">
                   <div className="d-md-flex my-3  d-block">
                     <span className="addAds text-nowrap"> نوع الكوبون :</span>
-                    <div>
+                    <div  className="w-100">
                     <Dropdown>
                       <Dropdown.Toggle
                         id="dropdown-basic"
-                        className="dropCart"
+                        className="dropCart mr-2"
                         name="dropCart"
                       >
                         {type}
@@ -293,7 +299,7 @@ class Bill extends Component {
                           <Dropdown.Item
                             key={x._id}
                             onSelect={(e) => {
-                              console.log(x._id)
+                         
                               this.setState({ id: x._id, type: ( <span >  <img src={x.icon} alt="" width="20" /> {x.name} </span>) })
                             }}
                           >
@@ -334,7 +340,11 @@ class Bill extends Component {
                       type="number"
                       id="discount"
                       name="discount"
+                      maxLengt="3"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 3)}
+                      max="100"
                       value={discount}
+                    
                       onChange={(event) =>
                         this.setState({ discount: event.target.value })
                       }
@@ -348,6 +358,7 @@ class Bill extends Component {
                       type="number"
                       id="disCode"
                       name="disCode"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 50)}
                       value={disCode}
                       onChange={(event) =>
                         this.setState({ disCode: event.target.value })
@@ -364,6 +375,8 @@ class Bill extends Component {
                       id="point"
                       name="point"
                       value={points}
+                      placeholder="0"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 5)}
                       onChange={(e) =>
                         this.setState({ points: e.target.value })
                       }
@@ -456,11 +469,9 @@ class Bill extends Component {
                 </div>
                 <div className="col-md-6 col-sm-12">
                   <div className="shape mb-3 p-3  mt-3" style={mycolor}>
-                    {' '}
                     <div className="d-flex justify-content-between">
                       <div>
-                        {' '}
-                        <h5>فاتورة </h5>{' '}
+                        <h5>فاتورة </h5>
                       </div>
                       <h3> {discount}%</h3>
                     </div>

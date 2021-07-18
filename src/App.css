@@ -26,9 +26,20 @@ input:focus {
 .error {
   color: red;
 }
+.errorToster{ background: red;
+color: white;
+width: 250px;
+text-align: center;
+border-radius: 5px;
+font-size: large;}
 .fa-trash-alt{color: red;}
 .success {
-  color: green;
+  background-color: rgb(23, 196, 23);
+  color: white;
+  width: 250px;
+text-align: center;
+border-radius: 5px;
+font-size: large;
 }
 .pink {
   background-color: #fff0f9;
@@ -310,6 +321,7 @@ input:focus + label {
 .dropdown-menu {
   width: -webkit-fill-available;
   text-align: center;
+  width: 88%;
 }
 
 
@@ -440,13 +452,13 @@ input[type='textarea'] {
 .dropCart {
   border-radius: 10px !important;
   background-color: #6b18ff !important;
-  width: 325px;
+  width: 84%;
 }
 .dropdownCartbill {
   width: 100%;
 }
 .dropdownCart {
-  width: 100%;
+  width: 83%;
 }
 .addcatrbtn {
   width: 45%;
@@ -590,22 +602,10 @@ hr{ margin-bottom: 1px !important;}
   position: absolute;
   z-index: 23;
   right: 50%;
-  top: 14px;
+  top:20px;
 }
 
-/* .overlay {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  transition: 0.5s ease;
-  opacity: 1;
-  background-color: #008cba;
-} */
+
 
 .video {
   width: 400px;
@@ -721,8 +721,9 @@ g[class^='raphael-group-'][class$='-creditgroup'] {
       transform: rotate(360deg);
     }
   }
-  
-  
+   /* users */
+   .userDrop{width: 180px; background-color: #6b18ff!important; outline: none;}
+  .userDrop:focus{outline: none!important;border-color:none}
 @media only screen and (max-width: 768px) {
   .inputform {
     width: 288px;
@@ -755,7 +756,7 @@ g[class^='raphael-group-'][class$='-creditgroup'] {
     width: 80%;
   }
   .dropType {
-    width: 88%;
+    width: 72%;
     margin-top: 6px;
   }
   .dropCart {
@@ -763,10 +764,10 @@ g[class^='raphael-group-'][class$='-creditgroup'] {
     margin-top: 6px;
   }
   .dropdownCart {
-    width: 68%;
+    width: 50%;
   }
   .dropdownCartbill {
-    width: 100%;
+    width: 88%;
   }
   .network {
     width: 202px;
@@ -801,9 +802,8 @@ g[class^='raphael-group-'][class$='-creditgroup'] {
     height: auto !important;
   }
   .toast {
-    right: 33%;
-    top: 19%;
-    position: fixed;
+    right: 23% !important;
+
   }
   .btnspiner {
     width:88%;
@@ -815,4 +815,19 @@ g[class^='raphael-group-'][class$='-creditgroup'] {
   }
   .spinnerAdBtn{margin-right: 0px !important;}
   .video{width: 250px;}
+  errorToster{ background: red;
+    color: white;
+    width: 200px;
+   
+   
+    font-size: small;}
+    
+    .success {
+      background-color: rgb(23, 196, 23);
+      color: white;
+      width: 200px;
+    text-align: center;
+  
+    font-size: small;
+    }
 }

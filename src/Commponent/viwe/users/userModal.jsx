@@ -16,11 +16,11 @@ class ModaleUser extends Component {
         </Modal.Header>
         <Modal.Body>    هل تريد  {this.props.status} المستخدم</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={this.props.delete}>
-            Close
+          <Button variant="success" onClick={this.props.delete}>
+            لا
           </Button>
-          <Button variant="primary" onClick={ this.props.handleShow}>
-            Save Changes
+          <Button variant="danger" onClick={ this.props.handleShow}>
+           نعم
           </Button>
         </Modal.Footer>
       </Modal></div> );

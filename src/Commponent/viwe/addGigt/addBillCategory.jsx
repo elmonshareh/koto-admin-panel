@@ -64,17 +64,17 @@ class AddBillCategory extends Component {
         subTitle: '',
         isLoading: false,
       })
-      console.log(resp)
+      this.fileInput.value = null;
     } catch (err) {
       // Handle Error
-      console.log(err)
+   
       if (err.response) {
-        console.log(err)
+   
         errorAPI = err.response.data
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error,
-          toastColor: 'error',
+          toastColor: 'errorToster',
           isLoading: false,
         })
       }
@@ -149,10 +149,11 @@ class AddBillCategory extends Component {
                       className="p-1 inputCrat border-0"
                       type="file"
                       id="logo"
-                      accept="image/*"
+                      accept="image/png"
                       name="logo"
                       onChange={this.uploadimg}
                       required
+                      ref={ref=> this.fileInput = ref}
                     />
                     <span className="mt-2 error">{errors['logo']}</span>
                   </div>

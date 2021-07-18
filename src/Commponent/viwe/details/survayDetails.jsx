@@ -4,7 +4,8 @@ import Card from '../../login/Card'
 import Carousel from 'react-bootstrap/Carousel'
 import SpinnerChart from './../../variables/spinnerCharts';
 class SurvayDetailes extends Component {
-  state = { survay: {}, token: localStorage.getItem('token'), questions: [] ,
+  state = { survay: {}, 
+  token: localStorage.getItem('token'), questions: [] ,
   isLoading:false }
   getSurvay = async () => {
     this.setState({isLoading:true })
@@ -17,13 +18,14 @@ class SurvayDetailes extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.survey)
+ 
       await this.setState({
-        survay: resp.data.survey,
+        survay: resp.data.survey.data[0],
         questions: resp.data.survey.data[0].questions,
         isLoading:false
       })
     } catch (err) {
+
       this.props.history.push(`/404`)
     }
   }
@@ -70,7 +72,7 @@ class SurvayDetailes extends Component {
                 <div className="survey-card p-3 d-flex  ">
                   <Carousel className="col-12">
                     {questions.map((x, index) => {
-                      console.log(x)
+             
                       return (
                         <Carousel.Item key={index}>
                           <h4 className="text-right mx-3 mt-3 mb-3">
@@ -80,7 +82,7 @@ class SurvayDetailes extends Component {
                             <textarea className="mt-2 mr-3 surTextarea" />
                           )}
                           {x.answers.map((y, index) => {
-                            console.log(y, x.questionType)
+                        
                             return (
                               <div className="mx-3 mt-4" key={index}>
                                 <input type={x.questionType} className="ml-2" />

@@ -4,10 +4,10 @@ import { SketchPicker } from 'react-color'
 import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
 import Loader from '../../variables/loaderModal'
-
+var today =new Date()
 class Cobone extends Component {
-  state = {
-    date: new Date().toISOString().split('T')[0],
+  state = { 
+    date:new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     type: 'اختر النوع',
     discount: '',
     points: '',
@@ -24,6 +24,7 @@ class Cobone extends Component {
     apiMsg: '',
     toastColor: '', 
     isLoading: false,
+    counttoster:false
 
   }
   handleChangeComplete = async (color) => {
@@ -48,7 +49,7 @@ class Cobone extends Component {
       }
     }
 
-    console.log(colorarryHex)
+
   }
   hideComponent = () => {
     this.setState({
@@ -58,16 +59,15 @@ class Cobone extends Component {
   }
   removecolor = (key) => {
     var { colorarryHex } = this.state
-
-    colorarryHex.splice(key, 1)
+colorarryHex.splice(key, 1)
     colorarryHex.length === 1 &&
       this.setState({ backgroundHex: colorarryHex[0] })
 
     if (colorarryHex.length === 0) {
       this.setState({
-        backgroundHex: '8080808a',
+        backgroundHex: '#8080808a',
       })
-      colorarryHex.push('8080808a')
+      colorarryHex.push('#8080808a')
     }
 
     this.setState({
@@ -105,28 +105,29 @@ class Cobone extends Component {
           type: 'COUPON_CODE',
         },
       })
-      console.log(resp.data.message)
+
       this.setState({
-        date: new Date().toISOString().split('T')[0],
+        date:new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         name: '',
         discount: '',
         disCode: '',
         showToast: true,
-        points: '',
+        points:"",
         apiMsg: resp.data.message,
         toastColor: 'success',
         isLoading: false,
+        colorarryHex: ['#8080808a']
       })
     } catch (err) {
       // Handle Error
-      console.log(err.response)
+   
       if (err.response) {
-        console.log(err.response.data.error)
+   
         errorAPI = err.response.data.error
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error,
-          toastColor: 'error',
+          toastColor: 'errorToster',
           isLoading: false,
         })
       }
@@ -137,7 +138,12 @@ class Cobone extends Component {
     const { discount, name, disCode, points, date } = this.state
     let errors = {}
     let formIsValid = true
-
+    if(discount>100)
+    {
+     
+     this.setState({counttoster:true})
+     formIsValid = false
+    }
     if (!name) {
       formIsValid = false
       errors['name'] = <i className=" mr-2 fas fa-exclamation-circle"></i>
@@ -166,6 +172,7 @@ class Cobone extends Component {
       this.addCoboneApi()
     }
   }
+ 
   render() {
     const {
       date,
@@ -181,7 +188,8 @@ class Cobone extends Component {
       errors,
       showToast,
       apiMsg,
-      toastColor,isLoading
+      toastColor,isLoading,
+      counttoster
     } = this.state
     const mycolor = {
       background:
@@ -190,8 +198,14 @@ class Cobone extends Component {
           : `linear-gradient(40deg, ${colorarryHex[0]},${colorarryHex[1]})`,
       color: 'white',
     }
+    
     return (
       <div>
+        <Toast show={counttoster} delay={3000} autohide>
+  
+  <Toast.Body>'قيمه الخصم اكبر من100
+</Toast.Body>
+</Toast>
        <Loader show={isLoading} />
         <Toast
           onClose={() => {
@@ -216,6 +230,7 @@ class Cobone extends Component {
                       type="text"
                       name="name"
                       value={name}
+                      maxLength="100"
                       onChange={(event) =>
                         this.setState({ name: event.target.value })
                       }
@@ -230,6 +245,8 @@ class Cobone extends Component {
                       id="discount"
                       name="discount"
                       value={discount}
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 3)}
+                      max="100"
                       onChange={(event) =>
                         this.setState({ discount: event.target.value })
                       }
@@ -243,6 +260,8 @@ class Cobone extends Component {
                       type="number"
                       id="disCode"
                       name="disCode"
+                      
+                      onInput={(e) => e.target.value = e.target.value.slice(0,30)}
                       value={disCode}
                       onChange={(event) =>
                         this.setState({ disCode: event.target.value })
@@ -258,6 +277,8 @@ class Cobone extends Component {
                       id="point"
                       name="point"
                       value={points}
+                      placeholder="0"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 5)}
                       onChange={(e) =>
                         this.setState({ points: e.target.value })
                       }
@@ -312,7 +333,7 @@ class Cobone extends Component {
                                   this.removecolor(colorarryHex[1])
                                 }
                               >
-                                {' '}
+
                                 <i className="fas fa-minus-circle pt-3 mt-3 mx-2"></i>
                               </div>
                             </div>

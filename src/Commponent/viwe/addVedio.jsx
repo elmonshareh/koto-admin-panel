@@ -11,11 +11,11 @@ class AddVedio extends Component {
     super(props)
     this.state = {
       items: [],
-      number: 0,
+      number:null,
       video:'',
       title: '',
       selectedFile: "",
-      date: new Date().toISOString().split('T')[0],
+      date:new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       errors: {},
       subTitle: '',
       token: localStorage.getItem('token'),
@@ -47,8 +47,7 @@ class AddVedio extends Component {
     var datastanp = new Date(output).getTime()
     this.setState({ datastanp: datastanp })
 
-    console.log(datastanp)
-    console.log(output)
+    
   }
   addVedio = () => {
     this.timestanp()
@@ -58,7 +57,7 @@ class AddVedio extends Component {
     }
   }
   handleValidation = () => {
-    console.log(',,,')
+
     const { title, video, date, number ,logo} = this.state
     let errors = {}
     let formIsValid = true
@@ -121,8 +120,8 @@ class AddVedio extends Component {
         title: '',
         number: '',
         video: null,
-        selectedFile: null,
-        date: new Date().toISOString().split('T')[0],
+        selectedFile:null,
+        date: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         subTitle: '',
         showToast: true,
         isLoading: false,
@@ -131,8 +130,10 @@ class AddVedio extends Component {
         logo:null,
         img:""
       })
+      this.fileInput.value = null;
+      this.vedio.value=null
     } catch (err) {
-      console.log(err)
+      
 
       if (err.response) {
       //  this.props.history.push(`/404`)
@@ -141,7 +142,7 @@ class AddVedio extends Component {
           showToast: true,
           apiMsg: err.response.data.error,
           isLoading: false,
-          toastColor: 'error',
+          toastColor: 'errorToster',
         })
       }
     }
@@ -248,7 +249,7 @@ class AddVedio extends Component {
                       id="logo"
                       accept="image/*"
                       name="logo"
-                      // key={logo}
+                      ref={ref=> this.fileInput = ref}
                       onChange={this.uploadimg}
                     />
                      <span className="mt-2 mr-2 error"> {errors['logo']}</span>
@@ -264,7 +265,7 @@ class AddVedio extends Component {
                       id="vedio"
                       onChange={this.uploadVedio}
                       name="vedio"
-                      // key={selectedFile}
+                      ref={ref=> this.vedio= ref}
                     />
                        <span className="mt-2  mr-2  error"> {errors['vedio']}</span>
                   </div>
@@ -275,8 +276,11 @@ class AddVedio extends Component {
                       name="number"
                       className=" addPoint px-2  p-1"
                       value={number}
+                      placeholder="0"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 5)}
                       onChange={(event) =>
                         this.setState({ number: event.target.value })
+
                       }
                     ></input>
                     <span className="mt-2 error">{errors['number']}</span>

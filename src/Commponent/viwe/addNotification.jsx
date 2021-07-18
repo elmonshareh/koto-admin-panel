@@ -58,7 +58,7 @@ class Notification extends Component {
           body: body,
         },
       })
-      console.log(resp.data.message)
+
       this.setState({
         body: '',
         title: '',
@@ -69,21 +69,21 @@ class Notification extends Component {
       })
     } catch (err) {
       // Handle Error
-      console.log(err)
+ 
       if (err.response) {
-        console.log(err.response.data.error)
+
         errorAPI = err.response.data.error
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error,
-          toastColor: 'error',
+          toastColor: 'errorToster',
           isLoading: false,
         })
       }
     }
 
     this.setState({ massagerror: errorAPI })
-    console.log(this.state.massagerror)
+    
   }
   addNotfitcaion = (e) => {
     e.preventDefault()

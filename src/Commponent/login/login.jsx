@@ -37,22 +37,24 @@ class Login extends Component {
           language: 'AR',
         },
       })
-      console.log(resp.data.data.token)
       localStorage.setItem('token', resp.data.data.token)
       this.props.history.replace('/admin/Dashboard')
       this.setState({ isLoading: false })
     } catch (err) {
       // Handle Error
-      console.log(err.response)
+    
       this.setState({ isLoading: false })
-      if (err.response) {
-        console.log(err.response)
-        erroors = err.response.data.message
-      }
+      if(err.response.data.error){
+     
+        this.setState({ massagerror: err.response.data.error })
+      }else
+ {
+       this.setState({ massagerror: err.response.data.message })
+        }
+      
     }
-
-    this.setState({ massagerror: erroors })
-    console.log(massagerror)
+    // this.setState({ massagerror: erroors })
+ 
   }
 
   handleValidation() {

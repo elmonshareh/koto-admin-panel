@@ -11,8 +11,8 @@ class VedioTable extends Component {
     allVedio: [],
     filter: '',
     filterData: [],
-    key: 0,
-    keypagnation: 0,
+    key: 1,
+    keypagnation: 10,
     max_id: '',
     min_id: '',
     disablepre: true,
@@ -34,7 +34,7 @@ class VedioTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.videos.paging.hasPrevious)
+   
       await this.setState({
         allVedio: resp.data.videos.data,
         max_id: resp.data.videos.paging.cursors.max_id,
@@ -47,11 +47,11 @@ class VedioTable extends Component {
           styleNext: '#6b18ff80',
         })}
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   redirect = (item) => {
-    console.log(item._id)
+
     this.props.history.push(`/admin/AddADS/AddVedio${item._id}`)
   }
 
@@ -65,14 +65,14 @@ class VedioTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+
 
       this.setState((prevState) => ({
         allVedio: prevState.allVedio.filter((row) => row._id !== status),
       }))
       this.setState({show:!show})
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   getFiltertion = async () => {
@@ -86,13 +86,13 @@ class VedioTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+   
       filterData = resp.data.videos
       this.setState({ filterData: filterData })
-      filterData ? console.log(filterData) : console.log('m')
+    
       this.setState({ allVedio: filterData })
     } catch (err) {
-      console.log(err.response)
+      this.props.history.push(`/404`)
     }
   }
   handleChange = async (e) => {
@@ -102,7 +102,7 @@ class VedioTable extends Component {
       this.getFiltertion()
     } else {
       await this.getVideo()
-      console.log('emtyy')
+    
     }
   }
   next = async () => {
@@ -110,7 +110,7 @@ class VedioTable extends Component {
     this.setState({ isLoading:true})
     
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/video?max_id=${max_id}&size=10`,
@@ -118,7 +118,7 @@ class VedioTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.videos.paging)
+     
       await this.setState({
         allVedio: resp.data.videos.data,
         max_id: resp.data.videos.paging.cursors.max_id,
@@ -140,14 +140,14 @@ class VedioTable extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   pre = async () => {
     const { key, keypagnation, token, min_id } = this.state
     this.setState({ isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/video?min_id=${min_id}&size=10`,
@@ -155,7 +155,7 @@ class VedioTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.videos.paging)
+
       await this.setState({
         allVedio: resp.data.videos.data,
         max_id: resp.data.videos.paging.cursors.max_id,
@@ -177,7 +177,7 @@ class VedioTable extends Component {
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   componentDidMount() {
@@ -185,11 +185,11 @@ class VedioTable extends Component {
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show ,status:item._id})
+    this.setState({  status:item.title,show:!show ,})
   }
   render() {
     const {
-      filter,
+      key,
       allVedio,
       keypagnation,
       styleNext,
@@ -201,9 +201,10 @@ class VedioTable extends Component {
 
     return (
       <div>
-        <div className="pt-5 px-3 mb-5 border rounded bg-light">
-        <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
-          <div className="d-flex mb-3 ">
+         <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
+        <div className=" px-3 mb-5 border rounded bg-light">
+       
+          {/* <div className="d-flex mb-3 ">
             <label>البحث :</label>{' '}
             <input
               type="text"
@@ -211,8 +212,8 @@ class VedioTable extends Component {
               vaule={filter}
               onChange={this.handleChange}
             />
-          </div>
-         
+          </div> */}
+         <h3 className="d-flex my-4"> عرض الفديوهات</h3>
           <Table
             striped
             hover
@@ -277,7 +278,7 @@ class VedioTable extends Component {
             </button>
 
             <p className="text-nowrap px-2">
-              من{keypagnation} الي {keypagnation + 20}{' '}
+              من{key} الي {keypagnation }{' '}
             </p>
             <button
               className="pgnationbtn "

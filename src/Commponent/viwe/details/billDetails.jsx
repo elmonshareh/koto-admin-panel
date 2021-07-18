@@ -12,9 +12,8 @@ class BillDetailes extends Component {
               Authorization: `Bearer ${token}`,
             },
           })
-          console.log(resp)
-        //   await this.setState({ g: resp.data.survey ,questions:resp.data.survey.questions})
-          
+    
+       
         } catch (err) {
           this.props.history.push(`/404`)
         }

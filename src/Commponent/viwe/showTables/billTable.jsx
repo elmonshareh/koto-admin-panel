@@ -7,10 +7,10 @@ class BillTables extends Component {
   state = {
     token: localStorage.getItem('token'),
     allBill: [],
-    key: 0,
+    key: 1,
+    keypagnation: 10,
     filter: '',
     filterData: [],
-    keypagnation: 0,
     max_id: '',
     min_id: '',
     disablepre: true,
@@ -29,12 +29,12 @@ class BillTables extends Component {
       const { token, key } = this.state
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&size=4`,
+        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+ 
       await this.setState({
         allBill: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
@@ -68,7 +68,7 @@ class BillTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+   
       filterData = resp.data.cards
       this.setState({ filterData: filterData })
 
@@ -84,7 +84,7 @@ class BillTables extends Component {
       this.getFiltertion()
     } else {
       await this.getCardApi()
-      console.log('emtyy')
+
     }
   }
 
@@ -92,15 +92,15 @@ class BillTables extends Component {
     const { token, max_id, key, keypagnation } = this.state
     this.setState({ isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&max_id=${max_id}&size=4`,
+        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&max_id=${max_id}&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.gifts.paging)
+
       await this.setState({
         allBill: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
@@ -129,15 +129,15 @@ class BillTables extends Component {
     const { key, keypagnation, token, min_id, hasPrevious } = this.state
     this.setState({ isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&min_id=${min_id}&size=4`,
+        url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&min_id=${min_id}&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.gifts.paging)
+    
       await this.setState({
         allBill: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
@@ -172,7 +172,7 @@ class BillTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+    
       this.setState((prevState) => ({
         allBill: prevState.allBill.filter((row) => row._id !== status),
       }))
@@ -184,7 +184,7 @@ class BillTables extends Component {
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show ,status:item._id})
+    this.setState({ show: !show ,status:item.title})
   }
   render() {
     const {
@@ -197,7 +197,7 @@ class BillTables extends Component {
       stylePre,
       show,
       status,
-      isLoading
+      isLoading,key
     } = this.state
 
     return (
@@ -212,7 +212,7 @@ class BillTables extends Component {
             onChange={this.handleChange}
           />
         </div> */}
-
+  <h3 className="d-flex mb-4"> عرض الفواتير </h3>
         <Table
           striped
           hover
@@ -243,7 +243,7 @@ class BillTables extends Component {
                 </tr>
              :
             allBill.map((item) => {
-              console.log(allBill)
+             
               return (
                 <tr key={item._id}>
                   <td>{item.title}</td>
@@ -283,7 +283,7 @@ class BillTables extends Component {
           </button>
 
           <p className="text-nowrap px-2">
-            من{keypagnation} الي {keypagnation + 20}
+          من{key} الي {keypagnation}{' '}
           </p>
           <button
             className="pgnationbtn "

@@ -23,18 +23,18 @@ class SpinnerTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+    
       await this.setState({
        allValuse: resp.data.values,
        isLoading:false
        
       })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   redirect = (item) => {
-    console.log(item._id)
+
     this.props.history.push(`/admin/AddADS/App${item._id}`)
   }
   delete = async (status) => {
@@ -47,13 +47,12 @@ class SpinnerTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
       this.setState((prevState) => ({
        allValuse: prevState.allValuse.filter((row) => row._id !== status),
       }))
       this.setState({show:!show})
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   getFiltertion = async () => {
@@ -67,13 +66,13 @@ class SpinnerTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+    
       filterData = resp.data.apps
       this.setState({ filterData: filterData })
-      filterData ? console.log('mmm') : console.log('m')
+   
       this.setState({allValuse: filterData })
     } catch (err) {
-      console.log(err.response)
+      this.props.history.push(`/404`)
     }
   }
   handleChange = async (e) => {
@@ -83,7 +82,7 @@ class SpinnerTable extends Component {
       this.getFiltertion()
     } else {
       await this.getApp()
-      console.log('emtyy')
+
     }
   }
 
@@ -92,7 +91,7 @@ class SpinnerTable extends Component {
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show ,status:item._id})
+    this.setState({ show: !show ,status:item.value})
   }
   render() {
     const {
@@ -114,6 +113,7 @@ class SpinnerTable extends Component {
               onChange={this.handleChange}
             />
           </div> */}
+          <h3 className="d-flex mb-4">   قيم العجله</h3>
           <Table
             striped
             hover
@@ -141,7 +141,7 @@ class SpinnerTable extends Component {
                 </tr>
              :
               allValuse.map((item) => {
-                console.log(item)
+        
                 return (
                   <tr key={item._id} className="text-center">
                     <td> {item._id}</td>

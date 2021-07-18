@@ -19,7 +19,7 @@ class BillChats extends React.Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+    
       await this.setState({ data: resp.data.data, isLoading: false })
     } catch (err) {
       // Handle Error
@@ -56,7 +56,7 @@ class BillChats extends React.Component {
                   decimals: '0',
                   centerLabel: ' $label: $value',
 
-                  showTooltip: '0',
+                 
                   caption: 'الفواتير ',
                 },
                 data: data,

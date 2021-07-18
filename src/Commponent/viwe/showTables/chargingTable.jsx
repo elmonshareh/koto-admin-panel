@@ -7,8 +7,8 @@ class ChargingTable extends Component {
   state = {
     token: localStorage.getItem('token'),
     allCard: [],
-    key: 0,
-    keypagnation: 0,
+    key: 1,
+    keypagnation: 10,
     max_id: '',
     min_id: '',
     disablepre: true,
@@ -30,7 +30,7 @@ class ChargingTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+
       await this.setState({
         allCard: resp.data.cards.data,
         max_id: resp.data.cards.paging.cursors.max_id,
@@ -50,7 +50,7 @@ class ChargingTable extends Component {
     this.getCardApi()
   }
   redirect = (item) => {
-    console.log(item._id)
+ 
     this.props.history.push(`/admin/details/${item._id}`)
   }
   getFiltertion = async () => {
@@ -64,13 +64,13 @@ class ChargingTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+
       filterData = resp.data.cards
       this.setState({ filterData: filterData })
-      filterData ? console.log('mmm') : console.log('m')
+
       this.setState({ allCard: filterData })
     } catch (err) {
-      console.log(err.response)
+
     }
   }
   handleChange = async (e) => {
@@ -80,7 +80,7 @@ class ChargingTable extends Component {
       this.getFiltertion()
     } else {
       await this.getCardApi()
-      console.log('emtyy')
+     
     }
   }
 
@@ -89,7 +89,7 @@ class ChargingTable extends Component {
     const { token, max_id, min_id, key, keypagnation } = this.state
 
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/Card?max_id=${max_id}&size=10`,
@@ -97,7 +97,7 @@ class ChargingTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.cards.paging)
+     
       await this.setState({
         allCard: resp.data.cards.data,
         max_id: resp.data.cards.paging.cursors.max_id,
@@ -126,7 +126,7 @@ class ChargingTable extends Component {
     const { key, keypagnation, token, min_id } = this.state
     this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/Card?min_id=${min_id}&size=10`,
@@ -134,7 +134,7 @@ class ChargingTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.cards.paging)
+    
       await this.setState({
         allCard: resp.data.cards.data,
         max_id: resp.data.cards.paging.cursors.max_id,
@@ -174,7 +174,7 @@ class ChargingTable extends Component {
         allCard: prevState.allCard.filter((row) => row._id !== status),
       }))
       this.setState({ show: !show })
-      console.log(resp)
+    
     } catch (err) {
       this.props.history.push(`/404`)
     }
@@ -186,7 +186,7 @@ class ChargingTable extends Component {
   render() {
     const {
       allCard,
-    
+      key,
       keypagnation,
       styleNext,
       disablenext,
@@ -213,7 +213,7 @@ class ChargingTable extends Component {
             onChange={this.handleChange}
           />
         </div> */}
-
+   <h3 className="d-flex mb-4"> عرض كروت الشحن</h3>
         <Table
           striped
           hover
@@ -243,7 +243,7 @@ class ChargingTable extends Component {
               </tr>
             ) : (
               allCard.map((item) => {
-                console.log(item.used.toString())
+            
                 return (
                   <tr key={item._id}>
                     <td>{item.title}</td>
@@ -275,7 +275,7 @@ class ChargingTable extends Component {
             التالي{' '}
           </button>
           <p className="text-nowrap px-2">
-            من{keypagnation} الي {keypagnation + 20}{' '}
+            من{key} الي {keypagnation}{' '}
           </p>
           <button
             className="pgnationbtn "

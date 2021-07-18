@@ -7,8 +7,8 @@ class SurveyTable extends Component {
   state = {
     filter: '',
     filterData: [],
-    key: 0,
-    keypagnation: 0,
+    key: 1,
+    keypagnation: 10,
     allSurveys: [],
     max_id: '',
     min_id:'',
@@ -28,16 +28,16 @@ class SurveyTable extends Component {
   getSurvay = async () => {
     this.setState({ isLoading:true})
     try {
-      const { token, key } = this.state
+      const { token } = this.state
 
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/Survey?size=4`,
+        url: `https://koto2020.herokuapp.com/api/Survey?size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.data.paging.cursors)
+      
       await this.setState({
         allSurveys: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -50,14 +50,14 @@ class SurveyTable extends Component {
           styleNext: '#6b18ff80',
         })}
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   componentDidMount = () => {
     this.getSurvay()
   }
   redirect = (item) => {
-    console.log(item._id)
+  
     this.props.history.push(`/admin/AddADS/survay${item._id}`)
   }
   delete = async (status) => {
@@ -70,7 +70,7 @@ class SurveyTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+  
       this.setState(prevState => ({
         allSurveys: prevState.allSurveys.filter(row => (
           row._id !== status
@@ -79,11 +79,11 @@ class SurveyTable extends Component {
       }))
       this.setState({show:!show})
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   getFiltertion = async () => {
-    const { token, filter, key, allSurveys } = this.state
+    const { token, filter, allSurveys } = this.state
     var filterData = []
     try {
       const resp = await axios({
@@ -93,14 +93,13 @@ class SurveyTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
       filterData = resp.data.data.data
       this.setState({ filterData: filterData })
-      filterData ? console.log(filterData) : console.log('m')
+  
       this.setState({ allSurveys: filterData })
-      console.log(allSurveys)
+  
     } catch (err) {
-      console.log(err.response)
+      this.props.history.push(`/404`)
     }
   }
   handleChange = async (e) => {
@@ -110,24 +109,23 @@ class SurveyTable extends Component {
       this.getFiltertion()
     } else {
       await this.getSurvay()
-      console.log('emtyy')
+
     }
   }
 
   next = async () => {
-    const { token, max_id, key, keypagnation,min_id } = this.state
+    const { token, max_id, key, keypagnation } = this.state
     this.setState({ isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key: key + 1 })
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/Survey?max_id=${max_id}&size=4`,
+        url: `https://koto2020.herokuapp.com/api/Survey?max_id=${max_id}&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
-    
+  
       await this.setState({
         allSurveys: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -141,23 +139,23 @@ class SurveyTable extends Component {
        } else{ 
        this.setState({ disablenext:false , disablepre:false,stylePre:"#6b18ff"}) }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
 
   pre = async () => {
     const { key, keypagnation, token, min_id } = this.state
-
-    await this.setState({ keypagnation: keypagnation - 20, key: key - 1,isLoading:true })
+    await this.setState({ keypagnation: keypagnation - 10, key: key - 10,isLoading:true})
+  
     try {
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/Survey?min_id=${min_id}&size=4`,
+        url: `https://koto2020.herokuapp.com/api/Survey?min_id=${min_id}&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+
       await this.setState({
         allSurveys: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -171,7 +169,7 @@ class SurveyTable extends Component {
     } else{ 
     this.setState({ disablepre:false,disablenext:false ,styleNext:"#6b18ff"})}
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
    
   }
@@ -186,9 +184,9 @@ class SurveyTable extends Component {
       date + ':' + ('0' + hours).slice(-2) + ':' + ('0' + mint).slice(-2)
     var datastanp = new Date(output).getTime()
     this.setState({ datastanp: datastanp })
-    console.log( datastanp )
+ 
     try {
-      const { token, key } = this.state
+      const { token } = this.state
 
       const resp = await axios({
         method: 'get',
@@ -197,7 +195,7 @@ class SurveyTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.data.paging.cursors)
+
  
       await this.setState({
         allSurveys: resp.data.data.data,
@@ -205,15 +203,15 @@ class SurveyTable extends Component {
         min_id: resp.data.data.paging.cursors.min_id,
       })
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show ,status:item._id})
+    this.setState({ show: !show ,status:item.name})
   }
   render() {
-    const { allSurveys, filter, keypagnation, date,disablenext, disablepre,stylePre,styleNext,show,isLoading,
+    const { allSurveys, key, keypagnation, disablenext, disablepre,stylePre,styleNext,show,isLoading,
       status}  = this.state
     
     return (
@@ -227,8 +225,10 @@ class SurveyTable extends Component {
             vaule={filter}
             onChange={this.handleChange}
           />
-          <input type="date" name="date"  value={date}  onChange={this.timestanp }/>
+          <input type="d
+          ate" name="date"  value={date}  onChange={this.timestanp }/>
         </div> */}
+         <h3 className="d-flex mb-4"> عرض الاستبيانات</h3>
         <Table
           striped
           hover
@@ -287,7 +287,7 @@ class SurveyTable extends Component {
             التالي
           </button>
           <p className="text-nowrap px-2">
-            من{keypagnation} الي {keypagnation + 20}
+          من{key} الي {keypagnation }
           </p>
         
           <button

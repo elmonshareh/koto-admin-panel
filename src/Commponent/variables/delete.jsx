@@ -12,10 +12,10 @@ class Delete extends Component {
         </Modal.Header>
         <Modal.Body>   هل تريد مسح {this.props.status} ؟   </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={this.props.handleShow}>
+          <Button variant="success" onClick={this.props.handleShow}>
             لا
           </Button>
-          <Button variant="primary" onClick={ this.props.delete}>
+          <Button variant="danger" onClick={ this.props.delete}>
          نعم 
           </Button>
         </Modal.Footer>

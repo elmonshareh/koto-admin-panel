@@ -16,7 +16,7 @@ class VideoDetailes extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.video.data[0])
+ 
       await this.setState({ video: resp.data.video.data[0],isLoading:false })
     } catch (err) {
       this.props.history.push(`/404`)

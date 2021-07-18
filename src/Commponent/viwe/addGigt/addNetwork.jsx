@@ -27,7 +27,7 @@ class AddNetwork1 extends Component {
   handleChangeComplete = (color, event) => {
     this.setState({ background: color.rgb, backgroundHex: color.hex, showHide: !this.state.showHide,
       showHideBtn: !this.state.showHideBtn, })
-    console.log(this.state.background)
+  
   }
   hideComponent = () => {
     this.setState({
@@ -92,24 +92,24 @@ class AddNetwork1 extends Component {
       this.setState({ name:"", stratCode:"",endCode:"" ,logo:"", img:'' ,showToast: true,
       apiMsg: resp.data.message
         ,toastColor:"success" ,isLoading:false})
-      console.log(resp)
+        this.fileInput.value = null;
+ 
     } catch (err) {
       // Handle Error
-      console.log(err)
       if (err.response) {
-        console.log(err)
+     
         errorAPI = err.response.data
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error[0].msg,
-        toastColor:"error",
+        toastColor:"errorToster",
         isLoading:false
         })
       }
     }
 
     this.setState({ massagerror: errorAPI })
-    console.log(this.state.massagerror)
+  
   }
   addNetwork = () => {
     if (this.handleValidation()) {
@@ -189,7 +189,7 @@ class AddNetwork1 extends Component {
                       id="stratCode"
                       name="stratCode"
                       value={stratCode}
-                      maxLength="10"
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 5)}
                             
                       onChange={(e) =>
                         this.setState({ stratCode: e.target.value })
@@ -207,7 +207,7 @@ class AddNetwork1 extends Component {
                       id="endCode"
                       name="endCode"
                       value={endCode}
-                      maxLength="100"     
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 5)}
                       onChange={(e) =>
                         this.setState({ endCode: e.target.value })
                       }
@@ -222,10 +222,10 @@ class AddNetwork1 extends Component {
                       className="p-1 inputCrat border-0"
                       type="file"
                       id="logo"
-                      accept="image/*"
+                      accept="image/png"
                       name="logo"
-                      
                       onChange={this.uploadimg}
+                      ref={ref=> this.fileInput = ref}
                     />
                   </div>
 

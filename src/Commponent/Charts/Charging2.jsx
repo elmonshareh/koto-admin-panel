@@ -33,7 +33,7 @@ class ChargingChart2 extends React.Component {
         },
       })
 
-      console.log(resp)
+      
       this.setState({ data: resp.data.data, isLoading: false })
     } catch (err) {
       this.props.history.push(`/404`)

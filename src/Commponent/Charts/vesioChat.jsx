@@ -7,9 +7,6 @@ import axios from 'axios'
 import SpinnerChart from './../variables/spinnerCharts';
 // Resolves charts dependancy
 charts(FusionCharts)
-
-
-
 class VedioChart extends React.Component {
   constructor(props) {
     super(props)
@@ -40,12 +37,12 @@ this.setState({isLoading:true})
         
         },
       })
-      console.log( resp.data.data)
+   
       await this.setState({ category: resp.data.data[0].categories[0].category,
         filters:resp.data.years ,dataset: resp.data.data[0].dataSet ,isLoading:false})
     } catch (err) {
       // Handle Error
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   onValueChange = (event) => {
@@ -68,7 +65,7 @@ this.setState({isLoading:true})
           filter: 'annual',
         },
       })
-      console.log(resp)
+     
       await this.setState({ category: resp.data.data[0].categories[0].category,
          filters:resp.data.years ,dataset: resp.data.data[0].dataSet ,
          isLoading:false})
@@ -97,12 +94,12 @@ this.setState({isLoading:true})
         dataFormat="JSON"
         dataSource={{
           chart: {
-            caption:' Koto vs Utility vs Admob',
+            caption:' Koto vs Unity vs Admob',
             numdivlines: '3',
             showvalues: '0',
             legenditemfontsize: '15',
             legenditemfontbold: '1',
-            plottooltext: '<b>$dataValue</b> Tickets $seriesName on $label',
+            plottooltext: '<b>$dataValue</b> video watched',
             theme: 'fusion',
           },
            categories: [

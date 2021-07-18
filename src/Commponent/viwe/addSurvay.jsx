@@ -5,7 +5,7 @@ import { Card } from './../login/Card'
 import axios from 'axios'
 import Carousel from 'react-bootstrap/Carousel'
 import Toast from 'react-bootstrap/Toast'
-import Loader from './../variables/loaderModal';
+import Loader from './../variables/loaderModal'
 class AddSurvay extends Component {
   constructor(props) {
     super(props)
@@ -21,8 +21,8 @@ class AddSurvay extends Component {
       inputs: [],
       arrayADD: [],
       allSurveys: [],
-      date: new Date().toISOString().split('T')[0],
-      number: '',
+      date:new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      number:null,
       errors: {},
       token: localStorage.getItem('token'),
       filter: '',
@@ -34,7 +34,8 @@ class AddSurvay extends Component {
       apiMsg: '',
       showToast: false,
       toastColor: '',
-      disablenext:false
+      disablenext: false,
+      disapleadd:false
     }
   }
   addNewItem = () => {
@@ -67,20 +68,21 @@ class AddSurvay extends Component {
         answers: [],
         dropdown: 'اختار النوع',
         questionType: '',
+        disapleadd:true
       })
     }
     this.timestanp()
-    console.log(arrayADD.items)
+
   }
-  removeInputField = (key) => {
+  removeInputField = (key, inputbox) => {
     var { inputs, answers } = this.state
-    answers.splice(key, 1)
-    inputs.splice(key, 1)
-    this.setState({ inputs: inputs })
+    this.setState((prevState) => ({
+      inputs: prevState.inputs.filter((row) => row !== inputbox),
+    }))
   }
 
   onHandleSubmit = () => {
-    const { inputs, answers, answer } = this.state
+    const { inputs, answers, answer ,disabled} = this.state
     const name = inputs.length
     let inputbox = (
       <div className="d-flex" key={name}>
@@ -91,15 +93,22 @@ class AddSurvay extends Component {
           type="text"
           className="addAnwens p-1 mt-1"
           readOnly
+          
         />
-        <button onClick={this.removeInputField} className="addBtn">
+        <button
+          onClick={() => this.removeInputField(name, inputbox)}
+          className="addBtn"
+       
+        >
           <i className="fas fa-minus-circle"></i>
         </button>
       </div>
     )
-    answers.push(this.state.answer)
-
-    inputs.push(inputbox)
+    
+    if (this.state.answer) {
+      inputs.push(inputbox)
+      answers.push(this.state.answer)
+    }
 
     this.setState({ inputs, answer: '' })
   }
@@ -195,7 +204,6 @@ class AddSurvay extends Component {
         },
       })
 
-      console.log(resp.data.message)
       this.setState({
         name: '',
         answers: [],
@@ -207,29 +215,37 @@ class AddSurvay extends Component {
         showToast: true,
         apiMsg: resp.data.message,
         toastColor: 'success',
+        disapleadd:false
       })
     } catch (err) {
       // Handle Error
-      console.log(err)
+     
       if (err.response) {
-        console.log(err)
+     
         errorAPI = err.response.data
         this.setState({
           showToast: true,
           apiMsg: err.response.data.error,
           isLoading: false,
-          toastColor: 'error',
+          toastColor: 'errorToster',
+          disapleadd:false
         })
       }
     }
 
     this.setState({ massagerror: errorAPI })
-    console.log(this.state.massagerror)
+  
   }
   addSurvay = () => {
     if (this.handleValidationAPI()) {
       this.addSurvayAPI()
     }
+  }
+  deletequs = (x) => {
+    this.setState((prevState) => ({
+      items: prevState.items.filter((row) => row !== x),
+    }))
+
   }
   render() {
     const {
@@ -248,11 +264,11 @@ class AddSurvay extends Component {
       isLoading,
       showToast,
       toastColor,
-     
+      disapleadd
     } = this.state
     return (
       <div className="pb-3">
-          <Loader show={isLoading} />
+        <Loader show={isLoading} />
         <Toast
           onClose={() => {
             this.setState({ showToast: false })
@@ -264,7 +280,7 @@ class AddSurvay extends Component {
           <Toast.Body className={toastColor}>{apiMsg}</Toast.Body>
         </Toast>
         <Card
-          title="اضافه استيان"
+          title="اضافه استبيان"
           content={
             <div className="container text-right mb-3">
               <div className="row mt-3 ">
@@ -277,25 +293,26 @@ class AddSurvay extends Component {
                       className="imputservary px-2 p-1"
                       maxLength="100"
                       value={name}
+                      disabled={disapleadd}
                       onChange={(e) => {
                         this.setState({ name: e.target.value })
+                       
                       }}
                     />
                     <span className="mt-2 error">{errors['name']}</span>
                   </div>
 
                   <div className="d-md-flex d-block my-3 ">
-                    <span className="  ml-3 text-nowrap">نوع السوال :</span>
-                    <Dropdown>
+                    <span className="  addAds text-nowrap ml-1">نوع السوال :</span>
+                    <Dropdown className="w-100" >
                       <Dropdown.Toggle
                         id="dropdown-basic"
-                        className="dropType"
+                        className="dropType mr-2 "
                         name="dropType"
                       >
                         {dropdown}
                       </Dropdown.Toggle>
-
-                      <Dropdown.Menu>
+                      <Dropdown.Menu >
                         <Dropdown.Item
                           eventKey="textarea"
                           onSelect={(e) => {
@@ -393,6 +410,7 @@ class AddSurvay extends Component {
                       value={date}
                       min={new Date().toISOString().split('T')[0]}
                       max="2022-12-31"
+                      disabled={disapleadd}
                       onChange={(event) =>
                         this.setState({ date: event.target.value })
                       }
@@ -406,6 +424,9 @@ class AddSurvay extends Component {
                       name="number"
                       className="addPoint px-2 p-1"
                       value={number}
+                      disabled={disapleadd}
+                      onInput={(e) => e.target.value = e.target.value.slice(0, 5)}
+                      placeholder="0"
                       onChange={(event) =>
                         this.setState({ number: event.target.value })
                       }
@@ -426,9 +447,7 @@ class AddSurvay extends Component {
                     </div>
                     <div className="d-flex justify-content-center">
                       <button className="addQuestion" onClick={this.addSurvay}>
-                        
-                          اضافه الاستبيان
-                        
+                        اضافه الاستبيان
                       </button>
                     </div>
                   </div>
@@ -437,10 +456,19 @@ class AddSurvay extends Component {
                   <div className="survey-card p-3 d-flex  ">
                     <Carousel className="col-12">
                       {items.map((x, index) => {
-                        console.log(x)
+                      
                         return (
                           <Carousel.Item key={index}>
-                            <h2 className="text-center">{arrayADD[0]}</h2>
+                            <div className="d-flex justify-content-between">
+                              <h2 className="text-center">{arrayADD[0]}</h2>
+                              <button
+                                onClick={() => this.deletequs(x)}
+                                className="addBtn"
+                              >
+                                <i className="fas fa-minus-circle"></i>
+                              </button>
+                            </div>
+
                             <h4 className="text-right mx-3 mt-3 mb-3">
                               {x.name}
                             </h4>
@@ -448,7 +476,7 @@ class AddSurvay extends Component {
                               <textarea className="mt-2 mr-3 surTextarea" />
                             )}
                             {x.answers.map((y, index) => {
-                              console.log(y, x.questionType)
+                          
                               return (
                                 <div className="mx-3 mt-4" key={index}>
                                   <input

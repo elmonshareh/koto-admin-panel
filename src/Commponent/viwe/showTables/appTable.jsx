@@ -9,8 +9,8 @@ class AppTable extends Component {
     allApp: [],
     filterData: [],
     filter: '',
-    key: 0,
-    keypagnation: 0,
+    key: 1,
+    keypagnation: 10,
     disablepre: true,
     token: localStorage.getItem('token'),
     max_id: '',
@@ -28,12 +28,12 @@ class AppTable extends Component {
       const { token, key } = this.state
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/app?size=4`,
+        url: `https://koto2020.herokuapp.com/api/app?size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+ 
       await this.setState({
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
@@ -46,16 +46,17 @@ class AppTable extends Component {
           styleNext: '#6b18ff80',
         })}
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   redirect = (item) => {
-    console.log(item._id)
+
     this.props.history.push(`/admin/AddADS/App${item._id}`)
   }
   handleShow = (item) => {
+
     const { show } = this.state
-    this.setState({ show: !show ,status:item._id})
+    this.setState({ show: !show ,status:item.title})
   
   }
   delete= async (status) => {
@@ -68,13 +69,13 @@ class AppTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+  
       this.setState((prevState) => ({
         allApp: prevState.allApp.filter((row) => row._id !== status),
       }))
     this.setState({show:!show})
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   
   }
@@ -89,13 +90,13 @@ class AppTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp)
+   
       filterData = resp.data.apps
       this.setState({ filterData: filterData })
-      filterData ? console.log('mmm') : console.log('m')
+ 
       this.setState({ allApp: filterData })
     } catch (err) {
-      console.log(err.response)
+   
     }
   }
   handleChange = async (e) => {
@@ -105,22 +106,22 @@ class AppTable extends Component {
       this.getFiltertion()
     } else {
       await this.getApp()
-      console.log('emtyy')
+
     }
   }
   next = async () => {
     const { token, max_id, key, keypagnation } = this.state
 this.setState({isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/app?max_id=${max_id}&size=4`,
+        url: `https://koto2020.herokuapp.com/api/app?max_id=${max_id}&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.apps.paging)
+  
       await this.setState({
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
@@ -142,22 +143,22 @@ this.setState({isLoading:true})
         })
       }
     } catch (err) {
-      console.log(err)
+      this.props.history.push(`/404`)
     }
   }
   pre = async () => {
     const { key, keypagnation, token, min_id, hasPrevious } = this.state
     this.setState({isLoading:true})
     try {
-      await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
       const resp = await axios({
         method: 'get',
-        url: `https://koto2020.herokuapp.com/api/app?min_id=${min_id}&size=4`,
+        url: `https://koto2020.herokuapp.com/api/app?min_id=${min_id}&size=10`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.apps.paging)
+  
       await this.setState({
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
@@ -196,7 +197,7 @@ this.setState({isLoading:true})
       stylePre,
       show,
       status,
-      isLoading
+      isLoading,key
     } = this.state
     return (
       <div>
@@ -211,6 +212,9 @@ this.setState({isLoading:true})
               onChange={this.handleChange}
             />
           </div> */}
+          
+        
+          <h3 className="d-flex mb-4"> عرض التطبيقات</h3>
           <Table
             striped
             hover
@@ -237,7 +241,7 @@ this.setState({isLoading:true})
              
                 </tr>
              : allApp.map((item) => {
-                console.log(item)
+               
                 return (
                   <tr key={item._id} className="text-center">
                     <td> {item.title}</td>
@@ -273,7 +277,7 @@ this.setState({isLoading:true})
             </button>
 
             <p className="text-nowrap px-2">
-              من{keypagnation} الي {keypagnation + 20}{' '}
+            من{key} الي {keypagnation }{' '}
             </p>
             <button
               className="pgnationbtn "

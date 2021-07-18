@@ -4,8 +4,8 @@ import axios from 'axios'
 import SpinnerChart from './../../variables/spinnerCharts';
 class SolvedSurveryUses extends Component {
     state = {filter: [],
-        key: 0,
-        keypagnation: 0,
+      key: 1,
+      keypagnation: 10,
         disablepre: true,
         token: localStorage.getItem('token'), allUsers:[],
         max_id: '',
@@ -18,9 +18,8 @@ class SolvedSurveryUses extends Component {
         allSurvey:[]
       }
         redirect = (item) => {
-console.log(item)
 
-          this.props.history.push(`/admin/AddADS/SolvedServayDetailes${item.user}/${this.props.match.params.id}`)
+          this.props.history.push(`/admin/AddADS/SolvedServayDetailes${item.user._id}/${this.props.match.params.id}`)
         }
         getSurveyUsers= async () => {
           this.setState({ isLoading:true})
@@ -33,7 +32,7 @@ console.log(item)
                 Authorization: `Bearer ${token}`,
               },
             })
-            console.log(resp.data.users.paging)
+          
             await this.setState({
               allSurvey: resp.data.users.data,
               max_id:  resp.data.users.paging.cursors.max_id,
@@ -46,16 +45,16 @@ console.log(item)
                 styleNext: '#6b18ff80',
               })}
           } catch (err) {
-            console.log(err)
+            this.props.history.push(`/404`)
           }
         }
         next = async () => {
          
           const { token, max_id, key, keypagnation } = this.state
-          console.log(max_id)
+      
           this.setState({ isLoading: true })
           try {
-            await this.setState({ keypagnation: keypagnation + 20, key: key + 1 })
+            await this.setState({ keypagnation: keypagnation + 10, key: key + 1 })
             const resp = await axios({
               method: 'get',
               url: `https://koto2020.herokuapp.com/api/survey/users/${this.props.match.params.id}?max_id=${max_id}&size=10`,
@@ -84,14 +83,14 @@ console.log(item)
               })
             }
           } catch (err) {
-            console.log(err)
+            this.props.history.push(`/404`)
           }
         }
         pre = async () => {
           const { key, keypagnation, token, min_id } = this.state
           this.setState({ isLoading: true })
           try {
-            await this.setState({ keypagnation: keypagnation - 20, key: key - 1 })
+            await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
             const resp = await axios({
               method: 'get',
               url: `https://koto2020.herokuapp.com/api/survey/users/${this.props.match.params.id}?min_id=${min_id}&size=10`,
@@ -121,15 +120,16 @@ console.log(item)
               })
             }
           } catch (err) {
-            console.log(err)
+            this.props.history.push(`/404`)
           }
         }
         componentDidMount(){this.getSurveyUsers()}
     render() { 
-    console.log(this.props.match.params.id)
+
         const { allSurvey, filter, keypagnation, isLoading,styleNext,
           disablenext,
           disablepre,
+          key,
           stylePre,} = this.state
         return ( <div>
             <div className="py-5 px-3 mt-3 border rounded bg-light ">
@@ -142,6 +142,7 @@ console.log(item)
                   onChange={this.handleChange}
                 />
               </div> */}
+               <h3 className="d-flex mb-4">  المستخدمين</h3>
               <Table
             striped
             hover
@@ -153,7 +154,7 @@ console.log(item)
               <tr className="text-center">
                 <td> كود</td>
             
-               
+               <td> الاسم</td>
                 <th> تاريخ الاجابه </th>
             
                 <th> التفاصيل </th>
@@ -170,10 +171,11 @@ console.log(item)
              
                 </tr>
              : allSurvey.map((item) => {
+        
               return ( 
                 <tr key={item._id}>
-                  <td>{item.user}</td>
-                
+                  <td>{item._id}</td>
+                <td>{item.user.firstName}{item.user.lastName}</td>
                   <td> {item.createdAt}</td>
                   <td
                     onClick={() => {
@@ -200,7 +202,7 @@ console.log(item)
             </button>
 
             <p className="text-nowrap px-2">
-              من{keypagnation} الي {keypagnation + 20}{' '}
+            من{key} الي {keypagnation }{' '}
             </p>
             <button
               className="pgnationbtn "

@@ -39,7 +39,7 @@ class Main extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.data)
+
       await this.setState({
         allUsers: resp.data.data.countAllUsers,
         allBlockedUser: resp.data.data.countBlockedUsers,
@@ -66,8 +66,8 @@ class Main extends Component {
       await this.setState({
         allBills: resp.data.data.countAllBills,
         allUsedBills: resp.data.data.countUsedBills,
-        allUsedCoubons: resp.data.data.countAllCoupons,
         allUsedCoubons: resp.data.data.countUsedCoupons,
+        allCoubons: resp.data.data.countAllCoupons,
         allCards: resp.data.data.countAllCards,
         allUsedCards: resp.data.data.countUsedCards,
       })
@@ -77,7 +77,7 @@ class Main extends Component {
   }
   getCounterVideo = async () => {
     try {
-      const { token, allCoubons } = this.state
+      const { token } = this.state
       const resp = await axios({
         method: 'get',
         url: 'https://koto2020.herokuapp.com/api/dashboard/counter/video',
@@ -85,7 +85,7 @@ class Main extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(resp.data.data)
+    
       await this.setState({
         allKoto: resp.data.data.countAllKotoVideos,
         allKotoWatche: resp.data.data.countWatchesKoto,
@@ -141,7 +141,7 @@ class Main extends Component {
               <Cart
                 cart=" babybule  cart"
                 cartIcon={<i className="fas fa-users-slash"></i>}
-                title="     عدد المحظورين "
+                title=" عدد المحظورين "
                 SubTitle={allBlockedUser}
               />
             </div>
