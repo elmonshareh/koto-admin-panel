@@ -19,8 +19,9 @@ class BillChats extends React.Component {
           Authorization: `Bearer ${token}`,
         },
       })
-    
+
       await this.setState({ data: resp.data.data, isLoading: false })
+      console.log(resp.data.data)
     } catch (err) {
       // Handle Error
       this.props.history.push(`/404`)
@@ -40,7 +41,7 @@ class BillChats extends React.Component {
           </div>
         ) : (
           <div>
-      
+
             <ReactFusioncharts
               type="doughnut2d"
               renderAt="chart-container"
@@ -56,7 +57,7 @@ class BillChats extends React.Component {
                   decimals: '0',
                   centerLabel: ' $label: $value',
 
-                 
+
                   caption: 'الفواتير ',
                 },
                 data: data,

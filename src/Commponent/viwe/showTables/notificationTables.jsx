@@ -18,12 +18,12 @@ class NotificationTables extends Component {
     disablenext: false,
     styleNext: '',
     stylePre: '#6b18ff80',
-    show:false,
-    status:"",  
-      isLoading:false
+    show: false,
+    status: "",
+    isLoading: false
   }
   gatNotification = async () => {
-    this.setState({ isLoading:true})
+    this.setState({ isLoading: true })
     try {
       const { token, key } = this.state
       const resp = await axios({
@@ -33,25 +33,26 @@ class NotificationTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-     
+
       await this.setState({
         allNotification: resp.data.notifications.data,
         max_id: resp.data.notifications.paging.cursors.max_id,
         min_id: resp.data.notifications.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
       })
       if (!resp.data.notifications.paging.hasNext) {
         this.setState({
           disablenext: true,
           styleNext: '#6b18ff80',
-        })}
-  
+        })
+      }
+
     } catch (err) {
-       this.props.history.push(`/404`)
+      this.props.history.push(`/404`)
     }
   }
   next = async () => {
-    this.setState({ isLoading:true})
+    this.setState({ isLoading: true })
     const { token, max_id, key, keypagnation } = this.state
 
     try {
@@ -63,12 +64,12 @@ class NotificationTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-     
+
       await this.setState({
         allNotification: resp.data.notifications.data,
         max_id: resp.data.notifications.paging.cursors.max_id,
         min_id: resp.data.notifications.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
       })
       if (!resp.data.notifications.paging.hasNext) {
         this.setState({
@@ -85,14 +86,14 @@ class NotificationTables extends Component {
         })
       }
     } catch (err) {
-       this.props.history.push(`/404`)
+      this.props.history.push(`/404`)
     }
   }
   pre = async () => {
-    this.setState({ isLoading:true})
+    this.setState({ isLoading: true })
     const { key, keypagnation, token, min_id } = this.state
     try {
-      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/Notifications?min_id=${min_id}&size=10`,
@@ -100,12 +101,12 @@ class NotificationTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-    
+
       await this.setState({
         allNotification: resp.data.notifications.data,
         max_id: resp.data.notifications.paging.cursors.max_id,
         min_id: resp.data.notifications.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
 
       })
       if (!resp.data.notifications.paging.hasPrevious) {
@@ -128,15 +129,15 @@ class NotificationTables extends Component {
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show, status: item.title })
+    this.setState({ show: !show, status: item._id })
   }
-  
+
   componentDidMount() {
     this.gatNotification()
   }
   delete = async (status) => {
     try {
-      const { token,show } = this.state
+      const { token, show } = this.state
       const resp = await axios({
         method: 'delete',
         url: `https://koto2020.herokuapp.com/api/Notification/${status}`,
@@ -144,13 +145,13 @@ class NotificationTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
- 
+
       this.setState(prevState => ({
         allNotification: prevState.allNotification.filter(row => (
           row._id !== status
         ))
       }))
-      this.setState({show:!show})
+      this.setState({ show: !show })
     } catch (err) {
       this.props.history.push(`/404`)
     }
@@ -165,7 +166,7 @@ class NotificationTables extends Component {
       disablenext,
       stylePre,
       show,
-      status,isLoading,key
+      status, isLoading, key
     } = this.state
     return (
       <div className="px-4 py-5">
@@ -185,7 +186,7 @@ class NotificationTables extends Component {
               onChange={this.handleChange}
             />
           </div> */}
-            <h3 className="d-flex mb-4"> عرض  الاشعارات</h3>
+          <h3 className="d-flex mb-4"> عرض  الاشعارات</h3>
           <Table
             striped
             hover
@@ -202,33 +203,33 @@ class NotificationTables extends Component {
               </tr>
             </thead>
             <tbody className="trCatergory ">
-            {isLoading ? 
-              <tr>
-            
-              <td colspan="5" > <div className="d-flex justify-content-center uerSpiner ">
-            <SpinnerChart />
-          </div></td>
-             
-                </tr>
-             : 
-              allNotification.map((item) => {
-            
-                return (
-                  <tr key={item._id} className="text-center">
-                    <td> {item._id}</td>
-                    <td> {item.title}</td>
-                    <td> {item.body}</td>
+              {isLoading ?
+                <tr>
 
-                    <td
-                      onClick={() => {
-                        this.handleShow(item)
-                      }}
-                    >
-                      <i className="fas fa-trash-alt"></i>
-                    </td>
-                  </tr>
-                )
-              })}
+                  <td colspan="5" > <div className="d-flex justify-content-center uerSpiner ">
+                    <SpinnerChart />
+                  </div></td>
+
+                </tr>
+                :
+                allNotification.map((item) => {
+
+                  return (
+                    <tr key={item._id} className="text-center">
+                      <td> {item._id}</td>
+                      <td> {item.title}</td>
+                      <td> {item.body}</td>
+
+                      <td
+                        onClick={() => {
+                          this.handleShow(item)
+                        }}
+                      >
+                        <i className="fas fa-trash-alt"></i>
+                      </td>
+                    </tr>
+                  )
+                })}
             </tbody>
           </Table>
           <div className="d-flex justify-content-between px-5  mt-3">
@@ -242,7 +243,7 @@ class NotificationTables extends Component {
             </button>
 
             <p className="text-nowrap px-2">
-            من{key} الي {keypagnation}{' '}
+              من{key} الي {keypagnation}{' '}
             </p>
             <button
               className="pgnationbtn "

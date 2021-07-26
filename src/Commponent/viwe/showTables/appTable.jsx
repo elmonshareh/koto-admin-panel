@@ -20,10 +20,10 @@ class AppTable extends Component {
     styleNext: '',
     stylePre: '#6b18ff80',
     show: false,
-    status:"", isLoading:false
+    status: "", isLoading: false
   }
   getApp = async () => {
-    this.setState({ isLoading:true})
+    this.setState({ isLoading: true })
     try {
       const { token, key } = this.state
       const resp = await axios({
@@ -33,18 +33,19 @@ class AppTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
- 
+
       await this.setState({
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
         min_id: resp.data.apps.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
       })
       if (!resp.data.apps.paging.hasNext) {
         this.setState({
           disablenext: true,
           styleNext: '#6b18ff80',
-        })}
+        })
+      }
     } catch (err) {
       this.props.history.push(`/404`)
     }
@@ -56,12 +57,12 @@ class AppTable extends Component {
   handleShow = (item) => {
 
     const { show } = this.state
-    this.setState({ show: !show ,status:item.title})
-  
+    this.setState({ show: !show, status: item._id })
+
   }
-  delete= async (status) => {
+  delete = async (status) => {
     try {
-      const { token,show } = this.state
+      const { token, show } = this.state
       const resp = await axios({
         method: 'delete',
         url: `https://koto2020.herokuapp.com/api/app/${status}`,
@@ -69,15 +70,15 @@ class AppTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-  
+
       this.setState((prevState) => ({
         allApp: prevState.allApp.filter((row) => row._id !== status),
       }))
-    this.setState({show:!show})
+      this.setState({ show: !show })
     } catch (err) {
       this.props.history.push(`/404`)
     }
-  
+
   }
   getFiltertion = async () => {
     const { token, filter, key } = this.state
@@ -90,13 +91,13 @@ class AppTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-   
+
       filterData = resp.data.apps
       this.setState({ filterData: filterData })
- 
+
       this.setState({ allApp: filterData })
     } catch (err) {
-   
+
     }
   }
   handleChange = async (e) => {
@@ -111,9 +112,9 @@ class AppTable extends Component {
   }
   next = async () => {
     const { token, max_id, key, keypagnation } = this.state
-this.setState({isLoading:true})
+    this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
+      await this.setState({ keypagnation: keypagnation + 10, key: key + 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/app?max_id=${max_id}&size=10`,
@@ -121,12 +122,12 @@ this.setState({isLoading:true})
           Authorization: `Bearer ${token}`,
         },
       })
-  
+
       await this.setState({
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
         min_id: resp.data.apps.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
       })
       if (!resp.data.apps.paging.hasNext) {
         this.setState({
@@ -148,9 +149,9 @@ this.setState({isLoading:true})
   }
   pre = async () => {
     const { key, keypagnation, token, min_id, hasPrevious } = this.state
-    this.setState({isLoading:true})
+    this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/app?min_id=${min_id}&size=10`,
@@ -158,12 +159,12 @@ this.setState({isLoading:true})
           Authorization: `Bearer ${token}`,
         },
       })
-  
+
       await this.setState({
         allApp: resp.data.apps.data,
         max_id: resp.data.apps.paging.cursors.max_id,
         min_id: resp.data.apps.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
       })
       if (!resp.data.apps.paging.hasPrevious) {
         this.setState({
@@ -197,11 +198,11 @@ this.setState({isLoading:true})
       stylePre,
       show,
       status,
-      isLoading,key
+      isLoading, key
     } = this.state
     return (
       <div>
-          <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
+        <Delete show={show} handleShow={this.handleShow} status={status} delete={() => this.delete(status)} />
         <div className="py-5 px-3  border rounded bg-light ">
           {/* <div className="d-flex mb-3 ">
             <label>البحث :</label>{' '}
@@ -212,8 +213,8 @@ this.setState({isLoading:true})
               onChange={this.handleChange}
             />
           </div> */}
-          
-        
+
+
           <h3 className="d-flex mb-4"> عرض التطبيقات</h3>
           <Table
             striped
@@ -232,38 +233,38 @@ this.setState({isLoading:true})
               </tr>
             </thead>
             <tbody className="trCatergory ">
-            {isLoading ? 
-              <tr>
-            
-              <td colspan="5" > <div className="d-flex justify-content-center uerSpiner ">
-            <SpinnerChart />
-          </div></td>
-             
+              {isLoading ?
+                <tr>
+
+                  <td colspan="5" > <div className="d-flex justify-content-center uerSpiner ">
+                    <SpinnerChart />
+                  </div></td>
+
                 </tr>
-             : allApp.map((item) => {
-               
-                return (
-                  <tr key={item._id} className="text-center">
-                    <td> {item.title}</td>
-                    <td> {item.points}</td>
-                    <td> {item.expireDate}</td>
-                    <td
-                      onClick={() => {
-                        this.redirect(item)
-                      }}
-                    >
-                      <i className="far fa-eye"></i>
-                    </td>
-                    <td
-                      onClick={() => {
-                        this.handleShow(item)
-                      }}
-                    >
-                      <i className="fas fa-trash-alt"></i>
-                    </td>
-                  </tr>
-                )
-              })}
+                : allApp.map((item) => {
+
+                  return (
+                    <tr key={item._id} className="text-center">
+                      <td> {item.title}</td>
+                      <td> {item.points}</td>
+                      <td> {item.expireDate}</td>
+                      <td
+                        onClick={() => {
+                          this.redirect(item)
+                        }}
+                      >
+                        <i className="far fa-eye"></i>
+                      </td>
+                      <td
+                        onClick={() => {
+                          this.handleShow(item)
+                        }}
+                      >
+                        <i className="fas fa-trash-alt"></i>
+                      </td>
+                    </tr>
+                  )
+                })}
             </tbody>
           </Table>
           <div className="d-flex justify-content-between px-5 pb-4 mt-3">
@@ -277,7 +278,7 @@ this.setState({isLoading:true})
             </button>
 
             <p className="text-nowrap px-2">
-            من{key} الي {keypagnation }{' '}
+              من{key} الي {keypagnation}{' '}
             </p>
             <button
               className="pgnationbtn "

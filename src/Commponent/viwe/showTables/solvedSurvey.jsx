@@ -32,7 +32,7 @@ class SolvedSurvey extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-      (resp.data)
+      // (resp.data)
       await this.setState({
         allSurvey: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -46,6 +46,7 @@ class SolvedSurvey extends Component {
         })
       }
     } catch (err) {
+      console.log(err)
       this.props.history.push(`/404`)
     }
   }
@@ -53,7 +54,7 @@ class SolvedSurvey extends Component {
     const { token, max_id, key, keypagnation } = this.state
     this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
+      await this.setState({ keypagnation: keypagnation + 10, key: key + 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/survey/solved?max_id=${max_id}&size=10`,
@@ -61,7 +62,7 @@ class SolvedSurvey extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
- 
+
       await this.setState({
         allSurvey: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -90,7 +91,7 @@ class SolvedSurvey extends Component {
     const { key, keypagnation, token, min_id } = this.state
     this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/survey/solved?min_id=${min_id}&size=10`,
@@ -98,7 +99,7 @@ class SolvedSurvey extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-   
+
       await this.setState({
         allSurvey: resp.data.data.data,
         max_id: resp.data.data.paging.cursors.max_id,
@@ -152,7 +153,7 @@ class SolvedSurvey extends Component {
             />
           
           </div> */}
-              <h3 className="d-flex mb-4"> عرض الاستبيانات المحلوله</h3>
+          <h3 className="d-flex mb-4"> عرض الاستبيانات المحلوله</h3>
           <Table
             striped
             hover
@@ -213,7 +214,7 @@ class SolvedSurvey extends Component {
             </button>
 
             <p className="text-nowrap px-2">
-            من{key} الي {keypagnation }{' '}
+              من{key} الي {keypagnation}{' '}
             </p>
             <button
               className="pgnationbtn "

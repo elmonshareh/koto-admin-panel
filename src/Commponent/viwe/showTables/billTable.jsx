@@ -18,14 +18,14 @@ class BillTables extends Component {
     styleNext: '',
     stylePre: '#6b18ff80',
     show: false,
-    status:"",
+    status: "",
     isLoading: false,
   }
 
   getBillApi = async () => {
-    this.setState({ isLoading:true})
+    this.setState({ isLoading: true })
     try {
-    
+
       const { token, key } = this.state
       const resp = await axios({
         method: 'get',
@@ -34,18 +34,19 @@ class BillTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
- 
+
       await this.setState({
         allBill: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
         min_id: resp.data.gifts.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
       })
       if (!resp.data.gifts.paging.hasNext) {
         this.setState({
           disablenext: true,
           styleNext: '#6b18ff80',
-        })}
+        })
+      }
     } catch (err) {
       this.props.history.push(`/404`)
     }
@@ -54,7 +55,7 @@ class BillTables extends Component {
     this.getBillApi()
   }
   redirect = (item) => {
- 
+
     this.props.history.push(`/admin/gift/billDetailes${item._id}`)
   }
   getFiltertion = async () => {
@@ -68,7 +69,7 @@ class BillTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-   
+
       filterData = resp.data.cards
       this.setState({ filterData: filterData })
 
@@ -90,9 +91,9 @@ class BillTables extends Component {
 
   next = async () => {
     const { token, max_id, key, keypagnation } = this.state
-    this.setState({ isLoading:true})
+    this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation + 10, key:key + 10 })
+      await this.setState({ keypagnation: keypagnation + 10, key: key + 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&max_id=${max_id}&size=10`,
@@ -105,7 +106,7 @@ class BillTables extends Component {
         allBill: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
         min_id: resp.data.gifts.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
       })
       if (!resp.data.gifts.paging.hasNext) {
         this.setState({
@@ -122,14 +123,14 @@ class BillTables extends Component {
         })
       }
     } catch (err) {
-       this.props.history.push(`/404`)
+      this.props.history.push(`/404`)
     }
   }
   pre = async () => {
     const { key, keypagnation, token, min_id, hasPrevious } = this.state
-    this.setState({ isLoading:true})
+    this.setState({ isLoading: true })
     try {
-      await this.setState({ keypagnation: keypagnation - 10, key: key - 10})
+      await this.setState({ keypagnation: keypagnation - 10, key: key - 10 })
       const resp = await axios({
         method: 'get',
         url: `https://koto2020.herokuapp.com/api/gift/all?type=BILL&min_id=${min_id}&size=10`,
@@ -137,12 +138,12 @@ class BillTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-    
+
       await this.setState({
         allBill: resp.data.gifts.data,
         max_id: resp.data.gifts.paging.cursors.max_id,
         min_id: resp.data.gifts.paging.cursors.min_id,
-        isLoading:false
+        isLoading: false
       })
       if (!resp.data.gifts.paging.hasPrevious) {
         this.setState({
@@ -159,12 +160,12 @@ class BillTables extends Component {
         })
       }
     } catch (err) {
-       this.props.history.push(`/404`)
+      this.props.history.push(`/404`)
     }
   }
-  delete= async (status) => {
+  delete = async (status) => {
     try {
-      const { token,show } = this.state
+      const { token, show } = this.state
       const resp = await axios({
         method: 'delete',
         url: `https://koto2020.herokuapp.com/api/gift/${status}`,
@@ -172,19 +173,19 @@ class BillTables extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-    
+
       this.setState((prevState) => ({
         allBill: prevState.allBill.filter((row) => row._id !== status),
       }))
-    this.setState({show:!show})
+      this.setState({ show: !show })
     } catch (err) {
-       this.props.history.push(`/404`)
+      this.props.history.push(`/404`)
     }
-  
+
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show ,status:item.title})
+    this.setState({ show: !show, status: item._id })
   }
   render() {
     const {
@@ -197,12 +198,12 @@ class BillTables extends Component {
       stylePre,
       show,
       status,
-      isLoading,key
+      isLoading, key
     } = this.state
 
     return (
       <div className="col-12 py-5 px-3 my-1 border rounded bg-light">
-        <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
+        <Delete show={show} handleShow={this.handleShow} status={status} delete={() => this.delete(status)} />
         {/* <div className="d-flex ">
           <label>البحث :</label>
           <input
@@ -212,7 +213,7 @@ class BillTables extends Component {
             onChange={this.handleChange}
           />
         </div> */}
-  <h3 className="d-flex mb-4"> عرض الفواتير </h3>
+        <h3 className="d-flex mb-4"> عرض الفواتير </h3>
         <Table
           striped
           hover
@@ -233,43 +234,43 @@ class BillTables extends Component {
             </tr>
           </thead>
           <tbody className="trCatergory text-center">
-          {isLoading ? 
+            {isLoading ?
               <tr>
-            
-              <td colspan="8" > <div className="d-flex justify-content-center uerSpiner ">
-            <SpinnerChart />
-          </div></td>
-             
-                </tr>
-             :
-            allBill.map((item) => {
-             
-              return (
-                <tr key={item._id}>
-                  <td>{item.title}</td>
-                  <td>{item.name}</td>
-                  <td>{item.points}</td>
-                  <td>{item.code}</td>
-                  <td>{item.value}</td>
-                  <td>{item.used.toString()}</td>
-                  {/* <td
+
+                <td colspan="8" > <div className="d-flex justify-content-center uerSpiner ">
+                  <SpinnerChart />
+                </div></td>
+
+              </tr>
+              :
+              allBill.map((item) => {
+
+                return (
+                  <tr key={item._id}>
+                    <td>{item.title}</td>
+                    <td>{item.name}</td>
+                    <td>{item.points}</td>
+                    <td>{item.code}</td>
+                    <td>{item.value}</td>
+                    <td>{item.used.toString()}</td>
+                    {/* <td
                     onClick={() => {
                       this.redirect(item)
                     }}
                   >
                     <i className="far fa-eye"></i>
                   </td> */}
-                  <td
-                    onClick={() => {
-                    
-                      this.handleShow(item)
-                    }}
-                  >
-                    <i className="fas fa-trash-alt"></i>
-                  </td>
-                </tr>
-              )
-            })}
+                    <td
+                      onClick={() => {
+
+                        this.handleShow(item)
+                      }}
+                    >
+                      <i className="fas fa-trash-alt"></i>
+                    </td>
+                  </tr>
+                )
+              })}
           </tbody>
         </Table>
         <div className="d-flex justify-content-between px-5 pb-4 mt-3">
@@ -283,7 +284,7 @@ class BillTables extends Component {
           </button>
 
           <p className="text-nowrap px-2">
-          من{key} الي {keypagnation}{' '}
+            من{key} الي {keypagnation}{' '}
           </p>
           <button
             className="pgnationbtn "

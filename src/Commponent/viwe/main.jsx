@@ -85,7 +85,7 @@ class Main extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-    
+
       await this.setState({
         allKoto: resp.data.data.countAllKotoVideos,
         allKotoWatche: resp.data.data.countWatchesKoto,
@@ -126,9 +126,9 @@ class Main extends Component {
         <div className="row">
 
           <div className="col-12  d-md-flex d-sm-block">
-        
+
             <div className="col-sm-12 col-md-6 col-lg-3">
-             
+
               <Cart
                 cart="pink cart"
                 cartIcon={<i className="fas fa-users"></i>}
@@ -178,7 +178,7 @@ class Main extends Component {
                 cart=" lightpurple cart"
                 cartIcon={<i className="fas fa-file-invoice"></i>}
                 cartIconStyle=" cartIcon bg-success bg-gradient"
-                title=" الفوتير المستخدمه   "
+                title=" الفواتير المستخدمه   "
                 SubTitle={allUsedBills}
               />
             </div>

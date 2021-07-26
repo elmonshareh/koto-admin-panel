@@ -10,10 +10,11 @@ class SpinnerTable extends Component {
     filter: '',
     token: localStorage.getItem('token'),
     show: false,
-    status:"", isLoading:false
+    status: "", isLoading: false
   }
+
   allValues = async () => {
-    this.setState({ isLoading:true})
+    this.setState({ isLoading: true })
     try {
       const { token, key } = this.state
       const resp = await axios({
@@ -23,11 +24,11 @@ class SpinnerTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-    
+
       await this.setState({
-       allValuse: resp.data.values,
-       isLoading:false
-       
+        allValuse: resp.data.values,
+        isLoading: false
+
       })
     } catch (err) {
       this.props.history.push(`/404`)
@@ -38,8 +39,9 @@ class SpinnerTable extends Component {
     this.props.history.push(`/admin/AddADS/App${item._id}`)
   }
   delete = async (status) => {
+    console.log({ status })
     try {
-      const { token,show } = this.state
+      const { token, show } = this.state
       const resp = await axios({
         method: 'delete',
         url: `https://koto2020.herokuapp.com/api//Spinner/${status}`,
@@ -48,9 +50,9 @@ class SpinnerTable extends Component {
         },
       })
       this.setState((prevState) => ({
-       allValuse: prevState.allValuse.filter((row) => row._id !== status),
+        allValuse: prevState.allValuse.filter((row) => row._id !== status),
       }))
-      this.setState({show:!show})
+      this.setState({ show: !show })
     } catch (err) {
       this.props.history.push(`/404`)
     }
@@ -66,11 +68,11 @@ class SpinnerTable extends Component {
           Authorization: `Bearer ${token}`,
         },
       })
-    
+
       filterData = resp.data.apps
       this.setState({ filterData: filterData })
-   
-      this.setState({allValuse: filterData })
+
+      this.setState({ allValuse: filterData })
     } catch (err) {
       this.props.history.push(`/404`)
     }
@@ -91,19 +93,20 @@ class SpinnerTable extends Component {
   }
   handleShow = (item) => {
     const { show } = this.state
-    this.setState({ show: !show ,status:item.value})
+    this.setState({ show: !show, status: item._id })
   }
   render() {
     const {
-     allValuse,
+      allValuse,
       filter,
       show,
-      status,isLoading
+      status,
+      isLoading
     } = this.state
     return (
       <div>
         <div className="py-5 px-3  border rounded bg-light ">
-        <Delete show={show} handleShow={this.handleShow} status={status} delete={()=>this.delete(status)}  />
+          <Delete show={show} handleShow={this.handleShow} status={status} delete={() => this.delete(status)} />
           {/* <div className="d-flex mb-3 ">
             <label>البحث :</label>{' '}
             <input
@@ -126,40 +129,40 @@ class SpinnerTable extends Component {
                 <th> كود</th>
                 <th>القيمه</th>
                 <th>الوان</th>
-             
+
                 <th> مسح </th>
               </tr>
             </thead>
             <tbody className="trCatergory ">
-            {isLoading ? 
-              <tr>
-            
-              <td colspan="4" > <div className="d-flex justify-content-center uerSpiner ">
-            <SpinnerChart />
-          </div></td>
-             
+              {isLoading ?
+                <tr>
+
+                  <td colspan="4" > <div className="d-flex justify-content-center uerSpiner ">
+                    <SpinnerChart />
+                  </div></td>
+
                 </tr>
-             :
-              allValuse.map((item) => {
-        
-                return (
-                  <tr key={item._id} className="text-center">
-                    <td> {item._id}</td>
-                    <td> {item.value}</td>
-                    <td> {item.color}</td>
-                    <td
-                      onClick={() => {
-                        this.handleShow(item)
-                      }}
-                    >
-                      <i className="fas fa-trash-alt"></i>
-                    </td>
-                  </tr>
-                )
-              })}
+                :
+                allValuse.map((item) => {
+
+                  return (
+                    <tr key={item._id} className="text-center">
+                      <td> {item._id}</td>
+                      <td> {item.value}</td>
+                      <td> {item.color}</td>
+                      <td
+                        onClick={() => {
+                          this.handleShow(item)
+                        }}
+                      >
+                        <i className="fas fa-trash-alt"></i>
+                      </td>
+                    </tr>
+                  )
+                })}
             </tbody>
           </Table>
-         
+
         </div>
       </div>
     )
